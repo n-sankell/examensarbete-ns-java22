@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  mysql:
+    container_name: mysql
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    image: tf-mysql:v1.2
+
+  react-app:
+    container_name: react-app
+    build:
+      dockerfile: Dockerfile
+      args:
+        - ADDRESS=127.0.0.1:51704
+    image: tf-react-app:color
+
+  spring-boot-app:
+    container_name: spring-boot-app
+    depends_on:
+      - mysql
+    build:
+      dockerfile: Dockerfile
+      context: ./spring-boot-app
+    image: tf-spring-boot-app:v2.8
