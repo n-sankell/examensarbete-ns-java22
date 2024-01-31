@@ -1,0 +1,16 @@
+spring:
+  main:
+    banner-mode: off
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_URL:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:mysql}
+    username: ${MYSQL_USER:user}
+    password: ${MYSQL_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: never
+
+allowed:
+  origin: ${ALLOWED_ORIGIN:http://localhost:3000}
