@@ -1,46 +1,49 @@
 openapi: 3.0.3
 info:
-  title: Food Rating API
+  title: Midi API
   version: 1.0.0
 
 paths:
-  /foods/all:
-    get:
-      summary: Get all foods
-      description: Returns a list of foods.
-      operationId: getFoods
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Foods'
-      tags:
-        - Foods
 
-  /foods/add:
+  /midi/create:
     post:
-      summary: Add a new food
-      description: Adds a food to the database.
-      operationId: addFood
+      summary: Create a new midi entry
+      description: "Create a new midi entry, with meta and binary data."
+      operationId: createMidi
       requestBody:
-        required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Food'
+              type: object
+              properties:
+                midiCreateData:
+                  $ref: "#/components/schemas/MidiCreateRequest"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Food'
+                $ref: '#/components/schemas/MidiWithData'
       tags:
-        - Foods
+        - Midi
 
-  /foods/{id}:
+  /midi/all:
+    get:
+      summary: Get all midis
+      description: "Returns a list of midis."
+      operationId: getMidis
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Midis'
+      tags:
+        - Midi
+
+  /midi/{id}:
     post:
       parameters:
         - name: id
@@ -49,24 +52,24 @@ paths:
           schema:
             type: string
             format: uuid
-      summary: Edit a food item
-      description: Edit a food item in the database.
-      operationId: editFood
+      summary: Edit a midi item
+      description: "Edit a midi item in the database."
+      operationId: editMidi
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Food'
+              $ref: '#/components/schemas/MidiWithData'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Food'
+                $ref: '#/components/schemas/MidiWithData'
       tags:
-        - Foods
+        - Midi
 
     delete:
       parameters:
@@ -76,10 +79,9 @@ paths:
           schema:
             type: string
             format: uuid
-      summary: Delete a food item
-      description: Deletes a food item from the database.
-      operationId: deleteFood
-
+      summary: Delete a midi item
+      description: "Deletes metadata and binary midi data from the database."
+      operationId: deleteMidi
       responses:
         '200':
           description: OK
@@ -88,7 +90,7 @@ paths:
               schema:
                 type: string
       tags:
-        - Foods
+        - Midi
 
     get:
       parameters:
@@ -98,75 +100,119 @@ paths:
           schema:
             type: string
             format: uuid
-      summary: Get a food by id
-      description: Gets a food item from the database by id.
-      operationId: getFood
-
+      summary: Get midi by blobId
+      description: "Get a midi with meta and binary data from the database by blobId."
+      operationId: getMidi
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Food'
+                $ref: '#/components/schemas/MidiWithData'
       tags:
-        - Foods
-
-  /greetings/all:
-    get:
-      summary: Get all messages
-      description: Returns a list of messages.
-      operationId: getGreetings
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Greetings'
-      tags:
-        - Greetings
+        - Midi
 
 components:
   schemas:
 
-    Food:
+    MidiCreateRequest:
       type: object
       properties:
-        id:
+        userId:
           type: string
           format: uuid
-          nullable: true
-        name:
+          description: "User ID associated with the MIDI"
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        filename:
           type: string
-          nullable: false
-        rating:
-          type: number
-          maximum: 10
-          minimum: 1
-          nullable: false
+          description: "Filename of the MIDI"
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+        title:
+          type: string
+          description: "Title of the MIDI"
+        midiFile:
+          type: string
+          description: "MIDI file in binary format (Base64)"
+      required:
+        - userId
+        - filename
+        - midiFile
 
-    Foods:
+    Midi:
       type: object
       properties:
-        foods:
+        midiId:
+          type: string
+          format: uuid
+          description: "Unique identifier for the MIDI"
+        blobRef:
+          type: string
+          format: uuid
+          description: "Reference to the blob"
+        userRef:
+          type: string
+          format: uuid
+          description: "Reference to the user"
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        filename:
+          type: string
+          description: "Filename of the MIDI"
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+        title:
+          type: string
+          description: "Title of the MIDI"
+        dateCreated:
+          type: string
+          format: date-time
+          description: "Timestamp of creation"
+        dateEdited:
+          type: string
+          format: date-time
+          description: "Timestamp of last edit"
+      required:
+        - midiId
+        - filename
+        - dateCreated
+        - dateEdited
+
+    BinaryData:
+      type: object
+      properties:
+        binaryId:
+          type: string
+          format: uuid
+          description: "UUID associated with the MIDI"
+        midiFile:
+          type: string
+          description: "MIDI file in binary format"
+      required:
+        - midiId
+        - midiFile
+
+    MidiWithData:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/Midi'
+        binary:
+          $ref: '#/components/schemas/BinaryData'
+
+    Midis:
+      type: object
+      properties:
+        midis:
           type: array
           items:
-            $ref: '#/components/schemas/Food'
-
-    Greeting:
-      type: object
-      properties:
-        message:
-          type: string
-
-    Greetings:
-      type: object
-      properties:
-        greetings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Greeting'
+            $ref: '#/components/schemas/Midi'
 
 servers:
   - url: http://{address}
