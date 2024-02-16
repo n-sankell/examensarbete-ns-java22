@@ -5,6 +5,6 @@ ENV POSTGRES_DB=midi_meta_db
 ENV POSTGRES_USER=midiuser
 ENV POSTGRES_PASSWORD=midipass
 
-COPY init.sql /docker-entrypoint-initdb.d/
+#COPY init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -91,8 +92,8 @@ public class MidiMetaRepository {
             .addValue("filename", midi.filename())
             .addValue("artist", midi.artist())
             .addValue("title", midi.title())
-            .addValue("created", midi.dateCreated())
-            .addValue("edited", midi.dateEdited());
+            .addValue("created", convertDate(midi.dateCreated()))
+            .addValue("edited", convertDate(midi.dateEdited()));
 
         var sql =
             """
@@ -122,7 +123,7 @@ public class MidiMetaRepository {
             .addValue("filename", midi.filename())
             .addValue("artist", midi.artist())
             .addValue("title", midi.title())
-            .addValue("edited", midi.dateEdited());
+            .addValue("edited", convertDate(midi.dateEdited()));
 
         var sql =
             """

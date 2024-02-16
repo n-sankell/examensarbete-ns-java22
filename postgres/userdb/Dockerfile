@@ -5,6 +5,6 @@ ENV PGDATABASE userdb
 ENV PGUSER useruser
 ENV PGPASSWORD userpass
 
-COPY init.sql /docker-entrypoint-initdb.d/
+#COPY init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5434

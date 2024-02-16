@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: db/changesets-blob/v1_blob_table.sql

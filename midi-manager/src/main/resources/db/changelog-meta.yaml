@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: db/changesets-meta/v1_midi_table.sql

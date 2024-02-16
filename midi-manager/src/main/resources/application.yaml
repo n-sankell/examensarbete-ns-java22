@@ -2,6 +2,12 @@ spring:
   main:
     banner-mode: off
 
+  liquibase:
+    enabled: true
+    drop-first: false
+    change-log: classpath:db/changelog-master.yaml
+    default-schema: public
+
   datasource:
     meta:
       driverClassName: org.postgresql.Driver

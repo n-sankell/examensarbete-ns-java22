@@ -6,12 +6,12 @@ import com.example.springbootapp.model.Blob;
 import com.example.springbootapp.model.Midi;
 import com.example.springbootapp.model.MidiAndBlob;
 import com.example.springbootapp.repository.MidiMetaRepository;
-import com.example.springbootapp.util.MidiUtil;
 import com.example.springbootapp.util.MidiValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,20 +29,12 @@ public class MidiService {
 
     @Transactional
     public List<Midi> getMidis() {
-        var result = midiMetaRepository.getMidiMeta();
-        if (result.isEmpty()) {
-            throw new RuntimeException("Error, not found");
-        }
-        return result;
+        return midiMetaRepository.getMidiMeta();
     }
 
     @Transactional
     public List<Midi> getPublicMidis() {
-        var result = midiMetaRepository.getPublicMidiMeta();
-        if (result.isEmpty()) {
-            throw new RuntimeException("Error, not found");
-        }
-        return result;
+        return midiMetaRepository.getPublicMidiMeta();
     }
 
     @Transactional
@@ -87,7 +79,7 @@ public class MidiService {
     }
 
     @Transactional
-    public void updateMidi(UUID midiId, MidiAndBlob midiAndBlob) {
+    public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob) {
         var existingMidi = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(RuntimeException::new);
 
@@ -100,6 +92,7 @@ public class MidiService {
 
         blobService.updateBlob(midiAndBlob.blob());
         midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
+        return midiAndBlob;
     }
 
     @Transactional

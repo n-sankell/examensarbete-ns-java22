@@ -68,7 +68,8 @@ public class MidiController implements MidiApi {
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidi(UUID id, MidiWithDataDto midiWithDataDto) {
-        return null;
+        var editData = buildEditData(midiWithDataDto);
+        return ok(convert(midiService.updateMidi(id, editData)));
     }
 
     @Override
@@ -98,6 +99,26 @@ public class MidiController implements MidiApi {
             new Blob(
                 blobId,
                 convert(createData.getMidiFile()))
+        );
+    }
+
+    private MidiAndBlob buildEditData(MidiWithDataDto editData) {
+        var blobId = UUID.randomUUID();
+        return new MidiAndBlob(
+            new Midi(
+                editData.getMeta().getMidiId(),
+                editData.getMeta().getBlobRef(),
+                editData.getMeta().getUserRef(),
+                editData.getMeta().getIsPrivate(),
+                editData.getMeta().getFilename(),
+                editData.getMeta().getArtist(),
+                editData.getMeta().getTitle(),
+                editData.getMeta().getDateCreated().toZonedDateTime(),
+                ZonedDateTime.now()
+            ),
+            new Blob(
+                editData.getBinary().getBinaryId(),
+                convert(editData.getBinary().getMidiFile()))
         );
     }
 

@@ -5,6 +5,6 @@ ENV POSTGRES_DB=midi_blob_db
 ENV POSTGRES_USER=blobuser
 ENV POSTGRES_PASSWORD=blobpass
 
-COPY init.sql /docker-entrypoint-initdb.d/
+#COPY init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
