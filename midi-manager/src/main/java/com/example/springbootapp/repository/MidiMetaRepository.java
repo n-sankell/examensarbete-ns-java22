@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -166,8 +168,8 @@ public class MidiMetaRepository {
         var filename = rs.getString("filename");
         var artist = rs.getString("artist");
         var title = rs.getString("title");
-        var dateCreated = rs.getString("date_created");
-        var dateEdited = rs.getString("date_edited");
+        var dateCreated = rs.getTimestamp("date_created");
+        var dateEdited = rs.getTimestamp("date_edited");
 
         return new Midi(id, blobRef, userRef, isPrivate, filename, artist, title,
             convertDate(dateCreated), convertDate(dateEdited));

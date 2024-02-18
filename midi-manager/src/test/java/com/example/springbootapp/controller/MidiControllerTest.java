@@ -3,7 +3,6 @@ package com.example.springbootapp.controller;
 import com.example.springbootapp.config.MidiConstants;
 import com.example.springbootapp.config.MidiManagerTestEnvironment;
 import generatedapi.model.MidiCreateRequestDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -39,7 +38,7 @@ public class MidiControllerTest {
     }
 
     @Test
-    void getMidi() {
+    void getMidiById() {
         var createdMidi = midiController.createMidi(tetrisCreateRequest.get());
         var midiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
         var blobId = requireNonNull(createdMidi.getBody()).getBinary().getBinaryId();

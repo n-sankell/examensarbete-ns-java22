@@ -53,7 +53,7 @@ public class MidiService {
         midiMetaRepository.saveMidiMeta(midiAndBlob.metaData());
         blobService.saveBlob(midiAndBlob.blob());
 
-        return midiAndBlob;
+        return getMidiAndBlobById(midiAndBlob.metaData().midiId());
     }
 
     @Transactional

@@ -4,3 +4,16 @@ spring:
 
   liquibase:
     enabled: false
+
+  datasource:
+    meta:
+      url: jdbc:h2:mem:meta-test
+      username: test
+      password: test
+      driverClassName: org.h2.Driver
+    blob:
+      url: jdbc:h2:mem:blob-test
+      username: test
+      password: test
+      driverClassName: org.h2.Driver
+
