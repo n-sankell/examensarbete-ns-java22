@@ -28,11 +28,33 @@ paths:
       tags:
         - Midi
 
-  /midi/all:
+  /midi/public:
     get:
-      summary: Get all midis
-      description: "Returns a list of midis."
-      operationId: getMidis
+      summary: Get all public midis
+      description: "Returns a list of public midis."
+      operationId: getPublicMidis
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Midis'
+      tags:
+        - Midi
+
+  /midi/user/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get all midis from a user
+      description: "Returns a list of midis that belongs to the provided userId"
+      operationId: getUserMidis
       responses:
         '200':
           description: OK
@@ -60,7 +82,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MidiWithData'
+              $ref: '#/components/schemas/MidiEditRequest'
       responses:
         '200':
           description: OK
@@ -113,6 +135,62 @@ paths:
       tags:
         - Midi
 
+  /midi/meta/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Edit midi metadata
+      description: "Edit the metadata for a midi entry."
+      operationId: editMidiMeta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiEditMetaRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+      tags:
+        - Midi
+
+  /midi/binary/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Edit midi binary data
+      description: "Edit the binary data for a midi."
+      operationId: editMidiBinary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiEditBinaryRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+      tags:
+        - Midi
+
 components:
   schemas:
 
@@ -142,6 +220,44 @@ components:
         - userId
         - filename
         - midiFile
+
+    MidiEditRequest:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MidiEditMetaRequest'
+        binaryData:
+          $ref: '#/components/schemas/MidiEditBinaryRequest'
+      required:
+        - metadata
+        - binaryData
+
+    MidiEditBinaryRequest:
+      type: object
+      properties:
+        midiFile:
+          type: string
+          description: "MIDI file in binary format (Base64)"
+      required:
+        - filename
+
+    MidiEditMetaRequest:
+      type: object
+      properties:
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        filename:
+          type: string
+          description: "Filename of the MIDI"
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+        title:
+          type: string
+          description: "Title of the MIDI"
+      required:
+        - filename
 
     Midi:
       type: object
