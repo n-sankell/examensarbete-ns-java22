@@ -2,6 +2,7 @@ package com.example.midimanager.service;
 
 import com.example.midimanager.exception.NotFoundException;
 import com.example.midimanager.exception.ValidationException;
+import com.example.midimanager.model.Blob;
 import com.example.midimanager.model.Midi;
 import com.example.midimanager.model.MidiAndBlob;
 import com.example.midimanager.repository.MidiMetaRepository;
@@ -66,7 +67,6 @@ public class MidiService {
     public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob) {
         // TODO: Add check if the current user owns the file,
         //  only the owner will be allowed to edit files, even public ones
-        //  Add check if meta or blob data is present
         var existingMidi = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(NotFoundException::new);
 
@@ -74,15 +74,16 @@ public class MidiService {
         blobService.getBlobById(blobRef)
             .orElseThrow(NotFoundException::new);
 
-        if (!midiAndBlob.blob().blobId().equals(blobRef) || !midiAndBlob.metaData().blobRef().equals(blobRef)) {
-            throw new ValidationException("Error, blob reference inconsistency");
+        if (midiAndBlob.blob() != null) {
+            MidiValidator.validate(midiAndBlob.blob().midiData());
+            var editData = new Blob(blobRef, midiAndBlob.blob().midiData());
+
+            blobService.updateBlob(editData);
         }
-
-        MidiValidator.validate(midiAndBlob.blob().midiData());
-
-        blobService.updateBlob(midiAndBlob.blob());
-        midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
-        return midiAndBlob;
+        if (midiAndBlob.metaData() != null) {
+            midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
+        }
+        return getMidiAndBlobById(midiId);
     }
 
     @Transactional

@@ -50,19 +50,19 @@ public class MidiController implements MidiApi {
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidi(UUID id, MidiEditRequestDto editDataDto) {
-        var editData = buildEditData(editDataDto);
+        var editData = buildEditData(editDataDto, id);
         return ok(convert(midiService.updateMidi(id, editData)));
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiBinary(UUID id, MidiEditBinaryRequestDto editDataDto) {
-        var editData = buildEditData(editDataDto);
+        var editData = buildEditData(editDataDto, id);
         return ok(convert(midiService.updateMidi(id, editData)));
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiMeta(UUID id, MidiEditMetaRequestDto editDataDto) {
-        var editData = buildEditData(editDataDto);
+        var editData = buildEditData(editDataDto, id);
         return ok(convert(midiService.updateMidi(id, editData)));
     }
 

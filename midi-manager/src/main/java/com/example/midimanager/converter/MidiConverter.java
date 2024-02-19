@@ -111,30 +111,30 @@ public class MidiConverter {
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditRequestDto editData) {
+    public static MidiAndBlob buildEditData(MidiEditRequestDto editData, UUID id) {
         return new MidiAndBlob(
-            buildMetaData(editData.getMetadata()),
+            buildMetaData(editData.getMetadata(), id),
             buildBlobData(editData.getBinaryData())
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditMetaRequestDto editData) {
+    public static MidiAndBlob buildEditData(MidiEditMetaRequestDto editData, UUID id) {
         return new MidiAndBlob(
-            buildMetaData(editData),
+            buildMetaData(editData, id),
             null
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditBinaryRequestDto editData) {
+    public static MidiAndBlob buildEditData(MidiEditBinaryRequestDto editData, UUID ignored) {
         return new MidiAndBlob(
             null,
             buildBlobData(editData)
         );
     }
 
-    public static Midi buildMetaData(MidiEditMetaRequestDto editData) {
+    public static Midi buildMetaData(MidiEditMetaRequestDto editData, UUID id) {
         return new Midi(
-            null,
+            id,
             null,
             null,
             editData.getIsPrivate(),

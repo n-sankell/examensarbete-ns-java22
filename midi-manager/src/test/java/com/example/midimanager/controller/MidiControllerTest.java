@@ -2,7 +2,11 @@ package com.example.midimanager.controller;
 
 import com.example.midimanager.config.MidiConstants;
 import com.example.midimanager.config.MidiManagerTestEnvironment;
+import com.example.midimanager.constants.Constants;
 import generatedapi.model.MidiCreateRequestDto;
+import generatedapi.model.MidiEditBinaryRequestDto;
+import generatedapi.model.MidiEditMetaRequestDto;
+import generatedapi.model.MidiEditRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -96,6 +100,64 @@ public class MidiControllerTest {
         // TODO: alter this test when auth gets implemented
         var theMidi = responseBody.getMidis().getFirst();
         assertEquals(ownerId, theMidi.getUserRef());
+    }
+
+    @Test
+    void editMidiMetaAndBinary() {
+        // Create a midi with a specific user id and get the midiId.
+        var ownerId = UUID.randomUUID();
+        var createRequest = tetrisCreatePrivateRequest
+            .get()
+            .userId(ownerId);
+        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
+        var midiId = responseBody.getMeta().getMidiId();
+
+        // Edit the midi by midiId
+        var editRequest = new MidiEditRequestDto()
+            .binaryData(new MidiEditBinaryRequestDto().midiFile(Constants.GymnopedieNo1))
+            .metadata(new MidiEditMetaRequestDto()
+                .artist("Satie")
+                .title("Gymnopedie No 1")
+                .filename("gymnopedieno1.mid")
+                .isPrivate(false));
+        var editResponse = midiController.editMidi(midiId, editRequest);
+        System.out.println(editResponse);
+    }
+
+    @Test
+    void editMidiBinary() {
+        // Create a midi with a specific user id and get the midiId.
+        var ownerId = UUID.randomUUID();
+        var createRequest = tetrisCreatePrivateRequest
+            .get()
+            .userId(ownerId);
+        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
+        var midiId = responseBody.getMeta().getMidiId();
+
+        // Edit the midi binary by midiId
+        var editRequest = new MidiEditBinaryRequestDto().midiFile(Constants.GymnopedieNo1);
+        var editResponse = midiController.editMidiBinary(midiId, editRequest);
+        System.out.println(editResponse);
+    }
+
+    @Test
+    void editMidiMeta() {
+        // Create a midi with a specific user id and get the midiId.
+        var ownerId = UUID.randomUUID();
+        var createRequest = tetrisCreatePrivateRequest
+            .get()
+            .userId(ownerId);
+        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
+        var midiId = responseBody.getMeta().getMidiId();
+
+        // Edit the midi metadata by midiId
+        var editRequest = new MidiEditMetaRequestDto()
+            .artist("Satie")
+            .title("Gymnopedie No 1")
+            .filename("gymnopedieno1.mid")
+            .isPrivate(false);
+        var editResponse = midiController.editMidiMeta(midiId, editRequest);
+        System.out.println(editResponse);
     }
 
     @Test
