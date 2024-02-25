@@ -330,6 +330,33 @@ components:
           items:
             $ref: '#/components/schemas/Midi'
 
+    EmptyResponse:
+      type: object
+      properties: { }
+
+  responses:
+    NotFound:
+      description: The specified resource was not found
+    Unauthorized:
+      description: Unauthorized
+    Forbidden:
+      description: Forbidden (jwt was valid, but user was not found)
+    Conflict:
+      description: Conflict e.g. data violates a constraint such as unique email addresses
+    BadRequest:
+      description: Bad Request - an issue with request data
+    InternalServerError:
+      description: Internal Server Error - a generic 'something bad' that we couldn't recover from happened
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
 servers:
   - url: http://{address}
     variables:

@@ -17,3 +17,6 @@ spring:
       password: test
       driverClassName: org.h2.Driver
 
+app:
+  jwtSecret: testKeyToBeUsedWhenTestingTheApplicationForGeneratingMockTokenThatGetsVerifiedWhenTryingToAccessSpecificResources
+  jwtExpirationMs: 86400000

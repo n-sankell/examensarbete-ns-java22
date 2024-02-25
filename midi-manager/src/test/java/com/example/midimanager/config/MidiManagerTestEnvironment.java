@@ -1,5 +1,6 @@
 package com.example.midimanager.config;
 
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -15,6 +16,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @TestDatabase()
+@AutoConfigureMockMvc
 @ContextConfiguration(classes = TestConfiguration.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 public @interface MidiManagerTestEnvironment {

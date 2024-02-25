@@ -1,26 +1,43 @@
 package com.example.midimanager.controller;
 
-import com.example.midimanager.config.MidiConstants;
 import com.example.midimanager.config.MidiManagerTestEnvironment;
-import com.example.midimanager.constants.Constants;
+import com.example.midimanager.testdata.MockTokenGenerator;
+import com.example.midimanager.testdata.MockUser;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
+import generatedapi.model.MidisDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static com.example.midimanager.secirity.Constants.TOKEN_PREFIX;
+import static com.example.midimanager.testdata.Base64Midi.GYMNOPEDIE;
+import static com.example.midimanager.testdata.Base64Midi.TETRIS;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MidiManagerTestEnvironment
 public class MidiControllerTest {
 
+    @LocalServerPort
+    private int port;
+
     @Autowired
     private MidiController midiController;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private MockTokenGenerator mockTokenGenerator;
 
     @Test
     void createMidi() {
@@ -78,7 +95,7 @@ public class MidiControllerTest {
         assertEquals(blobId, responseBinaryId);
         assertEquals(midiId, responseMetaId);
         assertEquals(responseBlobRef, responseBinaryId);
-        assertEquals(responseBlob, MidiConstants.tetrisBase64);
+        assertEquals(responseBlob, TETRIS);
     }
 
     @Test
@@ -114,7 +131,7 @@ public class MidiControllerTest {
 
         // Edit the midi by midiId
         var editRequest = new MidiEditRequestDto()
-            .binaryData(new MidiEditBinaryRequestDto().midiFile(Constants.GymnopedieNo1))
+            .binaryData(new MidiEditBinaryRequestDto().midiFile(GYMNOPEDIE))
             .metadata(new MidiEditMetaRequestDto()
                 .artist("Satie")
                 .title("Gymnopedie No 1")
@@ -135,7 +152,7 @@ public class MidiControllerTest {
         var midiId = responseBody.getMeta().getMidiId();
 
         // Edit the midi binary by midiId
-        var editRequest = new MidiEditBinaryRequestDto().midiFile(Constants.GymnopedieNo1);
+        var editRequest = new MidiEditBinaryRequestDto().midiFile(GYMNOPEDIE);
         var editResponse = midiController.editMidiBinary(midiId, editRequest);
         System.out.println(editResponse);
     }
@@ -179,6 +196,23 @@ public class MidiControllerTest {
         assertEquals(1, secondGetBody.getMidis().size());
     }
 
+    @Test
+    void testAutToken() throws Exception {
+        var mockUser = new MockUser(UUID.randomUUID(), "Username");
+        var token = mockTokenGenerator.generateTokenForUser(mockUser);
+        var createRequest = tetrisCreatePrivateRequest
+            .get()
+            .userId(mockUser.userId());
+        midiController.createMidi(createRequest);
+
+        mockMvc.perform(
+            MockMvcRequestBuilders
+                .get("/midi/user/" + mockUser.userId())
+                .header(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
     private final Supplier<MidiCreateRequestDto> tetrisCreateRequest = () ->
         new MidiCreateRequestDto()
             .userId(UUID.randomUUID())
@@ -186,7 +220,7 @@ public class MidiControllerTest {
             .filename("tetris-type-a.mid")
             .artist("Hirokazu Tanaka")
             .title("Type A")
-            .midiFile(MidiConstants.tetrisBase64);
+            .midiFile(TETRIS);
 
     private final Supplier<MidiCreateRequestDto> tetrisCreatePrivateRequest = () ->
         new MidiCreateRequestDto()
@@ -195,7 +229,7 @@ public class MidiControllerTest {
             .filename("tetris-type-a.mid")
             .artist("Hirokazu Tanaka")
             .title("Type A")
-            .midiFile(MidiConstants.tetrisBase64);
+            .midiFile(TETRIS);
 
     private final Supplier<MidiCreateRequestDto> anotherCreateRequest = () ->
         new MidiCreateRequestDto()
@@ -204,6 +238,6 @@ public class MidiControllerTest {
             .filename("moog-madness.mid")
             .artist("Gnesta Stefan")
             .title("Ylande Katt")
-            .midiFile(MidiConstants.tetrisBase64);
+            .midiFile(TETRIS);
 
 }

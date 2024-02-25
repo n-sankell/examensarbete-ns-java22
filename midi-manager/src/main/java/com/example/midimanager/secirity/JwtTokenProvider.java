@@ -1,0 +1,41 @@
+package com.example.midimanager.secirity;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.util.UUID;
+
+@Component
+public class JwtTokenProvider {
+
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
+
+    public Claims extractClaims(String token) {
+        var key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+
+        return Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    }
+
+    public UUID extractUserId(String token) {
+        var claims = extractClaims(token);
+        return UUID.fromString(claims.get("userId", String.class));
+    }
+
+    public boolean validateToken(String token) {
+        var key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

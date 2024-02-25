@@ -8,8 +8,11 @@ import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import generatedapi.model.MidiWithDataDto;
 import generatedapi.model.MidisDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;

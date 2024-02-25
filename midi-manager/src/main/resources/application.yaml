@@ -26,3 +26,7 @@ spring:
 
 allowed:
   origin: ${ALLOWED_ORIGIN:http://localhost:3000}
+
+app:
+  jwtSecret: ${JWT_SECRET}
+  jwtExpirationMs: ${JWT_EXP:86400000}
