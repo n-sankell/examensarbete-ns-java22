@@ -3,22 +3,27 @@ package com.example.midimanager.controller;
 import com.example.midimanager.config.MidiManagerTestEnvironment;
 import com.example.midimanager.testdata.MockTokenGenerator;
 import com.example.midimanager.testdata.MockUser;
+import com.example.midimanager.testdata.TokenType;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
-import generatedapi.model.MidisDto;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.example.midimanager.secirity.Constants.TOKEN_PREFIX;
 import static com.example.midimanager.testdata.Base64Midi.GYMNOPEDIE;
@@ -196,10 +201,24 @@ public class MidiControllerTest {
         assertEquals(1, secondGetBody.getMidis().size());
     }
 
-    @Test
-    void testAutToken() throws Exception {
-        var mockUser = new MockUser(UUID.randomUUID(), "Username");
-        var token = mockTokenGenerator.generateTokenForUser(mockUser);
+    private static Stream<Arguments> tokenTypeAndStatusCode() {
+        return Stream.of(
+            Arguments.of(TokenType.VALID, MockMvcResultMatchers.status().isOk()),
+            Arguments.of(TokenType.EXPIRED, MockMvcResultMatchers.status().isUnauthorized()),
+            Arguments.of(TokenType.INVALID, MockMvcResultMatchers.status().isUnauthorized())
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCode")
+    void testAutToken(TokenType tokenType, ResultMatcher status) throws Exception {
+        var mockUser = new MockUser(UUID.randomUUID(), "User");
+        var token = switch (tokenType) {
+            case VALID -> mockTokenGenerator.generateTokenForUser(mockUser);
+            case EXPIRED -> mockTokenGenerator.generateExpiredToken(mockUser);
+            case INVALID -> mockTokenGenerator.generateInvalidToken(mockUser);
+        };
+
         var createRequest = tetrisCreatePrivateRequest
             .get()
             .userId(mockUser.userId());
@@ -210,7 +229,7 @@ public class MidiControllerTest {
                 .get("/midi/user/" + mockUser.userId())
                 .header(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token)
             )
-            .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(status);
     }
 
     private final Supplier<MidiCreateRequestDto> tetrisCreateRequest = () ->

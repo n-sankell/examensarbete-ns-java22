@@ -13,7 +13,6 @@ import java.util.Date;
 @Component
 public class MockTokenGenerator {
     private final String jwtSecret;
-
     private final long jwtExpirationMs;
 
     public MockTokenGenerator(
