@@ -1,5 +1,7 @@
 package com.example.midimanager.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,13 @@ import javax.sql.DataSource;
 
 @org.springframework.boot.test.context.TestConfiguration
 public class TestConfiguration {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+    }
 
     @Bean
     @Qualifier("blobPostgreSQLContainer")

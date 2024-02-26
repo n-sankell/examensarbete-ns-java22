@@ -1,5 +1,7 @@
 package com.example.midimanager.controller;
 
+import com.example.midimanager.secirity.CurrentUser;
+import com.example.midimanager.secirity.CurrentUserSupplier;
 import com.example.midimanager.service.MidiService;
 import generatedapi.MidiApi;
 import generatedapi.model.MidiCreateRequestDto;
@@ -8,11 +10,8 @@ import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import generatedapi.model.MidiWithDataDto;
 import generatedapi.model.MidisDto;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -24,10 +23,12 @@ import static org.springframework.http.ResponseEntity.ok;
 public class MidiController implements MidiApi {
 
     private final MidiService midiService;
+    private final CurrentUserSupplier currentUserSupplier;
 
     @Autowired
-    public MidiController(MidiService midiService) {
+    public MidiController(MidiService midiService, CurrentUserSupplier currentUserSupplier) {
         this.midiService = midiService;
+        this.currentUserSupplier = currentUserSupplier;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class MidiController implements MidiApi {
 
     @Override
     public ResponseEntity<MidisDto> getUserMidis(UUID id) {
-        return ok(convert(midiService.getMidisByUserId(id)));
+        return ok(convert(midiService.getMidisByUserId(id, getCurrentUser())));
     }
 
     @Override
@@ -73,6 +74,10 @@ public class MidiController implements MidiApi {
     public ResponseEntity<String> deleteMidi(UUID id) {
         midiService.deleteMidi(id);
         return ok("Deleted");
+    }
+
+    private CurrentUser getCurrentUser() {
+        return currentUserSupplier.getCurrentUser();
     }
 
 }

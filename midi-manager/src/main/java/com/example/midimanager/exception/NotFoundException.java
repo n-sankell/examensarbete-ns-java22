@@ -1,16 +1,17 @@
 package com.example.midimanager.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 
 public class NotFoundException extends HttpClientErrorException {
 
     public NotFoundException() {
-        super(HttpStatusCode.valueOf(404), "Not found");
+        super(HttpStatus.NOT_FOUND, "Not found");
     }
 
     public NotFoundException(String statusText) {
-        super(HttpStatusCode.valueOf(404), statusText);
+        super(HttpStatus.NOT_FOUND, statusText);
     }
 
 }

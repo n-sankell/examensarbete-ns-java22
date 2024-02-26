@@ -25,6 +25,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -40,6 +46,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Midis'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -62,6 +74,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Midis'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -90,6 +108,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -111,6 +135,12 @@ paths:
             application/json:
               schema:
                 type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -132,6 +162,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -160,6 +196,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 
@@ -188,6 +230,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Midi
 

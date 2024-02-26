@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static com.example.midimanager.secirity.Constants.TOKEN_ID_CLAIM;
 import static com.example.midimanager.secirity.Constants.TOKEN_PREFIX;
 
 @Component
@@ -39,7 +40,7 @@ public class JwtTokenInterceptor extends OncePerRequestFilter {
             if (jwtTokenProvider.validateToken(token)) {
                 var claims = jwtTokenProvider.extractClaims(token);
                 var subject = claims.getSubject();
-                var id = new SimpleGrantedAuthority(claims.get("userId", String.class));
+                var id = new SimpleGrantedAuthority(claims.get(TOKEN_ID_CLAIM, String.class));
 
                 var authToken = new UsernamePasswordAuthenticationToken(subject, null, List.of(id));
 

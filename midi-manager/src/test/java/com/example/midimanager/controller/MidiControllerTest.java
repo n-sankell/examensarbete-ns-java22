@@ -4,10 +4,12 @@ import com.example.midimanager.config.MidiManagerTestEnvironment;
 import com.example.midimanager.testdata.MockTokenGenerator;
 import com.example.midimanager.testdata.MockUser;
 import com.example.midimanager.testdata.TokenType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
+import generatedapi.model.MidisDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -15,7 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -43,6 +44,8 @@ public class MidiControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private MockTokenGenerator mockTokenGenerator;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void createMidi() {
@@ -205,7 +208,8 @@ public class MidiControllerTest {
         return Stream.of(
             Arguments.of(TokenType.VALID, MockMvcResultMatchers.status().isOk()),
             Arguments.of(TokenType.EXPIRED, MockMvcResultMatchers.status().isUnauthorized()),
-            Arguments.of(TokenType.INVALID, MockMvcResultMatchers.status().isUnauthorized())
+            Arguments.of(TokenType.INVALID, MockMvcResultMatchers.status().isUnauthorized()),
+            Arguments.of(TokenType.OTHER_USER, MockMvcResultMatchers.status().isForbidden())
         );
     }
 
@@ -217,6 +221,7 @@ public class MidiControllerTest {
             case VALID -> mockTokenGenerator.generateTokenForUser(mockUser);
             case EXPIRED -> mockTokenGenerator.generateExpiredToken(mockUser);
             case INVALID -> mockTokenGenerator.generateInvalidToken(mockUser);
+            case OTHER_USER -> mockTokenGenerator.generateTokenForUser(new MockUser(UUID.randomUUID(), "Other user"));
         };
 
         var createRequest = tetrisCreatePrivateRequest
@@ -224,12 +229,20 @@ public class MidiControllerTest {
             .userId(mockUser.userId());
         midiController.createMidi(createRequest);
 
-        mockMvc.perform(
+        var result = mockMvc.perform(
             MockMvcRequestBuilders
                 .get("/midi/user/" + mockUser.userId())
                 .header(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token)
             )
-            .andExpect(status);
+            .andExpect(status)
+            .andReturn();
+
+        if (tokenType == TokenType.VALID) {
+            var body = objectMapper.readValue(result.getResponse().getContentAsString(), MidisDto.class);
+            var firstMidi = body.getMidis().getFirst();
+            assertEquals(1, body.getMidis().size());
+            assertEquals(mockUser.userId(), firstMidi.getUserRef());
+        }
     }
 
     private final Supplier<MidiCreateRequestDto> tetrisCreateRequest = () ->

@@ -6,8 +6,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 public class JwtTokenProvider {
 
@@ -22,11 +20,6 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-    }
-
-    public UUID extractUserId(String token) {
-        var claims = extractClaims(token);
-        return UUID.fromString(claims.get("userId", String.class));
     }
 
     public boolean validateToken(String token) {

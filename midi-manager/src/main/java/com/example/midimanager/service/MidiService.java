@@ -1,11 +1,12 @@
 package com.example.midimanager.service;
 
 import com.example.midimanager.exception.NotFoundException;
-import com.example.midimanager.exception.ValidationException;
+import com.example.midimanager.exception.ForbiddenException;
 import com.example.midimanager.model.Blob;
 import com.example.midimanager.model.Midi;
 import com.example.midimanager.model.MidiAndBlob;
 import com.example.midimanager.repository.MidiMetaRepository;
+import com.example.midimanager.secirity.CurrentUser;
 import com.example.midimanager.util.MidiValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,10 +35,12 @@ public class MidiService {
         return midiMetaRepository.getPublicMidiMeta();
     }
 
-    public List<Midi> getMidisByUserId(UUID userId) {
+    public List<Midi> getMidisByUserId(UUID userId, CurrentUser currentUser) {
         // TODO: Add check that the current user is the same as the owner of the midis
-
-        return midiMetaRepository.getMidiMetaByUserId(userId);
+        if (userId.equals(currentUser.userId())) {
+            return midiMetaRepository.getMidiMetaByUserId(userId);
+        }
+        throw new ForbiddenException("The requested files does not belong to the current user.");
     }
 
     public MidiAndBlob getMidiAndBlobById(UUID midiId) {
