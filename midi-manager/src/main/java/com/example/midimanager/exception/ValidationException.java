@@ -1,7 +1,6 @@
 package com.example.midimanager.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 
 public class ValidationException extends HttpClientErrorException {

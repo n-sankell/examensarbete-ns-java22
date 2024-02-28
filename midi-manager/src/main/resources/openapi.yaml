@@ -5,19 +5,17 @@ info:
 
 paths:
 
-  /midi/create:
+  /midis/create:
     post:
       summary: Create a new midi entry
       description: "Create a new midi entry, with meta and binary data."
       operationId: createMidi
       requestBody:
+        required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                midiCreateData:
-                  $ref: "#/components/schemas/MidiCreateRequest"
+              $ref: '#/components/schemas/MidiCreateRequest'
       responses:
         '200':
           description: OK
@@ -34,7 +32,7 @@ paths:
       tags:
         - Midi
 
-  /midi/public:
+  /midis/public:
     get:
       summary: Get all public midis
       description: "Returns a list of public midis."
@@ -55,7 +53,7 @@ paths:
       tags:
         - Midi
 
-  /midi/user/{id}:
+  /midis/user/{id}:
     get:
       parameters:
         - name: id
@@ -83,7 +81,7 @@ paths:
       tags:
         - Midi
 
-  /midi/{id}:
+  /midis/midi/{id}:
     post:
       parameters:
         - name: id
@@ -171,7 +169,7 @@ paths:
       tags:
         - Midi
 
-  /midi/meta/{id}:
+  /midis/meta/{id}:
     post:
       parameters:
         - name: id
@@ -205,7 +203,7 @@ paths:
       tags:
         - Midi
 
-  /midi/binary/{id}:
+  /midis/binary/{id}:
     post:
       parameters:
         - name: id

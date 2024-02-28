@@ -2,6 +2,10 @@ package com.example.midimanager.secirity;
 
 import java.util.UUID;
 
-public record CurrentUser(UUID userId) {
+public record CurrentUser(UUID userId, UserAuthentication userAuthentication) {
+
+    public boolean isAuthenticated() {
+        return userAuthentication == UserAuthentication.AUTHENTICATED;
+    }
 
 }

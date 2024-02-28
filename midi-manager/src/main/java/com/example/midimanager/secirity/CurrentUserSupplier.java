@@ -11,9 +11,16 @@ public class CurrentUserSupplier {
 
     public CurrentUser getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new CurrentUser(null, UserAuthentication.UNAUTHENTICATED);
+        }
         var userId = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList().getFirst();
 
-        return new CurrentUser(UUID.fromString(userId));
+        if (userId.equals("ROLE_ANONYMOUS")) {
+            return new CurrentUser(null, UserAuthentication.UNAUTHENTICATED);
+        }
+
+        return new CurrentUser(UUID.fromString(userId), UserAuthentication.AUTHENTICATED);
     }
 
 }

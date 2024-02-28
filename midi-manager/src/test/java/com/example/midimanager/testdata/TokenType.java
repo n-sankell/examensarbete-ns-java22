@@ -5,6 +5,7 @@ public enum TokenType {
     VALID,
     EXPIRED,
     INVALID,
-    OTHER_USER
+    OTHER_USER,
+    NULL
 
 }

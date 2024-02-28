@@ -36,38 +36,43 @@ public class MidiService {
     }
 
     public List<Midi> getMidisByUserId(UUID userId, CurrentUser currentUser) {
-        // TODO: Add check that the current user is the same as the owner of the midis
+        // TODO: even public midis does not show because the user has to be authenticated to call the endpoint
         if (userId.equals(currentUser.userId())) {
             return midiMetaRepository.getMidiMetaByUserId(userId);
         }
         throw new ForbiddenException("The requested files does not belong to the current user.");
     }
 
-    public MidiAndBlob getMidiAndBlobById(UUID midiId) {
-        // TODO: add check if the file is private and compare to current user id
+    public MidiAndBlob getMidiAndBlobById(UUID midiId, CurrentUser currentUser) {
+        // TODO: check returns forbidden even if the user is unauthenticated
+        //  because getMIdiById endpoint is accepting all connections
         var midiMeta = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(NotFoundException::new);
-        var blobRef = midiMeta.blobRef();
-        var blob = blobService.getBlobById(blobRef)
-            .orElseThrow(NotFoundException::new);
-        return new MidiAndBlob(
-            midiMeta,
-            blob
-        );
+        var userRef = midiMeta.userRef();
+        if (!midiMeta.isPrivate() || hasPrivateAccess(currentUser, userRef)) {
+            var blobRef = midiMeta.blobRef();
+            var blob = blobService.getBlobById(blobRef)
+                .orElseThrow(NotFoundException::new);
+            return new MidiAndBlob(
+                midiMeta,
+                blob
+            );
+        }
+        throw new ForbiddenException("User does not have access to this midi");
     }
 
     @Transactional
-    public MidiAndBlob createMidi(MidiAndBlob midiAndBlob) {
+    public MidiAndBlob createMidi(MidiAndBlob midiAndBlob, CurrentUser currentUser) {
         MidiValidator.validate(midiAndBlob.blob().midiData());
 
         midiMetaRepository.saveMidiMeta(midiAndBlob.metaData());
         blobService.saveBlob(midiAndBlob.blob());
 
-        return getMidiAndBlobById(midiAndBlob.metaData().midiId());
+        return getMidiAndBlobById(midiAndBlob.metaData().midiId(), currentUser);
     }
 
     @Transactional
-    public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob) {
+    public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob, CurrentUser currentUser) {
         // TODO: Add check if the current user owns the file,
         //  only the owner will be allowed to edit files, even public ones
         var existingMidi = midiMetaRepository.getMidiMetaById(midiId)
@@ -86,11 +91,11 @@ public class MidiService {
         if (midiAndBlob.metaData() != null) {
             midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
         }
-        return getMidiAndBlobById(midiId);
+        return getMidiAndBlobById(midiId, currentUser);
     }
 
     @Transactional
-    public void deleteMidi(UUID deleteId) {
+    public void deleteMidi(UUID deleteId, CurrentUser currentUser) {
         var existingMidi = midiMetaRepository.getMidiMetaById(deleteId)
             .orElseThrow(NotFoundException::new);
 
@@ -104,6 +109,10 @@ public class MidiService {
         if (midiMetaRepository.getMidiMetaById(deleteId).isPresent()) {
             logger.warn("Warning: Midi meta data is still present");
         }
+    }
+
+    private boolean hasPrivateAccess(CurrentUser currentUser, UUID midiUserRef) {
+        return currentUser.isAuthenticated() && currentUser.userId().equals(midiUserRef);
     }
 
     private Logger getLogger() {

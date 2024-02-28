@@ -3,6 +3,7 @@ package com.example.midimanager.secirity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,12 +30,19 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
 
             .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers("/").permitAll()
-                .requestMatchers("/midi/public").permitAll()
-                .requestMatchers("/midi/create").authenticated()
-                .requestMatchers("/midi/user/*").authenticated()
-                .anyRequest().authenticated()).httpBasic(Customizer.withDefaults())
 
+                .requestMatchers(HttpMethod.GET, "/midis/public").permitAll()
+                .requestMatchers(HttpMethod.GET, "/midis/midi/*").permitAll()
+
+                .requestMatchers(HttpMethod.POST, "/midis/midi/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/midis/midi/*").authenticated()
+
+                .requestMatchers(HttpMethod.POST, "/midis/create").authenticated()
+                .requestMatchers(HttpMethod.GET, "/midis/user/*").authenticated()
+
+                .anyRequest().authenticated())
+
+            .httpBasic(Customizer.withDefaults())
             .addFilterBefore(jwtTokenInterceptor, UsernamePasswordAuthenticationFilter.class)
             .headers(headersConfig -> headersConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 

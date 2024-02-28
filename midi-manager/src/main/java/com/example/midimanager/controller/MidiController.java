@@ -3,7 +3,7 @@ package com.example.midimanager.controller;
 import com.example.midimanager.secirity.CurrentUser;
 import com.example.midimanager.secirity.CurrentUserSupplier;
 import com.example.midimanager.service.MidiService;
-import generatedapi.MidiApi;
+import generatedapi.MidisApi;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
@@ -20,7 +20,7 @@ import static com.example.midimanager.converter.MidiConverter.*;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-public class MidiController implements MidiApi {
+public class MidiController implements MidisApi {
 
     private final MidiService midiService;
     private final CurrentUserSupplier currentUserSupplier;
@@ -38,7 +38,7 @@ public class MidiController implements MidiApi {
 
     @Override
     public ResponseEntity<MidiWithDataDto> getMidi(UUID id) {
-        return ok(convert(midiService.getMidiAndBlobById(id)));
+        return ok(convert(midiService.getMidiAndBlobById(id, getCurrentUser())));
     }
 
     @Override
@@ -48,31 +48,32 @@ public class MidiController implements MidiApi {
 
     @Override
     public ResponseEntity<MidiWithDataDto> createMidi(MidiCreateRequestDto midiCreateData) {
-        var midiAndData = buildCreateData(midiCreateData);
-        return ok(convert(midiService.createMidi(midiAndData)));
+        var currentUser = getCurrentUser();
+        var midiAndData = buildCreateData(midiCreateData, currentUser.userId());
+        return ok(convert(midiService.createMidi(midiAndData, currentUser)));
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidi(UUID id, MidiEditRequestDto editDataDto) {
         var editData = buildEditData(editDataDto, id);
-        return ok(convert(midiService.updateMidi(id, editData)));
+        return ok(convert(midiService.updateMidi(id, editData, getCurrentUser())));
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiBinary(UUID id, MidiEditBinaryRequestDto editDataDto) {
         var editData = buildEditData(editDataDto, id);
-        return ok(convert(midiService.updateMidi(id, editData)));
+        return ok(convert(midiService.updateMidi(id, editData, getCurrentUser())));
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiMeta(UUID id, MidiEditMetaRequestDto editDataDto) {
         var editData = buildEditData(editDataDto, id);
-        return ok(convert(midiService.updateMidi(id, editData)));
+        return ok(convert(midiService.updateMidi(id, editData, getCurrentUser())));
     }
 
     @Override
     public ResponseEntity<String> deleteMidi(UUID id) {
-        midiService.deleteMidi(id);
+        midiService.deleteMidi(id, getCurrentUser());
         return ok("Deleted");
     }
 

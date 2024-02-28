@@ -91,13 +91,13 @@ public class MidiConverter {
         return new Blob(blobId, bytes);
     }
 
-    public static MidiAndBlob buildCreateData(MidiCreateRequestDto createData) {
+    public static MidiAndBlob buildCreateData(MidiCreateRequestDto createData, UUID userId) {
         var blobId = UUID.randomUUID();
         return new MidiAndBlob(
             new Midi(
                 UUID.randomUUID(),
                 blobId,
-                createData.getUserId(),
+                userId,
                 createData.getIsPrivate(),
                 createData.getFilename(),
                 createData.getArtist(),
