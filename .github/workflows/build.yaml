@@ -1,4 +1,4 @@
-name: Build Test Deploy on PR
+name: Build And Test On PR
 
 on:
   [pull_request]
@@ -34,6 +34,8 @@ jobs:
 
     - name: Make Gradle Executable
       run: chmod +x ./midi-manager/gradlew
+      working-directory: midi-manager
 
     - name: Run Tests
-      run: ./midi-manager/gradlew test
+      run: ./gradlew test
+      working-directory: midi-manager
