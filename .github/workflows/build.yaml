@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Make Gradle Executable
-      run: chmod +x ./midi-manager/gradlew
+      run: chmod +x ./gradlew
       working-directory: midi-manager
 
     - name: Run Tests
