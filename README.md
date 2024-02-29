@@ -1,2 +1,2 @@
-# teknikfordjupning-ns-java22
-Teknikfordjupning k8s example project
+# examensarbete-ns-java22
+Examensarbete Niklas Sankell - Java22

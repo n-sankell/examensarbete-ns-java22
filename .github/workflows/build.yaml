@@ -1,4 +1,4 @@
-name: Build Test Deploy on PR
+name: Build And Test On PR
 
 on:
   [pull_request]
@@ -24,16 +24,22 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Cache Gradle dependencies
+    - name: Cache Midi-Manager Gradle dependencies
       uses: actions/cache@v3
       with:
-        path: ~/.gradle/caches
+        path: ~./midi-manager/gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Make Gradle Executable
+    - name: Make Midi-Manager Gradle Executable
       run: chmod +x ./gradlew
+      working-directory: midi-manager
 
-    - name: Run Tests
+    - name: Generate Midi-Manager OpenAPI Sources
+      run: ./gradlew openApiGenerate
+      working-directory: midi-manager
+
+    - name: Run Midi-Manager Tests
       run: ./gradlew test
+      working-directory: midi-manager
