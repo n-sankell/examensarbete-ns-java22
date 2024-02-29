@@ -32,10 +32,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Make Gradle Executable
+    - name: Make Midi-Manager Gradle Executable
       run: chmod +x ./gradlew
       working-directory: midi-manager
 
-    - name: Run Tests
+    - name: Generate Midi-Manager OpenAPI Sources
+      run: ./gradlew generateOpenApi
+      working-directory: midi-manager
+
+    - name: Run Midi-Manager Tests
       run: ./gradlew test
       working-directory: midi-manager
