@@ -9,17 +9,13 @@ import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
-import generatedapi.model.MidiWithDataDto;
-import generatedapi.model.MidisDto;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -32,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @MidiManagerTestEnvironment
 public class MidiControllerTest {
 
-    @Autowired
-    private MidiController midiController;
     @Autowired
     private MockApi mockApi;
     @Autowired
@@ -50,7 +44,7 @@ public class MidiControllerTest {
         var createRequestDto = tetrisCreatePublicRequest.get()
             .artist(artist);
 
-        var response = mockApi.makePostRequest("/midis/create", token, createRequestDto, MidiWithDataDto.class);
+        var response = mockApi.createMidi(token, createRequestDto);
         assertEquals(status, response.status());
 
         if (tokenType == TokenType.VALID) {
@@ -65,78 +59,39 @@ public class MidiControllerTest {
         }
     }
 
-    @Test
-    void getPublicMidis() {
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForGetPublicMidi")
+    void getPublicMidis(TokenType tokenType, HttpStatus status) throws Exception {
+        var token = getTokenByType(tokenType);
+
         // First response will be empty
-        var firstResponse = midiController.getPublicMidis();
-        var firstBody = requireNonNull(firstResponse.getBody());
+        var firstResponse = mockApi.getPublicMidis(token);
+        var firstBody = requireNonNull(firstResponse.body());
+
+        assertEquals(status, firstResponse.status());
         assertEquals(0, firstBody.getMidis().size());
 
-        // Create two public midi entries
-        midiController.createMidi(tetrisCreatePublicRequest.get());
-        midiController.createMidi(anotherCreatePublicRequest.get());
-        // Create one private entry
-        midiController.createMidi(tetrisCreatePrivateRequest.get());
+        // Create two public midi entries and one private
+        mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        mockApi.createMidi(validToken, anotherCreatePublicRequest.get());
+        mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
 
         // Second response will contain two entries
-        var secondResponse = midiController.getPublicMidis();
-        var secondBody = requireNonNull(secondResponse.getBody());
+        var secondResponse = mockApi.getPublicMidis(token);
+        var secondBody = requireNonNull(secondResponse.body());
+
+        assertEquals(status, secondResponse.status());
         assertEquals(2, secondBody.getMidis().size());
     }
 
-    @Test
-    void getPublicMidiById() {
-        // Create a midi and retrieve the id and id of the blob
-        var createdMidi = midiController.createMidi(tetrisCreatePublicRequest.get());
-        var midiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
-        var blobId = requireNonNull(createdMidi.getBody()).getBinary().getBinaryId();
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
+    void editMidiMetaAndBinary(TokenType tokenType, HttpStatus status) throws Exception {
+        var token = getTokenByType(tokenType);
 
-        // Get the midi by id
-        var getResponse = midiController.getMidi(midiId);
-        var responseBody = requireNonNull(getResponse.getBody());
-
-        // Check if metadata and binary data is correct
-        var responseBinaryId = responseBody.getBinary().getBinaryId();
-        var responseMetaId = responseBody.getMeta().getMidiId();
-        var responseBlobRef = responseBody.getMeta().getBlobRef();
-        var responseBlob = responseBody.getBinary().getMidiFile();
-
-        assertEquals(blobId, responseBinaryId);
-        assertEquals(midiId, responseMetaId);
-        assertEquals(responseBlobRef, responseBinaryId);
-        assertEquals(responseBlob, TETRIS);
-    }
-
-    @Test
-    void getMidiByUserId() {
-        // Create two midis, one with a specific user id.
-        var ownerId = UUID.randomUUID();
-        var createRequest = tetrisCreatePrivateRequest
-            .get()
-            .userId(ownerId);
-        midiController.createMidi(createRequest);
-        midiController.createMidi(anotherCreatePublicRequest.get());
-
-        // Get the midi by userId and check size
-        var getResponse = midiController.getUserMidis(ownerId);
-        var responseBody = requireNonNull(getResponse.getBody());
-        assertEquals(1, responseBody.getMidis().size());
-
-        // Check that the file has the correct user id
-        // TODO: alter this test when auth gets implemented
-        var theMidi = responseBody.getMidis().getFirst();
-        assertEquals(ownerId, theMidi.getUserRef());
-    }
-
-    @Test
-    void editMidiMetaAndBinary() {
-        // Create a midi with a specific user id and get the midiId.
-        var ownerId = UUID.randomUUID();
-        var createRequest = tetrisCreatePrivateRequest
-            .get()
-            .userId(ownerId);
-        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
-        var midiId = responseBody.getMeta().getMidiId();
+        // Create a midi and get the midiId.
+        var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        var midiId = createResponse.body().getMeta().getMidiId();
 
         // Edit the midi by midiId
         var editRequest = new MidiEditRequestDto()
@@ -146,35 +101,55 @@ public class MidiControllerTest {
                 .title("Gymnopedie No 1")
                 .filename("gymnopedieno1.mid")
                 .isPrivate(false));
-        var editResponse = midiController.editMidi(midiId, editRequest);
-        System.out.println(editResponse);
+        var editResponse = mockApi.editMidi(midiId, token, editRequest);
+
+        // When status is OK assert that changes hav been made otherwise the midi should be unchanged
+        assertEquals(status, editResponse.status());
+
+        if (status == HttpStatus.OK) {
+            assertEquals("Satie", editResponse.body().getMeta().getArtist());
+            assertEquals(GYMNOPEDIE, editResponse.body().getBinary().getMidiFile());
+        } else {
+            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
+            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+        }
     }
 
-    @Test
-    void editMidiBinary() {
-        // Create a midi with a specific user id and get the midiId.
-        var ownerId = UUID.randomUUID();
-        var createRequest = tetrisCreatePrivateRequest
-            .get()
-            .userId(ownerId);
-        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
-        var midiId = responseBody.getMeta().getMidiId();
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
+    void editMidiBinary(TokenType tokenType, HttpStatus status) throws Exception {
+        var token = getTokenByType(tokenType);
+
+        // Create a midi with a valid token and get the midiId.
+        var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        var midiId = createResponse.body().getMeta().getMidiId();
 
         // Edit the midi binary by midiId
         var editRequest = new MidiEditBinaryRequestDto().midiFile(GYMNOPEDIE);
-        var editResponse = midiController.editMidiBinary(midiId, editRequest);
-        System.out.println(editResponse);
+        var editResponse = mockApi.editMidiBinary(midiId, token, editRequest);
+
+        // When status is OK assert that changes hav been made otherwise the midi should be unchanged
+        assertEquals(status, editResponse.status());
+
+        if (status == HttpStatus.OK) {
+            assertEquals("Hirokazu Tanaka", editResponse.body().getMeta().getArtist());
+            assertEquals(GYMNOPEDIE, editResponse.body().getBinary().getMidiFile());
+        } else {
+            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
+            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+        }
     }
 
-    @Test
-    void editMidiMeta() {
-        // Create a midi with a specific user id and get the midiId.
-        var ownerId = UUID.randomUUID();
-        var createRequest = tetrisCreatePrivateRequest
-            .get()
-            .userId(ownerId);
-        var responseBody = requireNonNull(midiController.createMidi(createRequest).getBody());
-        var midiId = responseBody.getMeta().getMidiId();
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
+    void editMidiMeta(TokenType tokenType, HttpStatus status) throws Exception {
+        var token = getTokenByType(tokenType);
+
+        // Create a midi with a valid token and get the midiId.
+        var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        var midiId = createResponse.body().getMeta().getMidiId();
 
         // Edit the midi metadata by midiId
         var editRequest = new MidiEditMetaRequestDto()
@@ -182,57 +157,93 @@ public class MidiControllerTest {
             .title("Gymnopedie No 1")
             .filename("gymnopedieno1.mid")
             .isPrivate(false);
-        var editResponse = midiController.editMidiMeta(midiId, editRequest);
-        System.out.println(editResponse);
-    }
+        var editResponse = mockApi.editMidiMeta(midiId, token, editRequest);
 
-    @Test
-    void deleteMidi() {
-        // Create two midi entries and retrieve one of the ids
-        midiController.createMidi(tetrisCreatePublicRequest.get());
-        var toBeDeleted = midiController.createMidi(anotherCreatePublicRequest.get());
-        var deletedId = requireNonNull(toBeDeleted.getBody()).getMeta().getMidiId();
+        // When status is OK assert that changes hav been made otherwise the midi should be unchanged
+        assertEquals(status, editResponse.status());
 
-        // Check that there is two entries in the database
-        var firstGetResponse = midiController.getPublicMidis();
-        var firstGetBody = requireNonNull(firstGetResponse.getBody());
-        assertEquals(2, firstGetBody.getMidis().size());
-
-        // Delete the file and check that there is only one entry left
-        midiController.deleteMidi(deletedId);
-        var secondGetResponse = midiController.getPublicMidis();
-        var secondGetBody = requireNonNull(secondGetResponse.getBody());
-        assertEquals(1, secondGetBody.getMidis().size());
+        if (status == HttpStatus.OK) {
+            assertEquals("Satie", editResponse.body().getMeta().getArtist());
+            assertEquals(TETRIS, editResponse.body().getBinary().getMidiFile());
+        } else {
+            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
+            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+        }
     }
 
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForPublicMidi")
-    void getPublicMidiById2(TokenType tokenType, HttpStatus status) throws Exception {
+    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
+    void deleteMidi(TokenType tokenType, HttpStatus status) throws Exception {
+        // Generate tokens with different access
+        var token = getTokenByType(tokenType);
+
+        // Create two midis with a valid token, get the id of the one to delete
+        mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        var toBeDeleted = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
+        var deletedId = toBeDeleted.body().getMeta().getMidiId();
+
+        // Check that there is two entries in the database
+        var firstResponse = mockApi.getUserMidis(mockUser.userId(), validToken);
+        assertEquals(2, firstResponse.body().getMidis().size());
+
+        // Try to delete the file and check status code
+        var deleteResponse = mockApi.deleteMidi(deletedId, token);
+        var secondResponse = mockApi.getUserMidis(mockUser.userId(), validToken);
+
+        // When status is OK assert that other second response size has decreased else as before
+        assertEquals(status, deleteResponse.status());
+        if (status == HttpStatus.OK) {
+            assertEquals(1, secondResponse.body().getMidis().size());
+            assertEquals("Deleted", deleteResponse.body());
+        } else {
+            assertEquals(2, secondResponse.body().getMidis().size());
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForGetPublicMidi")
+    void getPublicMidiById(TokenType tokenType, HttpStatus status) throws Exception {
         // generate tokens with different access
         var token = getTokenByType(tokenType);
+
         // create a public midi with a valid token and get the midiId
-        var createdMidi = mockApi.makePostRequest("/midis/create", validToken, tetrisCreatePublicRequest.get(), MidiWithDataDto.class);
-        var midiId = createdMidi.body().getMeta().getMidiId();
+        var createdMidi = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        var createResponseMidiId = createdMidi.body().getMeta().getMidiId();
+        var createResponseBlobId = createdMidi.body().getBinary().getBinaryId();
+
         // create a get request for the created public midi
-        var response = mockApi.makeGetRequest("/midis/midi/" + midiId, token, MidiWithDataDto.class);
+        var response = mockApi.getMidiBiId(createResponseMidiId, token);
+
+        // extract midi and blob from the response
         var midi = response.body().getMeta();
+        var blob = response.body().getBinary();
+
         // assert that the request return OK and that the userRef is equal to the valid userId
         assertEquals(status, response.status());
         assertEquals(mockUser.userId(), midi.getUserRef());
+        assertEquals(createResponseMidiId, midi.getMidiId());
+        assertEquals(createResponseBlobId, midi.getBlobRef());
+        assertEquals(createResponseBlobId, blob.getBinaryId());
+        assertEquals(TETRIS, blob.getMidiFile());
     }
 
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForPrivateMidi")
-    void getPrivateMidiById2(TokenType tokenType, HttpStatus status) throws Exception {
+    @MethodSource("tokenTypeAndStatusCodeForGetPrivateMidi")
+    void getPrivateMidiById(TokenType tokenType, HttpStatus status) throws Exception {
         // generate tokens with different access
         var token = getTokenByType(tokenType);
+
         // create a private midi with a valid token and get the midiId
-        var createdMidi = mockApi.makePostRequest("/midis/create", validToken, tetrisCreatePrivateRequest.get(), MidiWithDataDto.class);
+        var createdMidi = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
         var midiId = createdMidi.body().getMeta().getMidiId();
+
         // create a get request for the created private midi with different tokens
-        var response = mockApi.makeGetRequest("/midis/midi/" + midiId, token, MidiWithDataDto.class);
+        var response = mockApi.getMidiBiId(midiId, token);
+
         // assert status code matches the expected code
         assertEquals(status, response.status());
+
         // when status is OK assert that other response values matches the expected values
         if (status == HttpStatus.OK) {
             var midi = response.body().getMeta();
@@ -246,10 +257,10 @@ public class MidiControllerTest {
         // generate tokens with different access
         var token = getTokenByType(tokenType);
         // create two midis with a valid token
-        mockApi.makePostRequest("/midis/create", validToken, tetrisCreatePublicRequest.get(), MidiWithDataDto.class);
-        mockApi.makePostRequest("/midis/create", validToken, tetrisCreatePrivateRequest.get(), MidiWithDataDto.class);
+        mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
+        mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
         // create a get request for the midis from the valid user
-        var response = mockApi.makeGetRequest("/midis/user/" + mockUser.userId(), token, MidisDto.class);
+        var response = mockApi.getUserMidis(mockUser.userId(), token);
         // assert status code matches the expected code
         assertEquals(status, response.status());
         // when status is OK assert that other response values matches the expected values
@@ -266,7 +277,7 @@ public class MidiControllerTest {
         validToken = mockTokenGenerator.generateTokenForUser(mockUser);
     }
 
-    private static Stream<Arguments> tokenTypeAndStatusCodeForPublicMidi() {
+    private static Stream<Arguments> tokenTypeAndStatusCodeForGetPublicMidi() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
             Arguments.of(TokenType.EXPIRED, HttpStatus.OK),
@@ -276,7 +287,7 @@ public class MidiControllerTest {
         );
     }
 
-    private static Stream<Arguments> tokenTypeAndStatusCodeForPrivateMidi() {
+    private static Stream<Arguments> tokenTypeAndStatusCodeForGetPrivateMidi() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
             Arguments.of(TokenType.EXPIRED, HttpStatus.FORBIDDEN),

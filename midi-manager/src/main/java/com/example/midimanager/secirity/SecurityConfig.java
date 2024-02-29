@@ -34,11 +34,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/midis/public").permitAll()
                 .requestMatchers(HttpMethod.GET, "/midis/midi/*").permitAll()
 
-                .requestMatchers(HttpMethod.POST, "/midis/midi/*").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/midis/midi/*").authenticated()
-
-                .requestMatchers(HttpMethod.POST, "/midis/create").authenticated()
                 .requestMatchers(HttpMethod.GET, "/midis/user/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/midis/create").authenticated()
+
+                .requestMatchers(HttpMethod.POST, "/midis/midi/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/midis/meta/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/midis/binary/*").authenticated()
+
+                .requestMatchers(HttpMethod.DELETE, "/midis/midi/*").authenticated()
 
                 .anyRequest().authenticated())
 

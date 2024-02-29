@@ -72,7 +72,7 @@ public class MidiController implements MidisApi {
     }
 
     @Override
-    public ResponseEntity<String> deleteMidi(UUID id) {
+    public ResponseEntity<Object> deleteMidi(UUID id) {
         midiService.deleteMidi(id, getCurrentUser());
         return ok("Deleted");
     }

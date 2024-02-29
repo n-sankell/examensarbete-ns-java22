@@ -49,7 +49,7 @@ public class MidiService {
         var midiMeta = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(NotFoundException::new);
         var userRef = midiMeta.userRef();
-        if (!midiMeta.isPrivate() || hasPrivateAccess(currentUser, userRef)) {
+        if (!midiMeta.isPrivate() || hasPrivateReadAccess(currentUser, userRef)) {
             var blobRef = midiMeta.blobRef();
             var blob = blobService.getBlobById(blobRef)
                 .orElseThrow(NotFoundException::new);
@@ -73,45 +73,59 @@ public class MidiService {
 
     @Transactional
     public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob, CurrentUser currentUser) {
-        // TODO: Add check if the current user owns the file,
-        //  only the owner will be allowed to edit files, even public ones
         var existingMidi = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(NotFoundException::new);
+        var userRef = existingMidi.userRef();
 
-        var blobRef = existingMidi.blobRef();
-        blobService.getBlobById(blobRef)
-            .orElseThrow(NotFoundException::new);
+        if (hasEditAccess(currentUser, userRef)) {
+            var blobRef = existingMidi.blobRef();
+            blobService.getBlobById(blobRef)
+                .orElseThrow(NotFoundException::new);
 
-        if (midiAndBlob.blob() != null) {
-            MidiValidator.validate(midiAndBlob.blob().midiData());
-            var editData = new Blob(blobRef, midiAndBlob.blob().midiData());
+            if (midiAndBlob.blob() != null) {
+                MidiValidator.validate(midiAndBlob.blob().midiData());
+                var editData = new Blob(blobRef, midiAndBlob.blob().midiData());
 
-            blobService.updateBlob(editData);
+                blobService.updateBlob(editData);
+            }
+            if (midiAndBlob.metaData() != null) {
+                midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
+            }
+            return getMidiAndBlobById(midiId, currentUser);
+        } else {
+            logger.warn("Warning: User " + currentUser.userId() + " tried to edit a file without permission");
+            throw new ForbiddenException("The current user has no edit rights to this file");
         }
-        if (midiAndBlob.metaData() != null) {
-            midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
-        }
-        return getMidiAndBlobById(midiId, currentUser);
     }
 
     @Transactional
     public void deleteMidi(UUID deleteId, CurrentUser currentUser) {
         var existingMidi = midiMetaRepository.getMidiMetaById(deleteId)
             .orElseThrow(NotFoundException::new);
+        var userRef = existingMidi.userRef();
 
-        blobService.deleteBlob(existingMidi.blobRef());
-        midiMetaRepository.deleteMidiMetaById(deleteId);
+        if (hasEditAccess(currentUser, userRef)) {
+            blobService.deleteBlob(existingMidi.blobRef());
+            midiMetaRepository.deleteMidiMetaById(deleteId);
 
-        // TODO: Handle this accordingly
-        if (blobService.getBlobById(existingMidi.blobRef()).isPresent()) {
-            logger.warn("Warning: Blob file is still present");
-        }
-        if (midiMetaRepository.getMidiMetaById(deleteId).isPresent()) {
-            logger.warn("Warning: Midi meta data is still present");
+            // TODO: Handle this accordingly
+            if (blobService.getBlobById(existingMidi.blobRef()).isPresent()) {
+                logger.warn("Warning: Blob file is still present");
+            }
+            if (midiMetaRepository.getMidiMetaById(deleteId).isPresent()) {
+                logger.warn("Warning: Midi meta data is still present");
+            }
+        } else {
+            logger.warn("Warning: User " + currentUser.userId() + " tried to delete a file without permission");
+            throw new ForbiddenException("The current user has no right to delete this file");
         }
     }
 
-    private boolean hasPrivateAccess(CurrentUser currentUser, UUID midiUserRef) {
+    private boolean hasPrivateReadAccess(CurrentUser currentUser, UUID midiUserRef) {
+        return currentUser.isAuthenticated() && currentUser.userId().equals(midiUserRef);
+    }
+
+    private boolean hasEditAccess(CurrentUser currentUser, UUID midiUserRef) {
         return currentUser.isAuthenticated() && currentUser.userId().equals(midiUserRef);
     }
 
