@@ -37,7 +37,7 @@ jobs:
       working-directory: midi-manager
 
     - name: Generate Midi-Manager OpenAPI Sources
-      run: ./gradlew generateOpenApi
+      run: ./gradlew openApiGenerate
       working-directory: midi-manager
 
     - name: Run Midi-Manager Tests
