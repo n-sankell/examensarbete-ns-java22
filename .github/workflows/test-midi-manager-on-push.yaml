@@ -1,0 +1,47 @@
+name: Build And Test Midi Manager On Push
+
+on:
+  push:
+    paths:
+      - midi-manager/**
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
+jobs:
+  build-test-check-coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Cache Midi-Manager Gradle dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~./midi-manager/gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Make Midi-Manager Gradle Executable
+      run: chmod +x ./gradlew
+      working-directory: midi-manager
+
+    - name: Generate Midi-Manager OpenAPI Sources
+      run: ./gradlew openApiGenerate
+      working-directory: midi-manager
+
+    - name: Run Midi-Manager Tests
+      run: ./gradlew test
+      working-directory: midi-manager
