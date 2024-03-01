@@ -17,6 +17,7 @@ public class DatabaseSetupExtension implements Extension, BeforeEachCallback, Af
 
     @Override
     public void beforeEach(ExtensionContext context) {
+        //TODO: perhaps find a better solution instead of static DataSourceRegistry
         try {
             applyLiquibaseMigrations(
                 DataSourceRegistry.blobDataSource, "db/changelog-blob.yaml");
@@ -38,12 +39,13 @@ public class DatabaseSetupExtension implements Extension, BeforeEachCallback, Af
             database.setDefaultSchemaName("public");
             var liquibase = new Liquibase(changelogFile, new ClassLoaderResourceAccessor(), database);
             liquibase.update("");
+            //TODO: find solution for this deprecated method, providing a Writer prevented liquibase from
+            //  writing to the database
         }
     }
 
-
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         try {
             clearLiquibaseMigrations(
                 DataSourceRegistry.blobDataSource, "db/changelog-blob.yaml");

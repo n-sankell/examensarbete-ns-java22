@@ -45,10 +45,10 @@ public class MidiControllerTest {
             .artist(artist);
 
         var response = mockApi.createMidi(token, createRequestDto);
-        assertEquals(status, response.status());
+        assertEquals(status, response.getStatusCode());
 
         if (tokenType == TokenType.VALID) {
-            var body = requireNonNull(response.body());
+            var body = requireNonNull(response.getBody());
             var blobId = body.getMeta().getBlobRef();
             var userId = body.getMeta().getUserRef();
 
@@ -66,9 +66,9 @@ public class MidiControllerTest {
 
         // First response will be empty
         var firstResponse = mockApi.getPublicMidis(token);
-        var firstBody = requireNonNull(firstResponse.body());
+        var firstBody = requireNonNull(firstResponse.getBody());
 
-        assertEquals(status, firstResponse.status());
+        assertEquals(status, firstResponse.getStatusCode());
         assertEquals(0, firstBody.getMidis().size());
 
         // Create two public midi entries and one private
@@ -78,9 +78,9 @@ public class MidiControllerTest {
 
         // Second response will contain two entries
         var secondResponse = mockApi.getPublicMidis(token);
-        var secondBody = requireNonNull(secondResponse.body());
+        var secondBody = requireNonNull(secondResponse.getBody());
 
-        assertEquals(status, secondResponse.status());
+        assertEquals(status, secondResponse.getStatusCode());
         assertEquals(2, secondBody.getMidis().size());
     }
 
@@ -91,7 +91,7 @@ public class MidiControllerTest {
 
         // Create a midi and get the midiId.
         var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var midiId = createResponse.body().getMeta().getMidiId();
+        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
         // Edit the midi by midiId
         var editRequest = new MidiEditRequestDto()
@@ -104,15 +104,15 @@ public class MidiControllerTest {
         var editResponse = mockApi.editMidi(midiId, token, editRequest);
 
         // When status is OK assert that changes hav been made otherwise the midi should be unchanged
-        assertEquals(status, editResponse.status());
+        assertEquals(status, editResponse.getStatusCode());
 
         if (status == HttpStatus.OK) {
-            assertEquals("Satie", editResponse.body().getMeta().getArtist());
-            assertEquals(GYMNOPEDIE, editResponse.body().getBinary().getMidiFile());
+            assertEquals("Satie", requireNonNull(editResponse.getBody()).getMeta().getArtist());
+            assertEquals(GYMNOPEDIE, editResponse.getBody().getBinary().getMidiFile());
         } else {
             var secondResponse = mockApi.getMidiBiId(midiId, validToken);
-            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
-            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
+            assertEquals(TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
     }
 
@@ -123,22 +123,22 @@ public class MidiControllerTest {
 
         // Create a midi with a valid token and get the midiId.
         var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var midiId = createResponse.body().getMeta().getMidiId();
+        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
         // Edit the midi binary by midiId
         var editRequest = new MidiEditBinaryRequestDto().midiFile(GYMNOPEDIE);
         var editResponse = mockApi.editMidiBinary(midiId, token, editRequest);
 
         // When status is OK assert that changes hav been made otherwise the midi should be unchanged
-        assertEquals(status, editResponse.status());
+        assertEquals(status, editResponse.getStatusCode());
 
         if (status == HttpStatus.OK) {
-            assertEquals("Hirokazu Tanaka", editResponse.body().getMeta().getArtist());
-            assertEquals(GYMNOPEDIE, editResponse.body().getBinary().getMidiFile());
+            assertEquals("Hirokazu Tanaka", requireNonNull(editResponse.getBody()).getMeta().getArtist());
+            assertEquals(GYMNOPEDIE, editResponse.getBody().getBinary().getMidiFile());
         } else {
             var secondResponse = mockApi.getMidiBiId(midiId, validToken);
-            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
-            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
+            assertEquals(TETRIS, requireNonNull(secondResponse.getBody()).getBinary().getMidiFile());
         }
     }
 
@@ -149,7 +149,7 @@ public class MidiControllerTest {
 
         // Create a midi with a valid token and get the midiId.
         var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var midiId = createResponse.body().getMeta().getMidiId();
+        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
         // Edit the midi metadata by midiId
         var editRequest = new MidiEditMetaRequestDto()
@@ -160,15 +160,15 @@ public class MidiControllerTest {
         var editResponse = mockApi.editMidiMeta(midiId, token, editRequest);
 
         // When status is OK assert that changes hav been made otherwise the midi should be unchanged
-        assertEquals(status, editResponse.status());
+        assertEquals(status, editResponse.getStatusCode());
 
         if (status == HttpStatus.OK) {
-            assertEquals("Satie", editResponse.body().getMeta().getArtist());
-            assertEquals(TETRIS, editResponse.body().getBinary().getMidiFile());
+            assertEquals("Satie", requireNonNull(editResponse.getBody()).getMeta().getArtist());
+            assertEquals(TETRIS, editResponse.getBody().getBinary().getMidiFile());
         } else {
             var secondResponse = mockApi.getMidiBiId(midiId, validToken);
-            assertEquals(createResponse.body().getMeta(), secondResponse.body().getMeta());
-            assertEquals(TETRIS, secondResponse.body().getBinary().getMidiFile());
+            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
+            assertEquals(TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
     }
 
@@ -181,23 +181,23 @@ public class MidiControllerTest {
         // Create two midis with a valid token, get the id of the one to delete
         mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
         var toBeDeleted = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
-        var deletedId = toBeDeleted.body().getMeta().getMidiId();
+        var deletedId = requireNonNull(toBeDeleted.getBody()).getMeta().getMidiId();
 
         // Check that there is two entries in the database
         var firstResponse = mockApi.getUserMidis(mockUser.userId(), validToken);
-        assertEquals(2, firstResponse.body().getMidis().size());
+        assertEquals(2, requireNonNull(firstResponse.getBody()).getMidis().size());
 
         // Try to delete the file and check status code
         var deleteResponse = mockApi.deleteMidi(deletedId, token);
         var secondResponse = mockApi.getUserMidis(mockUser.userId(), validToken);
 
         // When status is OK assert that other second response size has decreased else as before
-        assertEquals(status, deleteResponse.status());
+        assertEquals(status, deleteResponse.getStatusCode());
         if (status == HttpStatus.OK) {
-            assertEquals(1, secondResponse.body().getMidis().size());
-            assertEquals("Deleted", deleteResponse.body());
+            assertEquals(1, requireNonNull(secondResponse.getBody()).getMidis().size());
+            assertEquals("Deleted", deleteResponse.getBody());
         } else {
-            assertEquals(2, secondResponse.body().getMidis().size());
+            assertEquals(2, requireNonNull(secondResponse.getBody()).getMidis().size());
         }
     }
 
@@ -209,18 +209,18 @@ public class MidiControllerTest {
 
         // create a public midi with a valid token and get the midiId
         var createdMidi = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var createResponseMidiId = createdMidi.body().getMeta().getMidiId();
-        var createResponseBlobId = createdMidi.body().getBinary().getBinaryId();
+        var createResponseMidiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
+        var createResponseBlobId = createdMidi.getBody().getBinary().getBinaryId();
 
         // create a get request for the created public midi
         var response = mockApi.getMidiBiId(createResponseMidiId, token);
 
         // extract midi and blob from the response
-        var midi = response.body().getMeta();
-        var blob = response.body().getBinary();
+        var midi = requireNonNull(response.getBody()).getMeta();
+        var blob = response.getBody().getBinary();
 
         // assert that the request return OK and that the userRef is equal to the valid userId
-        assertEquals(status, response.status());
+        assertEquals(status, response.getStatusCode());
         assertEquals(mockUser.userId(), midi.getUserRef());
         assertEquals(createResponseMidiId, midi.getMidiId());
         assertEquals(createResponseBlobId, midi.getBlobRef());
@@ -236,17 +236,17 @@ public class MidiControllerTest {
 
         // create a private midi with a valid token and get the midiId
         var createdMidi = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
-        var midiId = createdMidi.body().getMeta().getMidiId();
+        var midiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
 
         // create a get request for the created private midi with different tokens
         var response = mockApi.getMidiBiId(midiId, token);
 
         // assert status code matches the expected code
-        assertEquals(status, response.status());
+        assertEquals(status, response.getStatusCode());
 
         // when status is OK assert that other response values matches the expected values
         if (status == HttpStatus.OK) {
-            var midi = response.body().getMeta();
+            var midi = requireNonNull(response.getBody()).getMeta();
             assertEquals(mockUser.userId(), midi.getUserRef());
         }
     }
@@ -262,11 +262,11 @@ public class MidiControllerTest {
         // create a get request for the midis from the valid user
         var response = mockApi.getUserMidis(mockUser.userId(), token);
         // assert status code matches the expected code
-        assertEquals(status, response.status());
+        assertEquals(status, response.getStatusCode());
         // when status is OK assert that other response values matches the expected values
         if (status == HttpStatus.OK) {
-            var firstMidi = response.body().getMidis().getFirst();
-            assertEquals(2, response.body().getMidis().size());
+            var firstMidi = requireNonNull(response.getBody()).getMidis().getFirst();
+            assertEquals(2, response.getBody().getMidis().size());
             assertEquals(mockUser.userId(), firstMidi.getUserRef());
         }
     }

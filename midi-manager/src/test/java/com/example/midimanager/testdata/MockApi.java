@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -27,7 +28,7 @@ public class MockApi {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public TestResponse<MidiWithDataDto> getMidiBiId(UUID midiId, String token) throws Exception {
+    public ResponseEntity<MidiWithDataDto> getMidiBiId(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/midis/midi/" + midiId)
@@ -39,10 +40,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidisDto> getUserMidis(UUID userId, String token) throws Exception {
+    public ResponseEntity<MidisDto> getUserMidis(UUID userId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/midis/user/" + userId)
@@ -54,10 +55,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidisDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidisDto> getPublicMidis(String token) throws Exception {
+    public ResponseEntity<MidisDto> getPublicMidis(String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/midis/public")
@@ -69,10 +70,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidisDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidiWithDataDto> editMidi(UUID midiId, String token, MidiEditRequestDto requestBody) throws Exception {
+    public ResponseEntity<MidiWithDataDto> editMidi(UUID midiId, String token, MidiEditRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/midis/midi/" + midiId)
@@ -87,10 +88,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidiWithDataDto> editMidiMeta(UUID midiId, String token, MidiEditMetaRequestDto requestBody) throws Exception {
+    public ResponseEntity<MidiWithDataDto> editMidiMeta(UUID midiId, String token, MidiEditMetaRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/midis/meta/" + midiId)
@@ -105,10 +106,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidiWithDataDto> editMidiBinary(UUID midiId, String token, MidiEditBinaryRequestDto requestBody) throws Exception {
+    public ResponseEntity<MidiWithDataDto> editMidiBinary(UUID midiId, String token, MidiEditBinaryRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/midis/binary/" + midiId)
@@ -123,10 +124,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<MidiWithDataDto> createMidi(String token, MidiCreateRequestDto requestBody) throws Exception {
+    public ResponseEntity<MidiWithDataDto> createMidi(String token, MidiCreateRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/midis/create")
@@ -141,10 +142,10 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
-    public TestResponse<String> deleteMidi(UUID midiId, String token) throws Exception {
+    public ResponseEntity<String> deleteMidi(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .delete("/midis/midi/" + midiId)
@@ -156,7 +157,7 @@ public class MockApi {
         var content = status == HttpStatus.OK ?
             result.getResponse().getContentAsString() :
             null;
-        return new TestResponse<>(status, content);
+        return ResponseEntity.status(status).body(content);
     }
 
 }
