@@ -7,6 +7,7 @@ import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import generatedapi.model.MidiWithDataDto;
 import generatedapi.model.MidisDto;
+import generatedapi.model.ValidationErrorDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
 
-import static com.example.midimanager.secirity.Constants.TOKEN_PREFIX;
+import static com.example.midimanager.secirity.JwtConstants.TOKEN_PREFIX;
 
 @Component
 public class MockApi {
@@ -156,6 +157,24 @@ public class MockApi {
         var status = HttpStatus.valueOf(result.getResponse().getStatus());
         var content = status == HttpStatus.OK ?
             result.getResponse().getContentAsString() :
+            null;
+        return ResponseEntity.status(status).body(content);
+    }
+
+    public ResponseEntity<ValidationErrorDto> createMidiAndExpectValidationError(String token, MidiCreateRequestDto requestBody) throws Exception {
+        var result = mockMvc.perform(
+                MockMvcRequestBuilders
+                    .post("/midis/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestBody))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token)
+            )
+            .andReturn();
+
+        var status = HttpStatus.valueOf(result.getResponse().getStatus());
+        var content = status == HttpStatus.UNPROCESSABLE_ENTITY ?
+            objectMapper.readValue(result.getResponse().getContentAsString(), ValidationErrorDto.class) :
             null;
         return ResponseEntity.status(status).body(content);
     }

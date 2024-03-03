@@ -27,6 +27,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -104,6 +106,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -192,6 +196,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -226,6 +232,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -245,15 +253,23 @@ components:
         filename:
           type: string
           description: "Filename of the MIDI"
+          pattern: '^(?=.*\S).+\.mid$'
+          minLength: 4
+          maxLength: 100
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
         midiFile:
           type: string
           description: "MIDI file in binary format (Base64)"
+          minLength: 1
       required:
         - userId
         - filename
@@ -276,6 +292,7 @@ components:
         midiFile:
           type: string
           description: "MIDI file in binary format (Base64)"
+          minLength: 1
       required:
         - filename
 
@@ -287,13 +304,20 @@ components:
           description: "Flag indicating if the MIDI is private"
         filename:
           type: string
+          pattern: '^(?=.*\S).+\.mid$'
+          minLength: 4
+          maxLength: 100
           description: "Filename of the MIDI"
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
       required:
         - filename
 
@@ -318,12 +342,19 @@ components:
         filename:
           type: string
           description: "Filename of the MIDI"
+          pattern: '^(?=.*\S).+\.mid$'
+          minLength: 4
+          maxLength: 100
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
         dateCreated:
           type: string
           format: date-time
@@ -348,6 +379,7 @@ components:
         midiFile:
           type: string
           description: "MIDI file in binary format"
+          minLength: 1
       required:
         - midiId
         - midiFile
@@ -368,23 +400,35 @@ components:
           items:
             $ref: '#/components/schemas/Midi'
 
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
     EmptyResponse:
       type: object
       properties: { }
 
   responses:
+    UnprocessableEntity:
+      description: Data was missing or incorrect in the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
     NotFound:
       description: The specified resource was not found
     Unauthorized:
-      description: Unauthorized
+      description: User was not authorized
     Forbidden:
-      description: Forbidden (jwt was valid, but user was not found)
-    Conflict:
-      description: Conflict e.g. data violates a constraint such as unique email addresses
+      description: User was forbidden access to a resource
     BadRequest:
-      description: Bad Request - an issue with request data
+      description: There was an issue with the request data
     InternalServerError:
-      description: Internal Server Error - a generic 'something bad' that we couldn't recover from happened
+      description: Internal server error
 
   securitySchemes:
     bearerAuth:

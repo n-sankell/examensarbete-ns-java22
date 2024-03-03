@@ -1,5 +1,8 @@
 package com.example.midimanager.repository;
 
+import com.example.midimanager.model.BlobId;
+import com.example.midimanager.model.MidiId;
+import com.example.midimanager.model.UserId;
 import com.example.midimanager.util.DbUtil;
 import com.example.midimanager.model.Midi;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,9 +30,9 @@ public class MidiMetaRepository {
     public List<Midi> getPublicMidiMeta() {
         var sql =
             """
-            SELECT midi_id, blob_ref, user_ref, 
-                   private, filename, artist, 
-                   title, date_created, date_edited 
+            SELECT midi_id, blob_ref, user_ref,
+                   private, filename, artist,
+                   title, date_created, date_edited
             FROM midi
             WHERE private = false
             """;
@@ -37,15 +40,15 @@ public class MidiMetaRepository {
         return metaJdbcTemplate.query(sql, (rs, rowNum) -> toMidi(rs));
     }
 
-    public List<Midi> getMidiMetaByUserId(UUID userId) {
+    public List<Midi> getMidiMetaByUserId(UserId userId) {
         var parameters = new MapSqlParameterSource()
-            .addValue("userId", userId);
+            .addValue("userId", userId.id());
 
         var sql =
             """
-            SELECT midi_id, blob_ref, user_ref, 
-                   private, filename, artist, 
-                   title, date_created, date_edited 
+            SELECT midi_id, blob_ref, user_ref,
+                   private, filename, artist,
+                   title, date_created, date_edited
             FROM midi
             WHERE user_ref = :userId
             """;
@@ -53,15 +56,15 @@ public class MidiMetaRepository {
         return metaJdbcTemplate.query(sql, parameters, (rs, rowNum) -> toMidi(rs));
     }
 
-    public Optional<Midi> getMidiMetaById(UUID midiId) {
+    public Optional<Midi> getMidiMetaById(MidiId midiId) {
         var parameters = new MapSqlParameterSource()
-            .addValue("id", midiId);
+            .addValue("id", midiId.id());
 
         var sql =
             """
-            SELECT midi_id, blob_ref, user_ref, 
-                   private, filename, artist, 
-                   title, date_created, date_edited 
+            SELECT midi_id, blob_ref, user_ref,
+                   private, filename, artist,
+                   title, date_created, date_edited
             FROM midi
             WHERE midi_id = :id
             """;
@@ -74,9 +77,9 @@ public class MidiMetaRepository {
 
     public void saveMidiMeta(Midi midi) {
         var parameters = new MapSqlParameterSource()
-            .addValue("midiId", midi.midiId())
-            .addValue("blobRef", midi.blobRef())
-            .addValue("userRef", midi.userRef())
+            .addValue("midiId", midi.midiId().id())
+            .addValue("blobRef", midi.blobRef().id())
+            .addValue("userRef", midi.userRef().id())
             .addValue("private", midi.isPrivate())
             .addValue("filename", midi.filename())
             .addValue("artist", midi.artist())
@@ -87,10 +90,10 @@ public class MidiMetaRepository {
         var sql =
             """
             INSERT INTO midi (
-                midi_id, blob_ref, user_ref, 
-                private, filename, artist, 
+                midi_id, blob_ref, user_ref,
+                private, filename, artist,
                 title, date_created, date_edited
-                ) 
+                )
             VALUES (
                 :midiId, :blobRef, :userRef,
                 :private, :filename, :artist,
@@ -107,7 +110,7 @@ public class MidiMetaRepository {
 
     public void editMidiMeta(Midi midi) {
         var parameters = new MapSqlParameterSource()
-            .addValue("id", midi.midiId())
+            .addValue("id", midi.midiId().id())
             .addValue("private", midi.isPrivate())
             .addValue("filename", midi.filename())
             .addValue("artist", midi.artist())
@@ -116,11 +119,11 @@ public class MidiMetaRepository {
 
         var sql =
             """
-            UPDATE midi 
+            UPDATE midi
             SET private = :private,
-                filename = :filename, 
+                filename = :filename,
                 artist = :artist,
-                title = :title, 
+                title = :title,
                 date_edited = :edited
             WHERE midi_id = :id
             """;
@@ -131,9 +134,9 @@ public class MidiMetaRepository {
         }
     }
 
-    public void deleteMidiMetaById(UUID deleteId) {
+    public void deleteMidiMetaById(MidiId deleteId) {
         var parameters = new MapSqlParameterSource()
-            .addValue("id", deleteId);
+            .addValue("id", deleteId.id());
 
         var sql =
             """
@@ -158,7 +161,7 @@ public class MidiMetaRepository {
         var dateCreated = rs.getTimestamp("date_created");
         var dateEdited = rs.getTimestamp("date_edited");
 
-        return new Midi(id, blobRef, userRef, isPrivate, filename, artist, title,
+        return new Midi(new MidiId(id), new BlobId(blobRef), new UserId(userRef), isPrivate, filename, artist, title,
             DbUtil.convertDate(dateCreated), DbUtil.convertDate(dateEdited));
     }
 

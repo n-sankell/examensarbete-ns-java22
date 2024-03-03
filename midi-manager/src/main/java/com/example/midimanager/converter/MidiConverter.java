@@ -1,8 +1,11 @@
 package com.example.midimanager.converter;
 
-import com.example.midimanager.model.MidiAndBlob;
 import com.example.midimanager.model.Blob;
+import com.example.midimanager.model.BlobId;
 import com.example.midimanager.model.Midi;
+import com.example.midimanager.model.MidiAndBlob;
+import com.example.midimanager.model.MidiId;
+import com.example.midimanager.model.UserId;
 import generatedapi.model.BinaryDataDto;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiDto;
@@ -15,7 +18,6 @@ import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public class MidiConverter {
 
@@ -34,9 +36,9 @@ public class MidiConverter {
 
     public static Midi convert(MidiDto midi) {
         return new Midi(
-            midi.getMidiId(),
-            midi.getBlobRef(),
-            midi.getUserRef(),
+            new MidiId(midi.getMidiId()),
+            new BlobId(midi.getBlobRef()),
+            new UserId(midi.getUserRef()),
             midi.getIsPrivate(),
             midi.getFilename(),
             midi.getArtist(),
@@ -55,9 +57,9 @@ public class MidiConverter {
 
     public static MidiDto convert(Midi midi) {
         return new MidiDto()
-            .midiId(midi.midiId())
-            .userRef(midi.userRef())
-            .blobRef(midi.blobRef())
+            .midiId(midi.midiId().id())
+            .userRef(midi.userRef().id())
+            .blobRef(midi.blobRef().id())
             .filename(midi.filename())
             .isPrivate(midi.isPrivate())
             .artist(midi.artist())
@@ -68,13 +70,14 @@ public class MidiConverter {
 
     public static BinaryDataDto convert(Blob blob) {
         return new BinaryDataDto()
-            .binaryId(blob.blobId())
+            .binaryId(blob.blobId().id())
             .midiFile(convert(blob.midiData()));
     }
 
     public static Blob convert(BinaryDataDto binaryDataDto) {
+        var blobId = new BlobId(binaryDataDto.getBinaryId());
         return new Blob(
-            binaryDataDto.getBinaryId(),
+            blobId,
             convert(binaryDataDto.getMidiFile())
         );
     }
@@ -87,15 +90,16 @@ public class MidiConverter {
         return Base64.decodeBase64(encodedString);
     }
 
-    public static Blob convert(UUID blobId, byte[] bytes) {
+    public static Blob convert(BlobId blobId, byte[] bytes) {
         return new Blob(blobId, bytes);
     }
 
-    public static MidiAndBlob buildCreateData(MidiCreateRequestDto createData, UUID userId) {
-        var blobId = UUID.randomUUID();
+    public static MidiAndBlob buildCreateData(MidiCreateRequestDto createData, UserId userId) {
+        var midiId = MidiId.newMidiId();
+        var blobId = BlobId.newBlobId();
         return new MidiAndBlob(
             new Midi(
-                UUID.randomUUID(),
+                midiId,
                 blobId,
                 userId,
                 createData.getIsPrivate(),
@@ -111,30 +115,30 @@ public class MidiConverter {
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditRequestDto editData, UUID id) {
+    public static MidiAndBlob buildEditData(MidiEditRequestDto editData, MidiId midiId) {
         return new MidiAndBlob(
-            buildMetaData(editData.getMetadata(), id),
+            buildMetaData(editData.getMetadata(), midiId),
             buildBlobData(editData.getBinaryData())
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditMetaRequestDto editData, UUID id) {
+    public static MidiAndBlob buildEditData(MidiEditMetaRequestDto editData, MidiId midiId) {
         return new MidiAndBlob(
-            buildMetaData(editData, id),
+            buildMetaData(editData, midiId),
             null
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditBinaryRequestDto editData, UUID ignored) {
+    public static MidiAndBlob buildEditData(MidiEditBinaryRequestDto editData, MidiId ignored) {
         return new MidiAndBlob(
             null,
             buildBlobData(editData)
         );
     }
 
-    public static Midi buildMetaData(MidiEditMetaRequestDto editData, UUID id) {
+    public static Midi buildMetaData(MidiEditMetaRequestDto editData, MidiId midiId) {
         return new Midi(
-            id,
+            midiId,
             null,
             null,
             editData.getIsPrivate(),

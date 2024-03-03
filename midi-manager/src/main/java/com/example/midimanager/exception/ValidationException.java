@@ -5,11 +5,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class ValidationException extends HttpClientErrorException {
 
-    public ValidationException() {
-        super(HttpStatus.BAD_REQUEST, "Value is not allowed");
+    public ValidationException(String statusText) {
+        super(HttpStatus.UNPROCESSABLE_ENTITY, statusText);
     }
 
-    public ValidationException(String statusText) {
-        super(HttpStatus.BAD_REQUEST, statusText);
-    }
 }

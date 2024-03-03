@@ -23,7 +23,7 @@ public class CorsConfig implements WebMvcConfigurer {
         String allowedOrigin = environment.getProperty("allowed.origin");
         registry.addMapping("/**")
             .allowedOrigins(allowedOrigin)
-            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedMethods("GET", "POST", "DELETE")
             .maxAge(3600);
     }
 

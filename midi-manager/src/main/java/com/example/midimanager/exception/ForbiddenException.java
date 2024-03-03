@@ -5,12 +5,14 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class ForbiddenException extends HttpClientErrorException {
 
-    public ForbiddenException() {
-        super(HttpStatus.FORBIDDEN, "Forbidden");
-    }
+    public String currentUserId;
 
-    public ForbiddenException(String statusText) {
+    public ForbiddenException(String statusText, String currentUserId) {
         super(HttpStatus.FORBIDDEN, statusText);
+        this.currentUserId = currentUserId;
     }
 
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
 }

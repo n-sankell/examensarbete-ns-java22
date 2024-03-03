@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class MidiValidator {
 
-    public static void validate(byte[] data) {
+    public static void validate(byte[] data) throws ValidationException {
         try (var inputStream = new ByteArrayInputStream(data)) {
             var seq = MidiSystem.getSequence(inputStream);
 

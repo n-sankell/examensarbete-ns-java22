@@ -1,10 +1,12 @@
 package com.example.midimanager.service;
 
-import com.example.midimanager.exception.NotFoundException;
 import com.example.midimanager.exception.ForbiddenException;
+import com.example.midimanager.exception.NotFoundException;
 import com.example.midimanager.model.Blob;
 import com.example.midimanager.model.Midi;
 import com.example.midimanager.model.MidiAndBlob;
+import com.example.midimanager.model.MidiId;
+import com.example.midimanager.model.UserId;
 import com.example.midimanager.repository.MidiMetaRepository;
 import com.example.midimanager.secirity.CurrentUser;
 import com.example.midimanager.util.MidiValidator;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class MidiService {
@@ -35,15 +36,15 @@ public class MidiService {
         return midiMetaRepository.getPublicMidiMeta();
     }
 
-    public List<Midi> getMidisByUserId(UUID userId, CurrentUser currentUser) {
+    public List<Midi> getMidisByUserId(UserId userId, CurrentUser currentUser) {
         // TODO: even public midis does not show because the user has to be authenticated to call the endpoint
-        if (userId.equals(currentUser.userId())) {
+        if (userId.id().equals(currentUser.userId().id())) {
             return midiMetaRepository.getMidiMetaByUserId(userId);
         }
-        throw new ForbiddenException("The requested files does not belong to the current user.");
+        throw new ForbiddenException("The requested files does not belong to the user.", currentUser.idToString());
     }
 
-    public MidiAndBlob getMidiAndBlobById(UUID midiId, CurrentUser currentUser) {
+    public MidiAndBlob getMidiAndBlobById(MidiId midiId, CurrentUser currentUser) {
         // TODO: check returns forbidden even if the user is unauthenticated
         //  because getMIdiById endpoint is accepting all connections
         var midiMeta = midiMetaRepository.getMidiMetaById(midiId)
@@ -58,7 +59,7 @@ public class MidiService {
                 blob
             );
         }
-        throw new ForbiddenException("User does not have access to this midi");
+        throw new ForbiddenException("User does not have access to this midi", currentUser.idToString());
     }
 
     @Transactional
@@ -72,7 +73,7 @@ public class MidiService {
     }
 
     @Transactional
-    public MidiAndBlob updateMidi(UUID midiId, MidiAndBlob midiAndBlob, CurrentUser currentUser) {
+    public MidiAndBlob updateMidi(MidiId midiId, MidiAndBlob midiAndBlob, CurrentUser currentUser) {
         var existingMidi = midiMetaRepository.getMidiMetaById(midiId)
             .orElseThrow(NotFoundException::new);
         var userRef = existingMidi.userRef();
@@ -94,12 +95,12 @@ public class MidiService {
             return getMidiAndBlobById(midiId, currentUser);
         } else {
             logger.warn("Warning: User " + currentUser.userId() + " tried to edit a file without permission");
-            throw new ForbiddenException("The current user has no edit rights to this file");
+            throw new ForbiddenException("The current user has no edit rights to this file", currentUser.idToString());
         }
     }
 
     @Transactional
-    public void deleteMidi(UUID deleteId, CurrentUser currentUser) {
+    public void deleteMidi(MidiId deleteId, CurrentUser currentUser) {
         var existingMidi = midiMetaRepository.getMidiMetaById(deleteId)
             .orElseThrow(NotFoundException::new);
         var userRef = existingMidi.userRef();
@@ -117,16 +118,16 @@ public class MidiService {
             }
         } else {
             logger.warn("Warning: User " + currentUser.userId() + " tried to delete a file without permission");
-            throw new ForbiddenException("The current user has no right to delete this file");
+            throw new ForbiddenException("The current user has no right to delete this file", currentUser.idToString());
         }
     }
 
-    private boolean hasPrivateReadAccess(CurrentUser currentUser, UUID midiUserRef) {
-        return currentUser.isAuthenticated() && currentUser.userId().equals(midiUserRef);
+    private boolean hasPrivateReadAccess(CurrentUser currentUser, UserId midiUserRef) {
+        return currentUser.isAuthenticated() && currentUser.userId().id().equals(midiUserRef.id());
     }
 
-    private boolean hasEditAccess(CurrentUser currentUser, UUID midiUserRef) {
-        return currentUser.isAuthenticated() && currentUser.userId().equals(midiUserRef);
+    private boolean hasEditAccess(CurrentUser currentUser, UserId midiUserRef) {
+        return currentUser.isAuthenticated() && currentUser.userId().id().equals(midiUserRef.id());
     }
 
     private Logger getLogger() {

@@ -16,8 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-import static com.example.midimanager.secirity.Constants.TOKEN_ID_CLAIM;
-import static com.example.midimanager.secirity.Constants.TOKEN_PREFIX;
+import static com.example.midimanager.secirity.JwtConstants.TOKEN_ID_CLAIM;
+import static com.example.midimanager.secirity.JwtConstants.TOKEN_PREFIX;
 
 @Component
 public class JwtTokenInterceptor extends OncePerRequestFilter {

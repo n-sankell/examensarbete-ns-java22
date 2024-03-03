@@ -1,6 +1,7 @@
 package com.example.midimanager.controller;
 
 import com.example.midimanager.config.MidiManagerTestEnvironment;
+import com.example.midimanager.testdata.MidiGenerator;
 import com.example.midimanager.testdata.MockApi;
 import com.example.midimanager.testdata.MockTokenGenerator;
 import com.example.midimanager.testdata.MockUser;
@@ -10,6 +11,7 @@ import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -24,6 +26,7 @@ import static com.example.midimanager.testdata.Base64Midi.TETRIS;
 import static com.example.midimanager.testdata.MockUser.randomMockUser;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @MidiManagerTestEnvironment
 public class MidiControllerTest {
@@ -34,6 +37,21 @@ public class MidiControllerTest {
     private MockTokenGenerator mockTokenGenerator;
     private MockUser mockUser;
     private String validToken;
+
+    // TODO: add test for filename, check if parameter validations is correct
+
+    @Test
+    void createMidiWithInvalidMidi() throws Exception {
+        var token = getTokenByType(TokenType.VALID);
+        // Create a midi with a empty midi file
+        var createRequestDto = tetrisCreatePublicRequest.get()
+            .midiFile(MidiGenerator.generateEmptyMidi());
+
+        var response = mockApi.createMidiAndExpectValidationError(token, createRequestDto);
+
+        assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
+        System.out.println(response);
+    }
 
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForCreate")
@@ -99,7 +117,7 @@ public class MidiControllerTest {
             .metadata(new MidiEditMetaRequestDto()
                 .artist("Satie")
                 .title("Gymnopedie No 1")
-                .filename("gymnopedieno1.mid")
+                .filename("gymnopedie-no1.mid")
                 .isPrivate(false));
         var editResponse = mockApi.editMidi(midiId, token, editRequest);
 
@@ -155,7 +173,7 @@ public class MidiControllerTest {
         var editRequest = new MidiEditMetaRequestDto()
             .artist("Satie")
             .title("Gymnopedie No 1")
-            .filename("gymnopedieno1.mid")
+            .filename("gymnopedie-no1.mid")
             .isPrivate(false);
         var editResponse = mockApi.editMidiMeta(midiId, token, editRequest);
 

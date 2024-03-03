@@ -1,6 +1,7 @@
 package com.example.midimanager.repository;
 
 import com.example.midimanager.model.Blob;
+import com.example.midimanager.model.BlobId;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,9 +21,9 @@ public class MidiBlobRepository {
         this.blobJdbcTemplate = blobJdbcTemplate;
     }
 
-    public Optional<Blob> getBlobById(UUID blobId) {
+    public Optional<Blob> getBlobById(BlobId blobId) {
         var parameters = new MapSqlParameterSource()
-            .addValue("id", blobId);
+            .addValue("id", blobId.id());
 
         var sql =
             """
@@ -39,12 +39,12 @@ public class MidiBlobRepository {
 
     public void saveBlob(Blob midiBlob) {
         var parameters = new MapSqlParameterSource()
-            .addValue("blobId", midiBlob.blobId())
+            .addValue("blobId", midiBlob.blobId().id())
             .addValue("midiData", midiBlob.midiData());
 
         var sql =
             """
-            INSERT INTO midi_blob (blob_id, midi_data) 
+            INSERT INTO midi_blob (blob_id, midi_data)
             VALUES (:blobId, :midiData)
             """;
 
@@ -57,13 +57,13 @@ public class MidiBlobRepository {
 
     public void updateMidiData(Blob updateBlob) {
         var parameters = new MapSqlParameterSource()
-            .addValue("blobId", updateBlob.blobId())
+            .addValue("blobId", updateBlob.blobId().id())
             .addValue("midiData", updateBlob.midiData());
 
         var sql =
             """
-            UPDATE midi_blob 
-            SET midi_data = :midiData 
+            UPDATE midi_blob
+            SET midi_data = :midiData
             WHERE blob_id = :blobId
             """;
 
@@ -74,9 +74,9 @@ public class MidiBlobRepository {
         }
     }
 
-    public void deleteBlob(UUID deleteId) {
+    public void deleteBlob(BlobId deleteId) {
         var parameters = new MapSqlParameterSource()
-            .addValue("blobId", deleteId);
+            .addValue("blobId", deleteId.id());
 
         var sql =
             """
@@ -94,7 +94,7 @@ public class MidiBlobRepository {
     private Blob toBlob(ResultSet rs) throws SQLException {
         var id = UUID.fromString(rs.getString("blob_id"));
         var bytes = rs.getBytes("midi_data");
-        return new Blob(id, bytes);
+        return new Blob(new BlobId(id), bytes);
     }
 
 }
