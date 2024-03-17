@@ -47,17 +47,10 @@ paths:
       tags:
         - Midi
 
-  /midis/user/{id}:
+  /midis/user:
     get:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       summary: Get all midis from a user
-      description: "Returns a list of midis that belongs to the provided userId"
+      description: "Returns a list of midis that belongs to the userId provided in the JWT"
       operationId: getUserMidis
       responses:
         '200':
@@ -243,19 +236,17 @@ components:
     MidiCreateRequest:
       type: object
       properties:
-        userId:
-          type: string
-          format: uuid
-          description: "User ID associated with the MIDI"
         isPrivate:
           type: boolean
           description: "Flag indicating if the MIDI is private"
         filename:
           type: string
           description: "Filename of the MIDI"
-          pattern: '^(?=.*\S).+\.mid$'
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
           minLength: 4
           maxLength: 100
+          example: "tetris.mid"
+          x-patternErrorMessage: "Invalid filename format"
         artist:
           type: string
           description: "Artist of the MIDI"
@@ -271,7 +262,6 @@ components:
           description: "MIDI file in binary format (Base64)"
           minLength: 1
       required:
-        - userId
         - filename
         - midiFile
 
@@ -304,7 +294,7 @@ components:
           description: "Flag indicating if the MIDI is private"
         filename:
           type: string
-          pattern: '^(?=.*\S).+\.mid$'
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
           minLength: 4
           maxLength: 100
           description: "Filename of the MIDI"
@@ -400,13 +390,32 @@ components:
           items:
             $ref: '#/components/schemas/Midi'
 
-    ValidationError:
+    ValidationException:
       type: object
       properties:
         message:
           type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
       required:
         - message
+        - errors
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        invalidValue:
+          type: string
+      required:
+        - field
+        - error
+        - invalidValue
 
     EmptyResponse:
       type: object
@@ -418,7 +427,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: '#/components/schemas/ValidationException'
     NotFound:
       description: The specified resource was not found
     Unauthorized:
