@@ -27,6 +27,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -45,17 +47,10 @@ paths:
       tags:
         - Midi
 
-  /midis/user/{id}:
+  /midis/user:
     get:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       summary: Get all midis from a user
-      description: "Returns a list of midis that belongs to the provided userId"
+      description: "Returns a list of midis that belongs to the userId provided in the JWT"
       operationId: getUserMidis
       responses:
         '200':
@@ -104,6 +99,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -192,6 +189,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -226,6 +225,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
 
@@ -235,27 +236,32 @@ components:
     MidiCreateRequest:
       type: object
       properties:
-        userId:
-          type: string
-          format: uuid
-          description: "User ID associated with the MIDI"
         isPrivate:
           type: boolean
           description: "Flag indicating if the MIDI is private"
         filename:
           type: string
           description: "Filename of the MIDI"
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
+          minLength: 4
+          maxLength: 100
+          example: "tetris.mid"
+          x-patternErrorMessage: "Invalid filename format"
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
         midiFile:
           type: string
           description: "MIDI file in binary format (Base64)"
+          minLength: 1
       required:
-        - userId
         - filename
         - midiFile
 
@@ -276,6 +282,7 @@ components:
         midiFile:
           type: string
           description: "MIDI file in binary format (Base64)"
+          minLength: 1
       required:
         - filename
 
@@ -287,13 +294,20 @@ components:
           description: "Flag indicating if the MIDI is private"
         filename:
           type: string
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
+          minLength: 4
+          maxLength: 100
           description: "Filename of the MIDI"
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
       required:
         - filename
 
@@ -318,12 +332,19 @@ components:
         filename:
           type: string
           description: "Filename of the MIDI"
+          pattern: '^(?=.*\S).+\.mid$'
+          minLength: 4
+          maxLength: 100
         artist:
           type: string
           description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
         title:
           type: string
           description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
         dateCreated:
           type: string
           format: date-time
@@ -348,6 +369,7 @@ components:
         midiFile:
           type: string
           description: "MIDI file in binary format"
+          minLength: 1
       required:
         - midiId
         - midiFile
@@ -368,23 +390,54 @@ components:
           items:
             $ref: '#/components/schemas/Midi'
 
+    ValidationException:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+      required:
+        - message
+        - errors
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        invalidValue:
+          type: string
+      required:
+        - field
+        - error
+        - invalidValue
+
     EmptyResponse:
       type: object
       properties: { }
 
   responses:
+    UnprocessableEntity:
+      description: Data was missing or incorrect in the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationException'
     NotFound:
       description: The specified resource was not found
     Unauthorized:
-      description: Unauthorized
+      description: User was not authorized
     Forbidden:
-      description: Forbidden (jwt was valid, but user was not found)
-    Conflict:
-      description: Conflict e.g. data violates a constraint such as unique email addresses
+      description: User was forbidden access to a resource
     BadRequest:
-      description: Bad Request - an issue with request data
+      description: There was an issue with the request data
     InternalServerError:
-      description: Internal Server Error - a generic 'something bad' that we couldn't recover from happened
+      description: Internal server error
 
   securitySchemes:
     bearerAuth:
