@@ -1,17 +1,12 @@
-package com.midio.midimanager.controller;
+package com.midio.userservice.controller;
 
-import com.midio.midimanager.config.MidiManagerTestEnvironment;
-import com.midio.midimanager.exception.ValidationException;
-import com.midio.midimanager.testdata.MidiGenerator;
-import com.midio.midimanager.testdata.MockApi;
-import com.midio.midimanager.testdata.MockTokenGenerator;
-import com.midio.midimanager.testdata.MockUser;
-import com.midio.midimanager.testdata.TokenType;
-import com.midio.midimanager.testdata.Base64Midi;
-import generatedapi.model.MidiCreateRequestDto;
-import generatedapi.model.MidiEditBinaryRequestDto;
-import generatedapi.model.MidiEditMetaRequestDto;
-import generatedapi.model.MidiEditRequestDto;
+import com.midio.userservice.config.UserServiceTestEnvironment;
+import com.midio.userservice.exception.ValidationException;
+import com.midio.userservice.testdata.MockApi;
+import com.midio.userservice.testdata.MockTokenGenerator;
+import com.midio.userservice.testdata.MockUser;
+import com.midio.userservice.testdata.TokenType;
+import generatedapi.model.UserCreateRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,7 +14,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -28,8 +22,8 @@ import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
-@MidiManagerTestEnvironment
-public class MidiControllerTest {
+@UserServiceTestEnvironment
+public class UserControllerTest {
 
     @Autowired
     private MockApi mockApi;
@@ -39,98 +33,16 @@ public class MidiControllerTest {
     private String validToken;
 
     @Test
-    void createMidiWithInvalidBinaryData() throws Exception {
-        var token = getTokenByType(TokenType.VALID);
+    void createUserWithInvalidData() {
+        var token = getTokenByType(TokenType.NULL);
 
-        // Create a midi with a empty midi file
-        var createRequestDto = tetrisCreatePublicRequest.get()
-            .midiFile(MidiGenerator.generateEmptyMidi());
-
-        var response =
-            assertThrows(
-                ValidationException.class,
-                () -> mockApi.createMidi(token, createRequestDto)
-            );
-
-        assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
-    }
-
-    @Test
-    void createMidiWithInvalidMetaData() {
-        var token = getTokenByType(TokenType.VALID);
-
-        // Create a midi with a invalid meta data
-        var createRequestDto = new MidiCreateRequestDto()
-            .isPrivate(null)
-            .filename("t")
-            .artist("Gnesta Stefan")
-            .title("")
-            .midiFile(Base64Midi.TETRIS);
+        var createRequestDto = userCreateRequest.get()
+            .email("hhh");
 
         var response =
             assertThrows(
                 ValidationException.class,
-                () -> mockApi.createMidi(token, createRequestDto)
-            );
-
-        assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
-    }
-
-    @Test
-    void editMidiWithInvalidData() throws Exception {
-        var token = getTokenByType(TokenType.VALID);
-        var createRequestDto = tetrisCreatePublicRequest.get();
-        var createResponse = mockApi.createMidi(token, createRequestDto);
-        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
-
-        var editRequest = new MidiEditRequestDto()
-            .metadata(new MidiEditMetaRequestDto()
-                .filename("t"))
-            .binaryData(new MidiEditBinaryRequestDto()
-                .midiFile(Base64Midi.INVALID));
-
-        var response =
-            assertThrows(
-                ValidationException.class,
-                () -> mockApi.editMidi(midiId, token, editRequest)
-            );
-
-        assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
-    }
-
-    @Test
-    void editMidiWithInvalidMetaData() throws Exception {
-        var token = getTokenByType(TokenType.VALID);
-        var createRequestDto = tetrisCreatePublicRequest.get();
-        var createResponse = mockApi.createMidi(token, createRequestDto);
-        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
-
-        var editRequest = new MidiEditMetaRequestDto()
-            .filename("t");
-
-        var response =
-            assertThrows(
-                ValidationException.class,
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
-            );
-
-        assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
-    }
-
-    @Test
-    void editMidiWithInvalidBinaryData() throws Exception {
-        var token = getTokenByType(TokenType.VALID);
-        var createRequestDto = tetrisCreatePublicRequest.get();
-        var createResponse = mockApi.createMidi(token, createRequestDto);
-        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
-
-        var editRequest = new MidiEditBinaryRequestDto()
-            .midiFile(Base64Midi.INVALID);
-
-        var response =
-            assertThrows(
-                ValidationException.class,
-                () -> mockApi.editMidiBinary(midiId, token, editRequest)
+                () -> mockApi.createUser(createRequestDto, token)
             );
 
         assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
@@ -140,30 +52,22 @@ public class MidiControllerTest {
     @MethodSource("tokenTypeAndStatusCodeForCreate")
     void createMidi(TokenType tokenType, HttpStatus status) {
         var token = getTokenByType(tokenType);
+        var userName = "Gilgamesh";
 
-        // Create a midi with an artist name
-        var artist = "Ymer Klipulver";
-        var createRequestDto = tetrisCreatePublicRequest.get()
-            .artist(artist);
+        // Create a user with specified username
+        var createRequestDto = userCreateRequest.get()
+            .username(userName);
 
-        if (tokenType == TokenType.VALID) {
-            var okResponse = assertDoesNotThrow(
-                () -> mockApi.createMidi(token, createRequestDto)
-            );
-            var body = requireNonNull(okResponse.getBody());
+        var okResponse = assertDoesNotThrow(
+            () -> mockApi.createUser(createRequestDto, token)
+        );
+        assertEquals(status, okResponse.getStatusCode());
+        var body = requireNonNull(okResponse.getBody());
 
-            // Check if the artist value is correct
-            assertEquals(status, okResponse.getStatusCode());
-            assertEquals(artist, body.getMeta().getArtist());
-        } else {
-            var errorResponse = assertThrows(
-                HttpClientErrorException.class,
-                () -> mockApi.createMidi(token, createRequestDto)
-            );
-            assertEquals(status, errorResponse.getStatusCode());
-        }
+        // Check if the username is correct
+        assertEquals(userName, body.getUsername());
     }
-
+/*
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForGetPublicMidi")
     void getPublicMidis(TokenType tokenType, HttpStatus status) throws Exception {
@@ -340,6 +244,7 @@ public class MidiControllerTest {
         // create a public midi with a valid token and get the midiId
         var createdMidi = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
         var createResponseMidiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
+        var createResponseBlobId = createdMidi.getBody().getBinary().getBinaryId();
 
         // create a get request for the created public midi
         var response = mockApi.getMidiBiId(createResponseMidiId, token);
@@ -348,9 +253,12 @@ public class MidiControllerTest {
         var midi = requireNonNull(response.getBody()).getMeta();
         var blob = response.getBody().getBinary();
 
-        // assert that the request return OK and that the midiId is correct
+        // assert that the request return OK and that the userRef is equal to the valid userId
         assertEquals(status, response.getStatusCode());
+        assertEquals(mockUser.userId(), midi.getUserRef());
         assertEquals(createResponseMidiId, midi.getMidiId());
+        assertEquals(createResponseBlobId, midi.getBlobRef());
+        assertEquals(createResponseBlobId, blob.getBinaryId());
         assertEquals(Base64Midi.TETRIS, blob.getMidiFile());
     }
 
@@ -372,7 +280,7 @@ public class MidiControllerTest {
             // when status is OK assert that response values matches the expected values
             assertEquals(status, response.getStatusCode());
             var midi = requireNonNull(response.getBody()).getMeta();
-            assertEquals(midiId, midi.getMidiId());
+            assertEquals(mockUser.userId(), midi.getUserRef());
         } else {
             var response = assertThrows(
                 HttpClientErrorException.class,
@@ -400,6 +308,9 @@ public class MidiControllerTest {
             assertEquals(status, response.getStatusCode());
             assertEquals(expectedSize, midis.size());
 
+            if (tokenType == TokenType.VALID) {
+                assertEquals(mockUser.userId(), midis.getFirst().getUserRef());
+            }
         } else {
             var response = assertThrows(
                 HttpClientErrorException.class,
@@ -408,7 +319,7 @@ public class MidiControllerTest {
             assertEquals(status, response.getStatusCode());
         }
     }
-
+*/
     @BeforeEach
     void setUp() {
         mockUser = MockUser.randomMockUser();
@@ -458,9 +369,9 @@ public class MidiControllerTest {
     private static Stream<Arguments> tokenTypeAndStatusCodeForCreate() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
-            Arguments.of(TokenType.EXPIRED, HttpStatus.UNAUTHORIZED),
-            Arguments.of(TokenType.INVALID, HttpStatus.UNAUTHORIZED),
-            Arguments.of(TokenType.NULL, HttpStatus.UNAUTHORIZED)
+            Arguments.of(TokenType.EXPIRED, HttpStatus.OK),
+            Arguments.of(TokenType.INVALID, HttpStatus.OK),
+            Arguments.of(TokenType.NULL, HttpStatus.OK)
         );
     }
 
@@ -474,28 +385,10 @@ public class MidiControllerTest {
         };
     }
 
-    private final Supplier<MidiCreateRequestDto> tetrisCreatePublicRequest = () ->
-        new MidiCreateRequestDto()
-            .isPrivate(false)
-            .filename("tetris-type-a.mid")
-            .artist("Hirokazu Tanaka")
-            .title("Type A")
-            .midiFile(Base64Midi.TETRIS);
-
-    private final Supplier<MidiCreateRequestDto> tetrisCreatePrivateRequest = () ->
-        new MidiCreateRequestDto()
-            .isPrivate(true)
-            .filename("tetris-type-a.mid")
-            .artist("Hirokazu Tanaka")
-            .title("Type A")
-            .midiFile(Base64Midi.TETRIS);
-
-    private final Supplier<MidiCreateRequestDto> anotherCreatePublicRequest = () ->
-        new MidiCreateRequestDto()
-            .isPrivate(false)
-            .filename("moog-madness.mid")
-            .artist("Gnesta Stefan")
-            .title("Ylande Katt")
-            .midiFile(Base64Midi.TETRIS);
+    private final Supplier<UserCreateRequestDto> userCreateRequest = () ->
+        new UserCreateRequestDto()
+            .username("user")
+            .email("email@example.com")
+            .password("super-duper-secret");
 
 }

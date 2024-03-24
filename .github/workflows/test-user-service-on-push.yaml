@@ -1,7 +1,9 @@
-name: Build And Test On PR
+name: Build And Test User-Service On Push
 
 on:
-  [pull_request]
+  push:
+    paths:
+      - user-service/**
 
 env:
   REGISTRY: ghcr.io
@@ -23,26 +25,6 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-
-    - name: Cache Midi-Manager Gradle dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~./midi-manager/gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Make Midi-Manager Gradle Executable
-      run: chmod +x ./gradlew
-      working-directory: midi-manager
-
-    - name: Generate Midi-Manager OpenAPI Sources
-      run: ./gradlew openApiGenerate
-      working-directory: midi-manager
-
-    - name: Run Midi-Manager Tests
-      run: ./gradlew test
-      working-directory: midi-manager
 
     - name: Cache User-Service Gradle dependencies
       uses: actions/cache@v3

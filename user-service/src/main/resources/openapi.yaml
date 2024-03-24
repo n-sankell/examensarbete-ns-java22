@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: User API
+  version: 1.0.0
+
+paths:
+
+  /user:
+    post:
+      summary: Create a new user
+      description: "Create a new user."
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - User
+    get:
+      summary: Get user details
+      description: "Get user details from provided JWT"
+      operationId: getUserDetails
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - User
+    delete:
+      summary: Delete a user
+      description: "Delete a user given correct JWT token and password"
+      operationId: deleteUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - User
+
+  /user/login:
+    post:
+      summary: Log in as a user
+      description: "Returns an JWT access token on successful login"
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - User
+
+  /user/edit:
+    post:
+      summary: Edit user details
+      description: "Edit details of a user"
+      operationId: editUserDetails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditUserRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - User
+
+  /user/edit/pass:
+    post:
+      summary: Edit a users password
+      description: "Edit the password for a user"
+      operationId: editUserPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditPasswordRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - User
+
+components:
+  schemas:
+
+    UserCreateRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: "Username of the Muser"
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          description: "Email for the user"
+          format: email
+          pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
+          minLength: 6
+          maxLength: 200
+        password:
+          type: string
+          description: "password for the user"
+          minLength: 10
+          maxLength: 200
+      required:
+        - username
+        - email
+        - password
+
+    UserLoginRequest:
+      type: object
+      properties:
+        userIdentifier:
+          type: string
+          description: 'User email or username'
+          example: email@example.com
+          minLength: 6
+          maxLength: 200
+        password:
+          type: string
+          description: "password for the user"
+          minLength: 10
+          maxLength: 200
+      required:
+        - username
+        - email
+        - password
+
+    EditUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: "Username of the Muser"
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          description: "Email for the user"
+          format: email
+          pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
+          minLength: 6
+          maxLength: 200
+      required:
+        - username
+        - email
+
+    EditPasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: "password for the user"
+          minLength: 10
+          maxLength: 200
+      required:
+        - password
+
+    DeleteUserRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: "password for the user"
+          minLength: 10
+          maxLength: 200
+      required:
+        - password
+
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          description: "Username of the Muser"
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          description: "Email for the user"
+          format: email
+          pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
+          minLength: 6
+          maxLength: 200
+        lastActive:
+          type: string
+          format: date-time
+          description: "Timestamp of latest login"
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          description: "Timestamp of creation"
+          readOnly: true
+        dateEdited:
+          type: string
+          format: date-time
+          description: "Timestamp of last edit"
+          readOnly: true
+      required:
+        - username
+        - email
+
+    ValidationException:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+      required:
+        - message
+        - errors
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        invalidValue:
+          type: string
+      required:
+        - field
+        - error
+        - invalidValue
+
+    EmptyResponse:
+      type: object
+      properties: { }
+
+  responses:
+    UnprocessableEntity:
+      description: Data was missing or incorrect in the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationException'
+    NotFound:
+      description: The specified resource was not found
+    Unauthorized:
+      description: User was not authorized
+    Forbidden:
+      description: User was forbidden access to a resource
+    BadRequest:
+      description: There was an issue with the request data
+    InternalServerError:
+      description: Internal server error
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+servers:
+  - url: http://{address}
+    variables:
+      address:
+        default: localhost:8081
+        description: The current environment
