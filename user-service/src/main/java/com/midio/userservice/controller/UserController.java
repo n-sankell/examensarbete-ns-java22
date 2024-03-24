@@ -3,6 +3,8 @@ package com.midio.userservice.controller;
 import com.midio.userservice.converter.UserConverter;
 import com.midio.userservice.secirity.CurrentUser;
 import com.midio.userservice.secirity.CurrentUserSupplier;
+import com.midio.userservice.secirity.JwtConstants;
+import com.midio.userservice.secirity.JwtTokenGenerator;
 import com.midio.userservice.service.UserService;
 import com.midio.userservice.util.RequestValidator;
 import generatedapi.UserApi;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -24,16 +28,19 @@ public class UserController implements UserApi {
     private final UserService userService;
     private final CurrentUserSupplier currentUserSupplier;
     private final RequestValidator validator;
+    private final JwtTokenGenerator tokenGenerator;
 
     @Autowired
     public UserController(
         UserService userService,
         CurrentUserSupplier currentUserSupplier,
-        RequestValidator validator
+        RequestValidator validator,
+        JwtTokenGenerator tokenGenerator
     ) {
         this.userService = userService;
         this.currentUserSupplier = currentUserSupplier;
         this.validator = validator;
+        this.tokenGenerator = tokenGenerator;
     }
 
     @Override
@@ -41,7 +48,11 @@ public class UserController implements UserApi {
         validator.validateRequest(userCreateRequestDto);
         var userData = UserConverter.buildCreateData(userCreateRequestDto);
         var userInfo = userService.createUser(userData);
-        return ok(UserConverter.convert(userInfo));
+
+        return ResponseEntity
+            .status(OK)
+            .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + userInfo.token())
+            .body(UserConverter.convert(userInfo.userInfo()));
     }
 
     @Override

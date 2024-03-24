@@ -2,6 +2,7 @@ package com.midio.userservice.controller;
 
 import com.midio.userservice.config.UserServiceTestEnvironment;
 import com.midio.userservice.exception.ValidationException;
+import com.midio.userservice.secirity.JwtTokenProvider;
 import com.midio.userservice.testdata.MockApi;
 import com.midio.userservice.testdata.MockTokenGenerator;
 import com.midio.userservice.testdata.MockUser;
@@ -16,11 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.midio.userservice.secirity.JwtTokenInterceptor.extractStringIdFromClaims;
+import static com.midio.userservice.secirity.JwtTokenInterceptor.extractTokenFromHeaders;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @UserServiceTestEnvironment
@@ -30,6 +36,8 @@ public class UserControllerTest {
     private MockApi mockApi;
     @Autowired
     private MockTokenGenerator mockTokenGenerator;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     private MockUser mockUser;
     private String validToken;
 
@@ -43,48 +51,63 @@ public class UserControllerTest {
         var response =
             assertThrows(
                 ValidationException.class,
-                () -> mockApi.createUser(createRequestDto, token)
+                () -> mockApi.createUser(createRequestDto)
             );
 
         assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
     }
 
-    @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForCreate")
-    void createUser(TokenType tokenType, HttpStatus status) {
-        var token = getTokenByType(tokenType);
-        var userName = "Gilgamesh";
+    @Test
+    void createUser() {
+        var email = "unique.email@unique.tk";
 
-        // Create a user with specified username
+        // Create a user with specified email
         var createRequestDto = userCreateRequest.get()
-            .username(userName);
+            .email(email);
 
         var okResponse = assertDoesNotThrow(
-            () -> mockApi.createUser(createRequestDto, token)
+            () -> mockApi.createUser(createRequestDto)
         );
-        assertEquals(status, okResponse.getStatusCode());
+        assertEquals(OK, okResponse.getStatusCode());
         var body = requireNonNull(okResponse.getBody());
+        var headers = requireNonNull(okResponse.getHeaders());
+        var token = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
 
-        // Check if the username is correct
-        assertEquals(userName, body.getUsername());
+        var claims = jwtTokenProvider.extractClaims(token);
+        var emailFromToken = claims.getSubject();
+        var idFromToken = extractStringIdFromClaims(claims);
+
+        // Check if the username is correct and that the id is a valid UUID
+        assertDoesNotThrow(() -> UUID.fromString(idFromToken));
+        assertEquals(email, emailFromToken);
+        assertEquals(email, body.getEmail());
     }
 
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForGetUserInfo")
     void getUserInfo(TokenType tokenType, HttpStatus status) throws Exception {
-        var token = getTokenByType(tokenType);
-        var username = "Pontus";
+        var email = "pontus@telia.se";
 
         // Create a user
-        mockApi.createUser(userCreateRequest.get().username(username), validToken);
+        var createResponse = mockApi.createUser(userCreateRequest.get().email(email));
+        var headers = requireNonNull(createResponse.getHeaders());
+
+        validToken = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
+        var token = getTokenByType(tokenType);
 
         if (status == HttpStatus.OK) {
+            var claims = jwtTokenProvider.extractClaims(token);
+            var emailFromToken = claims.getSubject();
+            var idFromToken = extractStringIdFromClaims(claims);
+
             var response = assertDoesNotThrow(
                 () -> mockApi.getUserDetails(token)
             );
 
             assertEquals(status, response.getStatusCode());
-            assertEquals(username, requireNonNull(response.getBody()).getUsername());
+            assertEquals(email, requireNonNull(response.getBody()).getEmail());
+            assertDoesNotThrow(() -> UUID.fromString(idFromToken));
+            assertEquals(email, emailFromToken);
         } else {
             var editResponse = assertThrows(
                 HttpClientErrorException.class,
@@ -310,9 +333,7 @@ public class UserControllerTest {
 
     private static Stream<Arguments> tokenTypeAndStatusCodeForGetUserInfo() {
         return Stream.of(
-            Arguments.of(TokenType.VALID, HttpStatus.NOT_FOUND),
-            //TODO not found needs to be replaced with OK
-            // Find a way to mock a token with newly created user
+            Arguments.of(TokenType.VALID, HttpStatus.OK),
             Arguments.of(TokenType.EXPIRED, HttpStatus.UNAUTHORIZED),
             Arguments.of(TokenType.INVALID, HttpStatus.UNAUTHORIZED),
             Arguments.of(TokenType.NULL, HttpStatus.UNAUTHORIZED)

@@ -5,12 +5,15 @@ import com.midio.userservice.model.DetailsId;
 import com.midio.userservice.model.PassId;
 import com.midio.userservice.model.Password;
 import com.midio.userservice.model.User;
+import com.midio.userservice.model.UserAndDetails;
 import com.midio.userservice.model.UserBundle;
 import com.midio.userservice.model.UserDetails;
 import com.midio.userservice.model.UserId;
 import com.midio.userservice.model.UserInfo;
+import com.midio.userservice.model.UserInfoAndToken;
 import com.midio.userservice.repository.UserRepository;
 import com.midio.userservice.secirity.CurrentUser;
+import com.midio.userservice.secirity.JwtTokenGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtTokenGenerator tokenGenerator;
     private final Logger logger;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtTokenGenerator tokenGenerator) {
         this.userRepository = userRepository;
+        this.tokenGenerator = tokenGenerator;
         this.logger = getLogger();
     }
 
@@ -35,12 +40,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfo createUser(UserBundle userInfo) {
+    public UserInfoAndToken createUser(UserBundle userInfo) {
         userRepository.saveUserDetails(userInfo.userDetails());
         userRepository.savePassword(userInfo.password());
         userRepository.saveUser(userInfo.user());
+        var token = tokenGenerator.generateTokenForUser(
+            new UserAndDetails(userInfo.user(), userInfo.userDetails()));
 
-        return getUserInfoById(userInfo.user().userId());
+        return new UserInfoAndToken(getUserInfoById(userInfo.user().userId()), token);
     }
 
     private UserDetails getUserDetailsById(DetailsId detailsId) {

@@ -26,6 +26,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 public class MockApi {
@@ -42,7 +45,7 @@ public class MockApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
@@ -55,31 +58,32 @@ public class MockApi {
         return ResponseEntity.status(status).body(content);
     }
 
-    public ResponseEntity<UserDto> createUser(UserCreateRequestDto requestBody, String token) throws Exception {
+    public ResponseEntity<UserDto> createUser(UserCreateRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/user")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    //.header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
         throwIfError(result.getResponse());
 
+        var authHeader = Objects.requireNonNull(result.getResponse().getHeader(AUTHORIZATION));
         var status = HttpStatus.valueOf(result.getResponse().getStatus());
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class) :
             null;
-        return ResponseEntity.status(status).body(content);
+        return ResponseEntity.status(status).header(AUTHORIZATION, authHeader).body(content);
     }
 
     public ResponseEntity<UserDto> getUserDetails(String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/user")
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
@@ -99,7 +103,7 @@ public class MockApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
@@ -119,7 +123,7 @@ public class MockApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
@@ -139,7 +143,7 @@ public class MockApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
+                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 

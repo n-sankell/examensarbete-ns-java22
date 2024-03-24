@@ -2,7 +2,7 @@ package com.midio.userservice.secirity;
 
 import com.midio.userservice.model.UserId;
 
-public record CurrentUser(UserId userId, String username, UserAuthentication userAuthentication) {
+public record CurrentUser(UserId userId, String email, UserAuthentication userAuthentication) {
 
     public boolean isAuthenticated() {
         return userAuthentication == UserAuthentication.AUTHENTICATED;
