@@ -51,7 +51,7 @@ public class UserControllerTest {
 
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForCreate")
-    void createMidi(TokenType tokenType, HttpStatus status) {
+    void createUser(TokenType tokenType, HttpStatus status) {
         var token = getTokenByType(tokenType);
         var userName = "Gilgamesh";
 
@@ -71,7 +71,7 @@ public class UserControllerTest {
 
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForGetUserInfo")
-    void editMidiMetaAndBinary(TokenType tokenType, HttpStatus status) throws Exception {
+    void getUserInfo(TokenType tokenType, HttpStatus status) throws Exception {
         var token = getTokenByType(tokenType);
         var username = "Pontus";
 
