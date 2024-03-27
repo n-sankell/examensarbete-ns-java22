@@ -61,22 +61,28 @@ public class UserService {
     }
 
     public UserInfoAndToken login(String identifier, String password) {
-        var optionalUser = findUserByIdentifier(identifier);
-        if (optionalUser.isPresent()) {
-            var user = optionalUser.get();
-            var savedPassword = getPasswordById(user.passId());
-
-            if (passwordEncoder.matches(password, savedPassword.password())) {
+        return findUserByIdentifier(identifier)
+            .filter(user -> passwordMatches(user, password))
+            .map(user -> {
+                updateUserLoginDate(user);
                 var userDetails = getUserDetailsById(user.detailsId());
-                var token = tokenGenerator.generateTokenForUser(
-                    new UserAndDetails(user, userDetails));
-                userRepository.updateUserLoginDate(user.userId(), ZonedDateTime.now());
+                var token = tokenGenerator.generateTokenForUser(new UserAndDetails(user, userDetails));
+                var userInfo = getUserInfoById(user.userId());
+                return new UserInfoAndToken(userInfo, token);
+            })
+            .orElseThrow(() -> {
+                logger.warn("Failed login attempt for user with identifier " + identifier);
+                return new ForbiddenException("Login unsuccessful", identifier);
+            });
+    }
 
-                return new UserInfoAndToken(getUserInfoById(user.userId()), token);
-            }
-        }
-        logger.warn("Failed login attempt for user with identifier " + identifier);
-        throw new ForbiddenException("Login unsuccessful", identifier);
+    private boolean passwordMatches(User user, String password) {
+        var savedPassword = getPasswordById(user.passId());
+        return passwordEncoder.matches(password, savedPassword.password());
+    }
+
+    private void updateUserLoginDate(User user) {
+        userRepository.updateUserLoginDate(user.userId(), ZonedDateTime.now());
     }
 
     private Optional<User> findUserByIdentifier(String identifier) {
@@ -98,11 +104,6 @@ public class UserService {
     private Password getPasswordById(PassId passId) {
         return userRepository.getPassword(passId)
             .orElseThrow(NotFoundException::new);
-    }
-
-    private UserAndDetails getUserAndDetailsByIdentifier(String identifier) {
-
-        return null;
     }
 
     private Logger getLogger() {
