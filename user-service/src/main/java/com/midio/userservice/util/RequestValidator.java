@@ -37,7 +37,7 @@ public class RequestValidator {
                     )
                 );
             }
-            throw new ValidationException("Validation error in create request", errorList);
+            throw new ValidationException("Validation error in request", errorList);
         }
     }
 

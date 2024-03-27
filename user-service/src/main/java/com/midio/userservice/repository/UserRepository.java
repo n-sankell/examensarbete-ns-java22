@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -101,6 +102,61 @@ public class UserRepository {
             Optional.ofNullable(result.getFirst());
     }
 
+    public Optional<UserDetails> getUserDetailsByEmail(String email) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("email", email);
+
+        var sql =
+            """
+            SELECT details_id, username, email, date_edited
+            FROM user_details
+            WHERE email = :email
+            """;
+
+        var result = userJdbcTemplate.query(sql, parameters, (rs, rowNum) -> toUserDetails(rs));
+
+        return result.isEmpty() ?
+            Optional.empty() :
+            Optional.ofNullable(result.getFirst());
+    }
+
+    public Optional<UserDetails> getUserDetailsByUsername(String username) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("username", username);
+
+        var sql =
+            """
+            SELECT details_id, username, email, date_edited
+            FROM user_details
+            WHERE username = :username
+            """;
+
+        var result = userJdbcTemplate.query(sql, parameters, (rs, rowNum) -> toUserDetails(rs));
+
+        return result.isEmpty() ?
+            Optional.empty() :
+            Optional.ofNullable(result.getFirst());
+    }
+
+    public Optional<User> getUsersByDetailsId(DetailsId detailsId) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("detailsId", detailsId.id());
+
+        var sql =
+            """
+            SELECT user_id, details_ref, pass_ref,
+                   last_login, last_edited, date_created
+            FROM midi_user
+            WHERE details_ref = :detailsId
+            """;
+
+        var result = userJdbcTemplate.query(sql, parameters, (rs, rowNum) -> toUser(rs));
+
+        return result.isEmpty() ?
+            Optional.empty() :
+            Optional.ofNullable(result.getFirst());
+    }
+
     public void saveUserDetails(UserDetails userDetails) {
         var parameters = new MapSqlParameterSource()
             .addValue("detailsId", userDetails.detailsId().id())
@@ -173,6 +229,24 @@ public class UserRepository {
 
         if (result == 0) {
             throw new RuntimeException("Error when saving user");
+        }
+    }
+
+    public void updateUserLoginDate(UserId userId, ZonedDateTime lastLogin) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("id", userId.id())
+            .addValue("lastLogin", convertDate(lastLogin));
+
+        var sql =
+            """
+            UPDATE midi_user
+            SET last_login = :lastLogin
+            WHERE user_id = :id
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not update");
         }
     }
 

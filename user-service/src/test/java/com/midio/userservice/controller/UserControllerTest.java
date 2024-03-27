@@ -8,6 +8,7 @@ import com.midio.userservice.testdata.MockTokenGenerator;
 import com.midio.userservice.testdata.MockUser;
 import com.midio.userservice.testdata.TokenType;
 import generatedapi.model.UserCreateRequestDto;
+import generatedapi.model.UserLoginRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -81,6 +82,42 @@ public class UserControllerTest {
         assertDoesNotThrow(() -> UUID.fromString(idFromToken));
         assertEquals(email, emailFromToken);
         assertEquals(email, body.getEmail());
+    }
+
+    @Test
+    void login() {
+        var username = "nameToFind";
+        var password = "super-duper-secret";
+        var email = "email@example.com";
+
+        // Create a user with username and password
+        var createRequest = new UserCreateRequestDto()
+            .username(username)
+            .email(email)
+            .password(password);
+
+        var createResponse = assertDoesNotThrow(() -> mockApi.createUser(createRequest));
+
+        var loginResponse = assertDoesNotThrow(
+            () -> mockApi.login(
+                new UserLoginRequestDto()
+                    .userIdentifier(username)
+                    .password(password)
+            ));
+
+        var headers = requireNonNull(loginResponse.getHeaders());
+        var token = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
+
+        var claims = jwtTokenProvider.extractClaims(token);
+        var emailFromToken = claims.getSubject();
+        var idFromToken = extractStringIdFromClaims(claims);
+
+        // Check if the username is correct and that the id is a valid UUID
+        assertDoesNotThrow(() -> UUID.fromString(idFromToken));
+        assertEquals(email, emailFromToken);
+        var createMillis = requireNonNull(createResponse.getBody()).getLastActive().toInstant().toEpochMilli();
+        var loginMillis = requireNonNull(loginResponse.getBody()).getLastActive().toInstant().toEpochMilli();
+        assertTrue(loginMillis > createMillis);
     }
 
     @ParameterizedTest

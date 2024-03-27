@@ -38,24 +38,24 @@ public class MockApi {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public ResponseEntity<UserDto> login(UserLoginRequestDto requestBody, String token) throws Exception {
+    public ResponseEntity<UserDto> login(UserLoginRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/user/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    .header(AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
         throwIfError(result.getResponse());
 
+        var authHeader = Objects.requireNonNull(result.getResponse().getHeader(AUTHORIZATION));
         var status = HttpStatus.valueOf(result.getResponse().getStatus());
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class) :
             null;
-        return ResponseEntity.status(status).body(content);
+        return ResponseEntity.status(status).header(AUTHORIZATION, authHeader).body(content);
     }
 
     public ResponseEntity<UserDto> createUser(UserCreateRequestDto requestBody) throws Exception {
@@ -65,7 +65,6 @@ public class MockApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
-                    //.header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
 
