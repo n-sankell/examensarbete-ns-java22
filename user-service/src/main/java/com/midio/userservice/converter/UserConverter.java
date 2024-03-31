@@ -3,11 +3,13 @@ package com.midio.userservice.converter;
 import com.midio.userservice.model.DetailsId;
 import com.midio.userservice.model.PassId;
 import com.midio.userservice.model.Password;
+import com.midio.userservice.model.UpdatePassword;
 import com.midio.userservice.model.User;
 import com.midio.userservice.model.UserBundle;
 import com.midio.userservice.model.UserDetails;
 import com.midio.userservice.model.UserId;
 import com.midio.userservice.model.UserInfo;
+import generatedapi.model.EditPasswordRequestDto;
 import generatedapi.model.UserCreateRequestDto;
 import generatedapi.model.UserDto;
 
@@ -50,6 +52,13 @@ public class UserConverter {
                 createData.getPassword(),
                 date
             )
+        );
+    }
+
+    public static UpdatePassword buildUpdatePassword(EditPasswordRequestDto request) {
+        return new UpdatePassword(
+            request.getCurrentPassword(),
+            request.getNewPassword()
         );
     }
 

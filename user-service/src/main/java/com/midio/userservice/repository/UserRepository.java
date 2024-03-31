@@ -250,6 +250,91 @@ public class UserRepository {
         }
     }
 
+    public void updatePassword(PassId passId, String newPassword, ZonedDateTime dateEdited) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("passId", passId.id())
+            .addValue("newPassword", newPassword)
+            .addValue("dateEdited", convertDate(dateEdited));
+
+        var sql =
+            """
+            UPDATE pass_details 
+            SET password = :newPassword, date_edited = :dateEdited
+            WHERE pass_id = :passId
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not update");
+        }
+    }
+
+    public void updateLastEdited(UserId userId, ZonedDateTime dateEdited) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("userId", userId.id())
+            .addValue("dateEdited", convertDate(dateEdited));
+
+        var sql =
+            """
+            UPDATE midi_user 
+            SET last_edited = :dateEdited
+            WHERE user_id = :userId
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not update");
+        }
+    }
+
+    public void deleteUserById(UserId deleteId) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("id", deleteId.id());
+
+        var sql =
+            """
+            DELETE FROM midi_user
+            WHERE user_id = :id
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not delete");
+        }
+    }
+
+    public void deleteDetailsById(DetailsId deleteId) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("id", deleteId.id());
+
+        var sql =
+            """
+            DELETE FROM user_details
+            WHERE details_id = :id
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not delete");
+        }
+    }
+
+    public void deletePasswordById(PassId deleteId) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("id", deleteId.id());
+
+        var sql =
+            """
+            DELETE FROM pass_details
+            WHERE pass_id = :id
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not delete");
+        }
+    }
+
     private UserDetails toUserDetails(ResultSet rs) throws SQLException {
         var id = UUID.fromString(rs.getString("details_id"));
         var filename = rs.getString("username");

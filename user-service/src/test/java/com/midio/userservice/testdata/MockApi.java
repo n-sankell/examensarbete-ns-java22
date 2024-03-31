@@ -135,7 +135,7 @@ public class MockApi {
         return ResponseEntity.status(status).body(content);
     }
 
-    public ResponseEntity<UserDto> editPassword(EditPasswordRequestDto requestBody, String token) throws Exception {
+    public ResponseEntity<String> editPassword(EditPasswordRequestDto requestBody, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .post("/user/edit/pass")
@@ -150,7 +150,7 @@ public class MockApi {
 
         var status = HttpStatus.valueOf(result.getResponse().getStatus());
         var content = status == HttpStatus.OK ?
-            objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class) :
+            result.getResponse().getContentAsString() :
             null;
         return ResponseEntity.status(status).body(content);
     }

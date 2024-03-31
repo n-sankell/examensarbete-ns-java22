@@ -246,13 +246,19 @@ components:
     EditPasswordRequest:
       type: object
       properties:
-        password:
+        currentPassword:
           type: string
-          description: "password for the user"
+          description: "Current password for the user"
+          minLength: 10
+          maxLength: 200
+        newPassword:
+          type: string
+          description: "New password for the user"
           minLength: 10
           maxLength: 200
       required:
-        - password
+        - currentPassword
+        - newPassword
 
     DeleteUserRequest:
       type: object

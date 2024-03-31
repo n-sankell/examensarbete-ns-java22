@@ -3,10 +3,13 @@ package com.midio.userservice.controller;
 import com.midio.userservice.config.UserServiceTestEnvironment;
 import com.midio.userservice.exception.ValidationException;
 import com.midio.userservice.secirity.JwtTokenProvider;
+import com.midio.userservice.testdata.Identifier;
 import com.midio.userservice.testdata.MockApi;
 import com.midio.userservice.testdata.MockTokenGenerator;
 import com.midio.userservice.testdata.MockUser;
 import com.midio.userservice.testdata.TokenType;
+import generatedapi.model.DeleteUserRequestDto;
+import generatedapi.model.EditPasswordRequestDto;
 import generatedapi.model.UserCreateRequestDto;
 import generatedapi.model.UserLoginRequestDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +30,8 @@ import static com.midio.userservice.secirity.JwtTokenInterceptor.extractTokenFro
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
@@ -44,8 +49,6 @@ public class UserControllerTest {
 
     @Test
     void createUserWithInvalidData() {
-        var token = getTokenByType(TokenType.NULL);
-
         var createRequestDto = userCreateRequest.get()
             .email("hhh");
 
@@ -85,10 +88,66 @@ public class UserControllerTest {
     }
 
     @Test
-    void login() {
+    void loginWithWrongPassword() {
+        var password = "super-duper-secret";
+        var wrongPassword = "super-duper-wrong";
+        var email = "email@example.com";
+
+        // Create a user with username and password
+        var createRequest = new UserCreateRequestDto()
+            .username("username")
+            .email(email)
+            .password(password);
+
+        assertDoesNotThrow(() -> mockApi.createUser(createRequest));
+
+        var loginResponse = assertThrows(
+            HttpClientErrorException.class,
+            () -> mockApi.login(
+                new UserLoginRequestDto()
+                    .userIdentifier(email)
+                    .password(wrongPassword)
+            )
+        );
+        assertEquals(FORBIDDEN, loginResponse.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("loginIdentifier")
+    void loginWithWrongIdentifier(Identifier identifierType) {
+        var password = "super-duper-secret";
+        var email = "email@example.com";
+        var username = "username";
+        var wrongEmail = "wrongemail@example.com";
+        var wrongUsername = "usernames";
+        var wrongIdentifier = identifierType == Identifier.EMAIL ? wrongEmail : wrongUsername;
+
+        // Create a user with username and password
+        var createRequest = new UserCreateRequestDto()
+            .username(username)
+            .email(email)
+            .password(password);
+
+        assertDoesNotThrow(() -> mockApi.createUser(createRequest));
+
+        var loginResponse = assertThrows(
+            HttpClientErrorException.class,
+            () -> mockApi.login(
+                new UserLoginRequestDto()
+                    .userIdentifier(wrongIdentifier)
+                    .password(password)
+            )
+        );
+        assertEquals(FORBIDDEN, loginResponse.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("loginIdentifier")
+    void loginWithIdentifier(Identifier identifierType) {
         var username = "nameToFind";
         var password = "super-duper-secret";
         var email = "email@example.com";
+        var identifier = identifierType == Identifier.EMAIL ? email : username;
 
         // Create a user with username and password
         var createRequest = new UserCreateRequestDto()
@@ -101,7 +160,7 @@ public class UserControllerTest {
         var loginResponse = assertDoesNotThrow(
             () -> mockApi.login(
                 new UserLoginRequestDto()
-                    .userIdentifier(username)
+                    .userIdentifier(identifier)
                     .password(password)
             ));
 
@@ -121,7 +180,7 @@ public class UserControllerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForGetUserInfo")
+    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
     void getUserInfo(TokenType tokenType, HttpStatus status) throws Exception {
         var email = "pontus@telia.se";
 
@@ -129,6 +188,7 @@ public class UserControllerTest {
         var createResponse = mockApi.createUser(userCreateRequest.get().email(email));
         var headers = requireNonNull(createResponse.getHeaders());
 
+        // Set received token as valid token
         validToken = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
         var token = getTokenByType(tokenType);
 
@@ -220,43 +280,89 @@ public class UserControllerTest {
             assertEquals(Base64Midi.TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
     }
-
+*/
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
-    void deleteMidi(TokenType tokenType, HttpStatus status) throws Exception {
-        // Generate tokens with different access
+    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
+    void deleteUser(TokenType tokenType, HttpStatus status) throws Exception {
+        var password = "wordForPassing";
+        var username = "Arnold";
+
+        // Create a user
+        var createResponse = mockApi.createUser(userCreateRequest.get().password(password).username(username));
+        var headers = requireNonNull(createResponse.getHeaders());
+
+        // Set received token as valid token
+        validToken = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
         var token = getTokenByType(tokenType);
 
         // Create two midis with a valid token, get the id of the one to delete
-        mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var toBeDeleted = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
-        var deletedId = requireNonNull(toBeDeleted.getBody()).getMeta().getMidiId();
+        var deleteRequest = new DeleteUserRequestDto()
+            .password(password);
 
-        // Check that there is two entries in the database
-        var firstResponse = mockApi.getUserMidis(validToken);
-        assertEquals(2, requireNonNull(firstResponse.getBody()).getMidis().size());
-
-        // Try to delete the file and check status code
+        // Try to delete the user and check status code
         if (status == HttpStatus.OK) {
             var deleteResponse = assertDoesNotThrow(
-                () -> mockApi.deleteMidi(deletedId, token)
+                () -> mockApi.deleteUser(deleteRequest, token)
             );
-            // When status is OK assert that second response size has decreased else as before
-            var secondResponse = mockApi.getUserMidis(validToken);
+            // When status is OK assert that second response is not found
+            var secondResponse = assertThrows(
+                HttpClientErrorException.class,
+                () -> mockApi.getUserDetails(validToken)
+            );
             assertEquals(status, deleteResponse.getStatusCode());
-            assertEquals(1, requireNonNull(secondResponse.getBody()).getMidis().size());
-            assertEquals("Deleted", deleteResponse.getBody());
+            assertEquals(NOT_FOUND, requireNonNull(secondResponse.getStatusCode()));
+            assertEquals("User deleted.", deleteResponse.getBody());
         } else {
             var deleteResponse = assertThrows(
                 HttpClientErrorException.class,
-                () -> mockApi.deleteMidi(deletedId, token)
+                () -> mockApi.deleteUser(deleteRequest, token)
             );
-            var secondResponse = mockApi.getUserMidis(validToken);
+            var secondResponse = mockApi.getUserDetails(validToken);
             assertEquals(status, deleteResponse.getStatusCode());
-            assertEquals(2, requireNonNull(secondResponse.getBody()).getMidis().size());
+            assertEquals(username, requireNonNull(secondResponse.getBody()).getUsername());
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
+    void updatePassword(TokenType tokenType, HttpStatus status) throws Exception {
+        var password = "oldPassword";
+        var newPassword = "newPassword";
+        var email = "pontus@telia.se";
+
+        // Create a user with email and password
+        var createResponse = mockApi.createUser(userCreateRequest.get().password(password).email(email));
+        var headers = requireNonNull(createResponse.getHeaders());
+
+        // Set received token as valid token
+        validToken = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
+        var token = getTokenByType(tokenType);
+
+        var changeRequest = new EditPasswordRequestDto()
+            .currentPassword(password)
+            .newPassword(newPassword);
+
+        // Try to change password and check status code
+        if (status == HttpStatus.OK) {
+            var editResponse = assertDoesNotThrow(
+                () -> mockApi.editPassword(changeRequest, token)
+            );
+            assertEquals(status, editResponse.getStatusCode());
+            // If status is OK login with new password should be successful
+            var newLoginResponse = mockApi.login(new UserLoginRequestDto().userIdentifier(email).password(newPassword));
+            assertEquals(OK, newLoginResponse.getStatusCode());
+        } else {
+            var editResponse = assertThrows(
+                HttpClientErrorException.class,
+                () -> mockApi.editPassword(changeRequest, token)
+            );
+            assertEquals(status, editResponse.getStatusCode());
+            // Login with old password should be successful
+            var newLoginResponse = mockApi.login(new UserLoginRequestDto().userIdentifier(email).password(password));
+            assertEquals(OK, newLoginResponse.getStatusCode());
+        }
+    }
+/*
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForGetPublicMidi")
     void getPublicMidiById(TokenType tokenType, HttpStatus status) throws Exception {
@@ -348,6 +454,13 @@ public class UserControllerTest {
         validToken = mockTokenGenerator.generateTokenForUser(mockUser);
     }
 
+    private static Stream<Arguments> loginIdentifier() {
+        return Stream.of(
+            Arguments.of(Identifier.EMAIL),
+            Arguments.of(Identifier.USERNAME)
+        );
+    }
+
     private static Stream<Arguments> tokenTypeAndStatusCodeForGetPublicMidi() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
@@ -368,7 +481,7 @@ public class UserControllerTest {
         );
     }
 
-    private static Stream<Arguments> tokenTypeAndStatusCodeForGetUserInfo() {
+    private static Stream<Arguments> tokenTypeAndStatusCodeForAuthorizedUserOperations() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
             Arguments.of(TokenType.EXPIRED, HttpStatus.UNAUTHORIZED),

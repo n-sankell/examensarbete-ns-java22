@@ -1,5 +1,6 @@
 package com.midio.userservice.controller;
 
+import com.midio.userservice.converter.UserConverter;
 import com.midio.userservice.secirity.CurrentUser;
 import com.midio.userservice.secirity.CurrentUserSupplier;
 import com.midio.userservice.secirity.SCryptPasswordEncoder;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.midio.userservice.converter.UserConverter.buildCreateData;
+import static com.midio.userservice.converter.UserConverter.buildUpdatePassword;
 import static com.midio.userservice.converter.UserConverter.convert;
 import static com.midio.userservice.secirity.JwtConstants.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -61,7 +63,9 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<Object> deleteUser(DeleteUserRequestDto deleteUserRequestDto) {
-        return ok(null);
+        validator.validateRequest(deleteUserRequestDto);
+        userService.deleteUser(deleteUserRequestDto.getPassword(), getCurrentUser());
+        return ok("User deleted.");
     }
 
     @Override
@@ -71,7 +75,12 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<Object> editUserPassword(EditPasswordRequestDto editPasswordRequestDto) {
-        return ok(null);
+        validator.validateRequest(editPasswordRequestDto);
+
+        var passwordData = buildUpdatePassword(editPasswordRequestDto);
+        userService.updatePassword(passwordData, getCurrentUser());
+
+        return ok("Password updated.");
     }
 
     @Override

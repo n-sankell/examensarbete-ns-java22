@@ -5,6 +5,7 @@ import com.midio.userservice.exception.NotFoundException;
 import com.midio.userservice.model.DetailsId;
 import com.midio.userservice.model.PassId;
 import com.midio.userservice.model.Password;
+import com.midio.userservice.model.UpdatePassword;
 import com.midio.userservice.model.User;
 import com.midio.userservice.model.UserAndDetails;
 import com.midio.userservice.model.UserBundle;
@@ -74,6 +75,29 @@ public class UserService {
                 logger.warn("Failed login attempt for user with identifier " + identifier);
                 return new ForbiddenException("Login unsuccessful", identifier);
             });
+    }
+
+    public void updatePassword(UpdatePassword updatePassword, CurrentUser currentUser) {
+        var user = getUserById(currentUser.userId());
+        if (!passwordMatches(user, updatePassword.currentPassword())) {
+            logger.warn("Failed attempt to change password for user: " + currentUser.userId());
+            throw new ForbiddenException("Password incorrect", currentUser.idToString());
+        }
+        var newPassword = passwordEncoder.encode(updatePassword.newPassword());
+        userRepository.updatePassword(user.passId(), newPassword, ZonedDateTime.now());
+        userRepository.updateLastEdited(currentUser.userId(), ZonedDateTime.now());
+    }
+
+    public void deleteUser(String password, CurrentUser currentUser) {
+        var user = getUserById(currentUser.userId());
+        if (!passwordMatches(user, password)) {
+            logger.warn("Failed attempt to delete user: " + currentUser.userId());
+            throw new ForbiddenException("Password incorrect", currentUser.idToString());
+        }
+        userRepository.deleteUserById(user.userId());
+        userRepository.deleteDetailsById(user.detailsId());
+        userRepository.deletePasswordById(user.passId());
+        logger.info("User: " + currentUser.userId() + " was deleted from the database");
     }
 
     private boolean passwordMatches(User user, String password) {
