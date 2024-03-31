@@ -3,6 +3,7 @@ package com.midio.userservice.repository;
 import com.midio.userservice.model.DetailsId;
 import com.midio.userservice.model.PassId;
 import com.midio.userservice.model.Password;
+import com.midio.userservice.model.UpdateDetails;
 import com.midio.userservice.model.User;
 import com.midio.userservice.model.UserDetails;
 import com.midio.userservice.model.UserId;
@@ -261,6 +262,26 @@ public class UserRepository {
             UPDATE pass_details 
             SET password = :newPassword, date_edited = :dateEdited
             WHERE pass_id = :passId
+            """;
+        var result = userJdbcTemplate.update(sql, parameters);
+
+        if (result == 0) {
+            throw new RuntimeException("Error, could not update");
+        }
+    }
+
+    public void updateDetails(DetailsId detailsId, UpdateDetails details, ZonedDateTime dateEdited) {
+        var parameters = new MapSqlParameterSource()
+            .addValue("detailsId", detailsId.id())
+            .addValue("email", details.email())
+            .addValue("username", details.username())
+            .addValue("dateEdited", convertDate(dateEdited));
+
+        var sql =
+            """
+            UPDATE user_details 
+            SET username = :username, email = :email, date_edited = :dateEdited
+            WHERE details_id = :detailsId
             """;
         var result = userJdbcTemplate.update(sql, parameters);
 

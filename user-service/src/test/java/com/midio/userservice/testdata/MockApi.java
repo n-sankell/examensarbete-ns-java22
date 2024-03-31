@@ -15,7 +15,6 @@ import generatedapi.model.UserDto;
 import generatedapi.model.UserLoginRequestDto;
 import generatedapi.model.ValidationExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,11 +127,12 @@ public class MockApi {
 
         throwIfError(result.getResponse());
 
+        var authHeader = Objects.requireNonNull(result.getResponse().getHeader(AUTHORIZATION));
         var status = HttpStatus.valueOf(result.getResponse().getStatus());
         var content = status == HttpStatus.OK ?
             objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class) :
             null;
-        return ResponseEntity.status(status).body(content);
+        return ResponseEntity.status(status).header(AUTHORIZATION, authHeader).body(content);
     }
 
     public ResponseEntity<String> editPassword(EditPasswordRequestDto requestBody, String token) throws Exception {

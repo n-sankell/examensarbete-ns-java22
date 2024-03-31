@@ -5,6 +5,7 @@ import com.midio.userservice.exception.NotFoundException;
 import com.midio.userservice.model.DetailsId;
 import com.midio.userservice.model.PassId;
 import com.midio.userservice.model.Password;
+import com.midio.userservice.model.UpdateDetails;
 import com.midio.userservice.model.UpdatePassword;
 import com.midio.userservice.model.User;
 import com.midio.userservice.model.UserAndDetails;
@@ -55,12 +56,13 @@ public class UserService {
         userRepository.savePassword(userInfo.password());
         userRepository.saveUser(userInfo.user());
         var token = tokenGenerator.generateTokenForUser(
-            new UserAndDetails(userInfo.user(), userInfo.userDetails()));
+            UserAndDetails.of(userInfo.user(), userInfo.userDetails()));
 
         logger.info("User created with id: " + userInfo.user().userId());
         return new UserInfoAndToken(getUserInfoById(userInfo.user().userId()), token);
     }
 
+    @Transactional
     public UserInfoAndToken login(String identifier, String password) {
         return findUserByIdentifier(identifier)
             .filter(user -> passwordMatches(user, password))
@@ -77,6 +79,7 @@ public class UserService {
             });
     }
 
+    @Transactional
     public void updatePassword(UpdatePassword updatePassword, CurrentUser currentUser) {
         var user = getUserById(currentUser.userId());
         if (!passwordMatches(user, updatePassword.currentPassword())) {
@@ -88,6 +91,7 @@ public class UserService {
         userRepository.updateLastEdited(currentUser.userId(), ZonedDateTime.now());
     }
 
+    @Transactional
     public void deleteUser(String password, CurrentUser currentUser) {
         var user = getUserById(currentUser.userId());
         if (!passwordMatches(user, password)) {
@@ -98,6 +102,23 @@ public class UserService {
         userRepository.deleteDetailsById(user.detailsId());
         userRepository.deletePasswordById(user.passId());
         logger.info("User: " + currentUser.userId() + " was deleted from the database");
+    }
+
+    @Transactional
+    public UserInfoAndToken updateUserDetails(UpdateDetails updateDetails, CurrentUser currentUser) {
+        var user = getUserById(currentUser.userId());
+        var details = getUserDetailsById(user.detailsId());
+        var date = ZonedDateTime.now();
+
+        userRepository.updateDetails(details.detailsId(), updateDetails, date);
+        userRepository.updateLastEdited(user.userId(), date);
+
+        var token = tokenGenerator.generateTokenForUser(
+            UserAndDetails.of(user, getUserDetailsById(details.detailsId()))
+        );
+
+        logger.info("User with id: " + user.userId() + " was updated with new info");
+        return new UserInfoAndToken(getUserInfoById(user.userId()), token);
     }
 
     private boolean passwordMatches(User user, String password) {

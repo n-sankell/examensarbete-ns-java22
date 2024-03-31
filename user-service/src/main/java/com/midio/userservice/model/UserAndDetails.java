@@ -18,4 +18,8 @@ public record UserAndDetails(User user, UserDetails userDetails) {
         return userDetails.email();
     }
 
+    public static UserAndDetails of(User user, UserDetails details) {
+        return new UserAndDetails(user, details);
+    }
+
 }

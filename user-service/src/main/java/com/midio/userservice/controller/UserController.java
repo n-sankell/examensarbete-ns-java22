@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.midio.userservice.converter.UserConverter.buildCreateData;
+import static com.midio.userservice.converter.UserConverter.buildDetailsUpdate;
 import static com.midio.userservice.converter.UserConverter.buildUpdatePassword;
 import static com.midio.userservice.converter.UserConverter.convert;
 import static com.midio.userservice.secirity.JwtConstants.TOKEN_PREFIX;
@@ -70,7 +71,14 @@ public class UserController implements UserApi {
 
     @Override
     public ResponseEntity<UserDto> editUserDetails(EditUserRequestDto editUserRequestDto) {
-        return ok(null);
+        validator.validateRequest(editUserRequestDto);
+
+        var updateData = buildDetailsUpdate(editUserRequestDto);
+        var userInfo = userService.updateUserDetails(updateData, getCurrentUser());
+
+        return ResponseEntity.status(OK)
+            .header(AUTHORIZATION, TOKEN_PREFIX + userInfo.token())
+            .body(convert(userInfo.userInfo()));
     }
 
     @Override

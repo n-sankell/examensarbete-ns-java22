@@ -10,6 +10,7 @@ import com.midio.userservice.testdata.MockUser;
 import com.midio.userservice.testdata.TokenType;
 import generatedapi.model.DeleteUserRequestDto;
 import generatedapi.model.EditPasswordRequestDto;
+import generatedapi.model.EditUserRequestDto;
 import generatedapi.model.UserCreateRequestDto;
 import generatedapi.model.UserLoginRequestDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -213,76 +214,59 @@ public class UserControllerTest {
             assertEquals(status, editResponse.getStatusCode());
         }
     }
-/*
-    @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
-    void editMidiBinary(TokenType tokenType, HttpStatus status) throws Exception {
-        var token = getTokenByType(tokenType);
-
-        // Create a midi with a valid token and get the midiId.
-        var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
-
-        // Edit the midi binary by midiId
-        var editRequest = new MidiEditBinaryRequestDto().midiFile(Base64Midi.GYMNOPEDIE);
-
-        if (status == HttpStatus.OK) {
-            var editResponse = assertDoesNotThrow(
-                () -> mockApi.editMidiBinary(midiId, token, editRequest)
-            );
-
-            // When status is OK assert that changes hav been made otherwise the midi should be unchanged
-            assertEquals(status, editResponse.getStatusCode());
-            assertEquals("Hirokazu Tanaka", requireNonNull(editResponse.getBody()).getMeta().getArtist());
-            assertEquals(Base64Midi.GYMNOPEDIE, editResponse.getBody().getBinary().getMidiFile());
-        } else {
-            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
-            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
-            assertEquals(Base64Midi.TETRIS, requireNonNull(secondResponse.getBody()).getBinary().getMidiFile());
-        }
-    }
 
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForUserMidis")
+    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
     void editMidiMeta(TokenType tokenType, HttpStatus status) throws Exception {
+        var oldUsername = "Arnold";
+        var oldEmail = "old.mail@google.com";
+        var newUsername = "Leopold";
+        var newEmail = "new.email@yahoo.com";
+
+        // Create a user
+        var createResponse = mockApi.createUser(userCreateRequest.get().username(oldUsername).email(oldEmail));
+        var headers = requireNonNull(createResponse.getHeaders());
+
+        // Set received token as valid token
+        validToken = extractTokenFromHeaders(requireNonNull(headers.get(AUTHORIZATION)).getFirst());
         var token = getTokenByType(tokenType);
 
-        // Create a midi with a valid token and get the midiId.
-        var createResponse = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
-
-        // Edit the midi metadata by midiId
-        var editRequest = new MidiEditMetaRequestDto()
-            .artist("Satie")
-            .title("Gymnopedie No 1")
-            .filename("gymnopedie-no1.mid")
-            .isPrivate(false);
+        // Create edit request with new username and email
+        var editRequest = new EditUserRequestDto()
+            .username(newUsername)
+            .email(newEmail);
 
         if (status == HttpStatus.OK) {
             var editResponse = assertDoesNotThrow(
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
+                () -> mockApi.editUser(editRequest, token)
             );
 
-            // When status is OK assert that changes hav been made otherwise the midi should be unchanged
+            // When status is OK assert that changes have been made
             assertEquals(status, editResponse.getStatusCode());
-            var artist = requireNonNull(editResponse.getBody()).getMeta().getArtist();
-            var midiFile = editResponse.getBody().getBinary().getMidiFile();
-            assertEquals("Satie", artist);
-            assertEquals(Base64Midi.TETRIS, midiFile);
+            var responseBody = requireNonNull(editResponse.getBody());
+            assertEquals(newEmail, responseBody.getEmail());
+            assertEquals(newUsername, responseBody.getUsername());
+
+            var newHeaders = requireNonNull(editResponse.getHeaders());
+            var newToken = extractTokenFromHeaders(requireNonNull(newHeaders.get(AUTHORIZATION)).getFirst());
+            var claims = jwtTokenProvider.extractClaims(newToken);
+            var emailFromToken = claims.getSubject();
+            assertEquals(newEmail, emailFromToken);
         } else {
             var editResponse = assertThrows(
                 HttpClientErrorException.class,
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
+                () -> mockApi.editUser(editRequest, token)
             );
             assertEquals(status, editResponse.getStatusCode());
-            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
-            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
-            assertEquals(Base64Midi.TETRIS, secondResponse.getBody().getBinary().getMidiFile());
+            var secondResponse = mockApi.getUserDetails(validToken);
+            var secondResponseBody = requireNonNull(secondResponse.getBody());
+            assertEquals(oldEmail, secondResponseBody.getEmail());
+            assertEquals(oldUsername, secondResponseBody.getUsername());
         }
     }
-*/
+
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
+    @MethodSource("tokenTypeAndStatusCodeForPasswordProtectedUserOperations")
     void deleteUser(TokenType tokenType, HttpStatus status) throws Exception {
         var password = "wordForPassing";
         var username = "Arnold";
@@ -313,6 +297,9 @@ public class UserControllerTest {
             assertEquals(NOT_FOUND, requireNonNull(secondResponse.getStatusCode()));
             assertEquals("User deleted.", deleteResponse.getBody());
         } else {
+            if (status == FORBIDDEN) {
+                deleteRequest.password("WRONG_PASSWORD");
+            }
             var deleteResponse = assertThrows(
                 HttpClientErrorException.class,
                 () -> mockApi.deleteUser(deleteRequest, token)
@@ -324,7 +311,7 @@ public class UserControllerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
+    @MethodSource("tokenTypeAndStatusCodeForPasswordProtectedUserOperations")
     void updatePassword(TokenType tokenType, HttpStatus status) throws Exception {
         var password = "oldPassword";
         var newPassword = "newPassword";
@@ -352,6 +339,9 @@ public class UserControllerTest {
             var newLoginResponse = mockApi.login(new UserLoginRequestDto().userIdentifier(email).password(newPassword));
             assertEquals(OK, newLoginResponse.getStatusCode());
         } else {
+            if (status == FORBIDDEN) {
+                changeRequest.currentPassword("WRONG_PASSWORD");
+            }
             var editResponse = assertThrows(
                 HttpClientErrorException.class,
                 () -> mockApi.editPassword(changeRequest, token)
@@ -362,92 +352,7 @@ public class UserControllerTest {
             assertEquals(OK, newLoginResponse.getStatusCode());
         }
     }
-/*
-    @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForGetPublicMidi")
-    void getPublicMidiById(TokenType tokenType, HttpStatus status) throws Exception {
-        // generate tokens with different access
-        var token = getTokenByType(tokenType);
 
-        // create a public midi with a valid token and get the midiId
-        var createdMidi = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        var createResponseMidiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
-        var createResponseBlobId = createdMidi.getBody().getBinary().getBinaryId();
-
-        // create a get request for the created public midi
-        var response = mockApi.getMidiBiId(createResponseMidiId, token);
-
-        // extract midi and blob from the response
-        var midi = requireNonNull(response.getBody()).getMeta();
-        var blob = response.getBody().getBinary();
-
-        // assert that the request return OK and that the userRef is equal to the valid userId
-        assertEquals(status, response.getStatusCode());
-        assertEquals(mockUser.userId(), midi.getUserRef());
-        assertEquals(createResponseMidiId, midi.getMidiId());
-        assertEquals(createResponseBlobId, midi.getBlobRef());
-        assertEquals(createResponseBlobId, blob.getBinaryId());
-        assertEquals(Base64Midi.TETRIS, blob.getMidiFile());
-    }
-
-    @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForGetPrivateMidi")
-    void getPrivateMidiById(TokenType tokenType, HttpStatus status) throws Exception {
-        // generate tokens with different access
-        var token = getTokenByType(tokenType);
-
-        // create a private midi with a valid token and get the midiId
-        var createdMidi = mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
-        var midiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
-
-        // create a get request for the created private midi with different tokens
-        if (status == HttpStatus.OK) {
-            var response = assertDoesNotThrow(
-                () -> mockApi.getMidiBiId(midiId, token)
-            );
-            // when status is OK assert that response values matches the expected values
-            assertEquals(status, response.getStatusCode());
-            var midi = requireNonNull(response.getBody()).getMeta();
-            assertEquals(mockUser.userId(), midi.getUserRef());
-        } else {
-            var response = assertThrows(
-                HttpClientErrorException.class,
-                () -> mockApi.getMidiBiId(midiId, token)
-            );
-            assertEquals(status, response.getStatusCode());
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("tokenTypeAndStatusCodeForGetUserMidis")
-    void getMidisByUserId(TokenType tokenType, HttpStatus status) throws Exception {
-        // generate tokens with different access
-        var token = getTokenByType(tokenType);
-        // create two midis with a valid token
-        mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
-        mockApi.createMidi(validToken, tetrisCreatePrivateRequest.get());
-
-        if (status == HttpStatus.OK) {
-            // when status is OK assert that response values matches the expected values
-            var expectedSize = tokenType == TokenType.VALID ? 2 : 0;
-            var response = assertDoesNotThrow(() -> mockApi.getUserMidis(token));
-            var midis = requireNonNull(response.getBody()).getMidis();
-
-            assertEquals(status, response.getStatusCode());
-            assertEquals(expectedSize, midis.size());
-
-            if (tokenType == TokenType.VALID) {
-                assertEquals(mockUser.userId(), midis.getFirst().getUserRef());
-            }
-        } else {
-            var response = assertThrows(
-                HttpClientErrorException.class,
-                () -> mockApi.getUserMidis(token)
-            );
-            assertEquals(status, response.getStatusCode());
-        }
-    }
-*/
     @BeforeEach
     void setUp() {
         mockUser = MockUser.randomMockUser();
@@ -461,26 +366,6 @@ public class UserControllerTest {
         );
     }
 
-    private static Stream<Arguments> tokenTypeAndStatusCodeForGetPublicMidi() {
-        return Stream.of(
-            Arguments.of(TokenType.VALID, HttpStatus.OK),
-            Arguments.of(TokenType.EXPIRED, HttpStatus.OK),
-            Arguments.of(TokenType.INVALID, HttpStatus.OK),
-            Arguments.of(TokenType.OTHER_USER, HttpStatus.OK),
-            Arguments.of(TokenType.NULL, HttpStatus.OK)
-        );
-    }
-
-    private static Stream<Arguments> tokenTypeAndStatusCodeForGetPrivateMidi() {
-        return Stream.of(
-            Arguments.of(TokenType.VALID, HttpStatus.OK),
-            Arguments.of(TokenType.EXPIRED, HttpStatus.FORBIDDEN),
-            Arguments.of(TokenType.INVALID, HttpStatus.FORBIDDEN),
-            Arguments.of(TokenType.OTHER_USER, HttpStatus.FORBIDDEN),
-            Arguments.of(TokenType.NULL, HttpStatus.FORBIDDEN)
-        );
-    }
-
     private static Stream<Arguments> tokenTypeAndStatusCodeForAuthorizedUserOperations() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
@@ -490,22 +375,13 @@ public class UserControllerTest {
         );
     }
 
-    private static Stream<Arguments> tokenTypeAndStatusCodeForGetUserMidis() {
+    private static Stream<Arguments> tokenTypeAndStatusCodeForPasswordProtectedUserOperations() {
         return Stream.of(
             Arguments.of(TokenType.VALID, HttpStatus.OK),
             Arguments.of(TokenType.EXPIRED, HttpStatus.UNAUTHORIZED),
             Arguments.of(TokenType.INVALID, HttpStatus.UNAUTHORIZED),
-            Arguments.of(TokenType.OTHER_USER, HttpStatus.OK),
-            Arguments.of(TokenType.NULL, HttpStatus.UNAUTHORIZED)
-        );
-    }
-
-    private static Stream<Arguments> tokenTypeAndStatusCodeForCreate() {
-        return Stream.of(
-            Arguments.of(TokenType.VALID, HttpStatus.OK),
-            Arguments.of(TokenType.EXPIRED, HttpStatus.OK),
-            Arguments.of(TokenType.INVALID, HttpStatus.OK),
-            Arguments.of(TokenType.NULL, HttpStatus.OK)
+            Arguments.of(TokenType.NULL, HttpStatus.UNAUTHORIZED),
+            Arguments.of(TokenType.VALID, FORBIDDEN)
         );
     }
 
