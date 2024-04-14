@@ -23,5 +23,5 @@ allowed:
   origin: ${ALLOWED_ORIGIN:http://localhost:3000}
 
 app:
-  jwtSecret: ${JWT_SECRET}
+  jwtSecret: ${JWT_SECRET:testKeyToBeUsedWhenTestingTheApplicationForGeneratingMockTokenThatGetsVerifiedWhenTryingToAccessSpecificResources}
   jwtExpirationMs: ${JWT_EXP:86400000}

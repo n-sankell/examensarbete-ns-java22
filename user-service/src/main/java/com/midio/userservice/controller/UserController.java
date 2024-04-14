@@ -1,6 +1,5 @@
 package com.midio.userservice.controller;
 
-import com.midio.userservice.converter.UserConverter;
 import com.midio.userservice.secirity.CurrentUser;
 import com.midio.userservice.secirity.CurrentUserSupplier;
 import com.midio.userservice.secirity.SCryptPasswordEncoder;
@@ -15,6 +14,8 @@ import generatedapi.model.UserDto;
 import generatedapi.model.UserLoginRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.midio.userservice.converter.UserConverter.buildCreateData;
@@ -106,6 +107,11 @@ public class UserController implements UserApi {
         return ResponseEntity.status(OK)
             .header(AUTHORIZATION, TOKEN_PREFIX + userInfo.token())
             .body(convert(userInfo.userInfo()));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/")
+    public String hello() {
+        return "Hello";
     }
 
     private CurrentUser getCurrentUser() {

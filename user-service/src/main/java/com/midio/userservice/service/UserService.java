@@ -1,5 +1,6 @@
 package com.midio.userservice.service;
 
+import com.midio.userservice.exception.FailedLoginException;
 import com.midio.userservice.exception.ForbiddenException;
 import com.midio.userservice.exception.NotFoundException;
 import com.midio.userservice.model.DetailsId;
@@ -73,10 +74,7 @@ public class UserService {
                 var userInfo = getUserInfoById(user.userId());
                 return new UserInfoAndToken(userInfo, token);
             })
-            .orElseThrow(() -> {
-                logger.warn("Failed login attempt for user with identifier " + identifier);
-                return new ForbiddenException("Login unsuccessful", identifier);
-            });
+            .orElseThrow(() -> new FailedLoginException("Login unsuccessful", identifier));
     }
 
     @Transactional

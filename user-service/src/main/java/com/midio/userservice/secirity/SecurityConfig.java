@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,13 +27,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // TODO: Consider adding a guest token with a guest role for public midi files
-        return http
-            .formLogin(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable)
-
+        http
             .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-
+                .requestMatchers(HttpMethod.GET, "/").permitAll()
                 .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/user").permitAll()
 
@@ -47,7 +45,20 @@ public class SecurityConfig {
             .addFilterBefore(jwtTokenInterceptor, UsernamePasswordAuthenticationFilter.class)
             .headers(headersConfig -> headersConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
-            .build();
+        .formLogin(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
+
+    @Bean
+    UserDetailsService emptyDetailsService() {
+        return username -> { throw new UsernameNotFoundException("no local users, only JWT tokens allowed"); };
+    }
+
+    @Bean
+    public SCryptPasswordEncoder passwordEncoder() {
+        return new SCryptPasswordEncoder();
     }
 
 }

@@ -5,7 +5,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 public class ForbiddenException extends HttpClientErrorException {
 
-    public String currentUserId;
+    private final String currentUserId;
 
     public ForbiddenException(String statusText, String currentUserId) {
         super(HttpStatus.FORBIDDEN, statusText);

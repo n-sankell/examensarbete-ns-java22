@@ -32,6 +32,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
@@ -141,6 +143,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
@@ -172,6 +176,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
@@ -186,7 +192,7 @@ components:
         username:
           type: string
           description: "Username of the Muser"
-          minLength: 1
+          minLength: 6
           maxLength: 200
         email:
           type: string
@@ -230,7 +236,7 @@ components:
         username:
           type: string
           description: "Username of the Muser"
-          minLength: 1
+          minLength: 6
           maxLength: 200
         email:
           type: string
@@ -265,7 +271,7 @@ components:
       properties:
         password:
           type: string
-          description: "password for the user"
+          description: "Password for the user"
           minLength: 10
           maxLength: 200
       required:
@@ -276,8 +282,8 @@ components:
       properties:
         username:
           type: string
-          description: "Username of the Muser"
-          minLength: 1
+          description: "Username of the User"
+          minLength: 6
           maxLength: 200
         email:
           type: string
@@ -332,6 +338,20 @@ components:
         - error
         - invalidValue
 
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        errorType:
+          type: string
+        errorMessage:
+          type: string
+      required:
+        - statusCode
+        - errorType
+        - errorMessage
+
     EmptyResponse:
       type: object
       properties: { }
@@ -345,14 +365,40 @@ components:
             $ref: '#/components/schemas/ValidationException'
     NotFound:
       description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: User was not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: User was forbidden access to a resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     BadRequest:
       description: There was an issue with the request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: There was an issue with unique constrains
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     InternalServerError:
       description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   securitySchemes:
     bearerAuth:
