@@ -24,6 +24,9 @@ spring:
     init:
       mode: never
 
+server:
+  port : ${SERVER_PORT:8082}
+
 allowed:
   origin: ${ALLOWED_ORIGIN:http://localhost:3000}
 
