@@ -1,9 +1,10 @@
-package com.midio.midimanager.config;
+package com.midio.userservice.config;
 
-import com.midio.midimanager.exception.ForbiddenException;
-import com.midio.midimanager.exception.NotFoundException;
-import com.midio.midimanager.exception.ValidationError;
-import com.midio.midimanager.exception.ValidationException;
+import com.midio.userservice.exception.FailedLoginException;
+import com.midio.userservice.exception.ForbiddenException;
+import com.midio.userservice.exception.NotFoundException;
+import com.midio.userservice.exception.ValidationError;
+import com.midio.userservice.exception.ValidationException;
 import generatedapi.model.ErrorResponseDto;
 import generatedapi.model.ValidationErrorDto;
 import generatedapi.model.ValidationExceptionDto;
@@ -36,15 +37,28 @@ public class ExceptionAdvise {
 
     @ExceptionHandler(ForbiddenException.class)
     protected ResponseEntity<ErrorResponseDto> forbiddenException(ForbiddenException fe) {
-        logger.info("ForbiddenException: " + fe.getCurrentUserId() + " - " + fe.getStatusText(), fe);
-        return ResponseEntity.status(FORBIDDEN)
-            .body(new ErrorResponseDto().errorMessage(fe.getStatusText()));
+        logger.warn("ForbiddenException: " + fe.getCurrentUserId() + " - " + fe.getStatusText(), fe);
+        return ResponseEntity.status(fe.getStatusCode())
+            .body(new ErrorResponseDto()
+                .errorType(FORBIDDEN.getReasonPhrase())
+                .statusCode(FORBIDDEN.value())
+                .errorMessage("Access to resource forbidden"));
+    }
+
+    @ExceptionHandler(FailedLoginException.class)
+    protected ResponseEntity<ErrorResponseDto> failedLogin(FailedLoginException fle) {
+        logger.warn("FailedLoginException: " + fle.getIdentifier() + " - " + fle.getStatusText(), fle);
+        return ResponseEntity.status(fle.getStatusCode())
+            .body(new ErrorResponseDto()
+                .errorType(FORBIDDEN.getReasonPhrase())
+                .statusCode(FORBIDDEN.value())
+                .errorMessage("Login attempt failed"));
     }
 
     @ExceptionHandler(ValidationException.class)
     protected ResponseEntity<ValidationExceptionDto> validationException(ValidationException ve) {
         logger.info("ValidationException", ve);
-        return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(
+        return ResponseEntity.status(ve.getStatusCode()).body(
             new ValidationExceptionDto()
                 .message(ve.getStatusText())
                 .errors(convertErrors(ve.getErrors())));
@@ -53,15 +67,21 @@ public class ExceptionAdvise {
     @ExceptionHandler(NotFoundException.class)
     protected ResponseEntity<ErrorResponseDto> notFoundException(NotFoundException nfe) {
         logger.info("NotFoundException", nfe);
-        return ResponseEntity.status(NOT_FOUND)
-            .body(new ErrorResponseDto().errorMessage(nfe.getStatusText()));
+        return ResponseEntity.status(nfe.getStatusCode())
+            .body(new ErrorResponseDto()
+                .errorType(NOT_FOUND.getReasonPhrase())
+                .statusCode(NOT_FOUND.value())
+                .errorMessage("Requested resource could not be found"));
     }
 
     @ExceptionHandler(BadRequestException.class)
     protected ResponseEntity<ErrorResponseDto> badRequestException(BadRequestException bre) {
         logger.info("BadRequestException", bre);
         return ResponseEntity.status(BAD_REQUEST)
-            .body(new ErrorResponseDto().errorMessage(bre.getMessage()));
+            .body(new ErrorResponseDto()
+                .errorType(BAD_REQUEST.getReasonPhrase())
+                .statusCode(BAD_REQUEST.value())
+                .errorMessage("Request could not be processed"));
     }
 
     @ExceptionHandler(PSQLException.class)

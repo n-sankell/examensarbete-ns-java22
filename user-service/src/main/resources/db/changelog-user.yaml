@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changesets-user/v1_user_details.sql
+  - include:
+      file: db/changesets-user/v2_pass_details.sql
+  - include:
+      file: db/changesets-user/v3_midi_user.sql

@@ -42,7 +42,7 @@ public class MidiControllerTest {
     void createMidiWithInvalidBinaryData() throws Exception {
         var token = getTokenByType(TokenType.VALID);
 
-        // Create a midi with a empty midi file
+        // Create a midi with an empty midi file
         var createRequestDto = tetrisCreatePublicRequest.get()
             .midiFile(MidiGenerator.generateEmptyMidi());
 
@@ -150,16 +150,11 @@ public class MidiControllerTest {
             var okResponse = assertDoesNotThrow(
                 () -> mockApi.createMidi(token, createRequestDto)
             );
-            assertEquals(status, okResponse.getStatusCode());
-
             var body = requireNonNull(okResponse.getBody());
-            var blobId = body.getMeta().getBlobRef();
-            var userId = body.getMeta().getUserRef();
 
             // Check if the artist value is correct
+            assertEquals(status, okResponse.getStatusCode());
             assertEquals(artist, body.getMeta().getArtist());
-            assertEquals(blobId, body.getBinary().getBinaryId());
-            assertEquals(mockUser.userId(), userId);
         } else {
             var errorResponse = assertThrows(
                 HttpClientErrorException.class,
@@ -345,7 +340,6 @@ public class MidiControllerTest {
         // create a public midi with a valid token and get the midiId
         var createdMidi = mockApi.createMidi(validToken, tetrisCreatePublicRequest.get());
         var createResponseMidiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
-        var createResponseBlobId = createdMidi.getBody().getBinary().getBinaryId();
 
         // create a get request for the created public midi
         var response = mockApi.getMidiBiId(createResponseMidiId, token);
@@ -354,12 +348,9 @@ public class MidiControllerTest {
         var midi = requireNonNull(response.getBody()).getMeta();
         var blob = response.getBody().getBinary();
 
-        // assert that the request return OK and that the userRef is equal to the valid userId
+        // assert that the request return OK and that the midiId is correct
         assertEquals(status, response.getStatusCode());
-        assertEquals(mockUser.userId(), midi.getUserRef());
         assertEquals(createResponseMidiId, midi.getMidiId());
-        assertEquals(createResponseBlobId, midi.getBlobRef());
-        assertEquals(createResponseBlobId, blob.getBinaryId());
         assertEquals(Base64Midi.TETRIS, blob.getMidiFile());
     }
 
@@ -381,7 +372,7 @@ public class MidiControllerTest {
             // when status is OK assert that response values matches the expected values
             assertEquals(status, response.getStatusCode());
             var midi = requireNonNull(response.getBody()).getMeta();
-            assertEquals(mockUser.userId(), midi.getUserRef());
+            assertEquals(midiId, midi.getMidiId());
         } else {
             var response = assertThrows(
                 HttpClientErrorException.class,
@@ -409,9 +400,6 @@ public class MidiControllerTest {
             assertEquals(status, response.getStatusCode());
             assertEquals(expectedSize, midis.size());
 
-            if (tokenType == TokenType.VALID) {
-                assertEquals(mockUser.userId(), midis.getFirst().getUserRef());
-            }
         } else {
             var response = assertThrows(
                 HttpClientErrorException.class,

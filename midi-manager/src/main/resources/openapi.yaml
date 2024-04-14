@@ -23,10 +23,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
@@ -93,17 +93,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       tags:
         - Midi
-
     delete:
       parameters:
         - name: id
@@ -122,15 +123,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmptyResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
       tags:
         - Midi
-
     get:
       parameters:
         - name: id
@@ -149,10 +151,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
       tags:
@@ -183,10 +187,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
@@ -219,10 +225,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MidiWithData'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
@@ -318,14 +326,6 @@ components:
           type: string
           format: uuid
           description: "Unique identifier for the MIDI"
-        blobRef:
-          type: string
-          format: uuid
-          description: "Reference to the blob"
-        userRef:
-          type: string
-          format: uuid
-          description: "Reference to the user"
         isPrivate:
           type: boolean
           description: "Flag indicating if the MIDI is private"
@@ -362,16 +362,11 @@ components:
     BinaryData:
       type: object
       properties:
-        binaryId:
-          type: string
-          format: uuid
-          description: "UUID associated with the MIDI"
         midiFile:
           type: string
           description: "MIDI file in binary format"
           minLength: 1
       required:
-        - midiId
         - midiFile
 
     MidiWithData:
@@ -417,6 +412,20 @@ components:
         - error
         - invalidValue
 
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        errorType:
+          type: string
+        errorMessage:
+          type: string
+      required:
+        - statusCode
+        - errorType
+        - errorMessage
+
     EmptyResponse:
       type: object
       properties: { }
@@ -430,14 +439,40 @@ components:
             $ref: '#/components/schemas/ValidationException'
     NotFound:
       description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: User was not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: User was forbidden access to a resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     BadRequest:
       description: There was an issue with the request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: There was an issue with unique constrains
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     InternalServerError:
       description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   securitySchemes:
     bearerAuth:

@@ -1,4 +1,4 @@
-package com.midio.midimanager.secirity;
+package com.midio.userservice.secirity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,24 +27,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // TODO: Consider adding a guest token with a guest role for public midi files
-        return http
-            .formLogin(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable)
-
+        http
             .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                .requestMatchers(HttpMethod.GET, "/").permitAll()
+                .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/user").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/midis/public").permitAll()
-                .requestMatchers(HttpMethod.GET, "/midis/midi/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/user").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/user").authenticated()
 
-                .requestMatchers(HttpMethod.GET, "/midis/user/*").authenticated()
-                .requestMatchers(HttpMethod.POST, "/midis/create").authenticated()
-
-                .requestMatchers(HttpMethod.POST, "/midis/midi/*").authenticated()
-                .requestMatchers(HttpMethod.POST, "/midis/meta/*").authenticated()
-                .requestMatchers(HttpMethod.POST, "/midis/binary/*").authenticated()
-
-                .requestMatchers(HttpMethod.DELETE, "/midis/midi/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/user/edit").authenticated()
+                .requestMatchers(HttpMethod.POST, "/user/edit/pass").authenticated()
 
                 .anyRequest().authenticated())
 
@@ -52,12 +45,20 @@ public class SecurityConfig {
             .addFilterBefore(jwtTokenInterceptor, UsernamePasswordAuthenticationFilter.class)
             .headers(headersConfig -> headersConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
 
-            .build();
+        .formLogin(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable);
+
+        return http.build();
     }
 
     @Bean
     UserDetailsService emptyDetailsService() {
         return username -> { throw new UsernameNotFoundException("no local users, only JWT tokens allowed"); };
+    }
+
+    @Bean
+    public SCryptPasswordEncoder passwordEncoder() {
+        return new SCryptPasswordEncoder();
     }
 
 }

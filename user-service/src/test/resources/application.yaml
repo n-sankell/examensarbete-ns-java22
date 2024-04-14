@@ -1,0 +1,17 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  liquibase:
+    enabled: false
+
+  datasource:
+    user:
+      url: jdbc:h2:mem:user-test
+      username: test
+      password: test
+      driverClassName: org.h2.Driver
+
+app:
+  jwtSecret: testKeyToBeUsedWhenTestingTheApplicationForGeneratingMockTokenThatGetsVerifiedWhenTryingToAccessSpecificResources
+  jwtExpirationMs: 86400000

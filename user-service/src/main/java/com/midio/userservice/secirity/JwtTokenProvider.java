@@ -1,12 +1,10 @@
-package com.midio.midimanager.secirity;
+package com.midio.userservice.secirity;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Component
 public class JwtTokenProvider {
@@ -27,9 +25,8 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         var key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         try {
-            var claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            var exp = claims.getExpiration();
-            return exp != null && exp.toInstant().isAfter(Instant.now());
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
         } catch (Exception e) {
             return false;
         }

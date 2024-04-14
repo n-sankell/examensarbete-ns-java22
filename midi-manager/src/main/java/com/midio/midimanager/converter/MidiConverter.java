@@ -34,32 +34,9 @@ public class MidiConverter {
             );
     }
 
-    public static Midi convert(MidiDto midi) {
-        return new Midi(
-            new MidiId(midi.getMidiId()),
-            new BlobId(midi.getBlobRef()),
-            new UserId(midi.getUserRef()),
-            midi.getIsPrivate(),
-            midi.getFilename(),
-            midi.getArtist(),
-            midi.getTitle(),
-            midi.getDateCreated().toZonedDateTime(),
-            midi.getDateEdited().toZonedDateTime()
-        );
-    }
-
-    public static MidiAndBlob convert(MidiWithDataDto midiWithDataDto) {
-        return new MidiAndBlob(
-            convert(midiWithDataDto.getMeta()),
-                convert(midiWithDataDto.getBinary())
-        );
-    }
-
     public static MidiDto convert(Midi midi) {
         return new MidiDto()
             .midiId(midi.midiId().id())
-            .userRef(midi.userRef().id())
-            .blobRef(midi.blobRef().id())
             .filename(midi.filename())
             .isPrivate(midi.isPrivate())
             .artist(midi.artist())
@@ -70,16 +47,7 @@ public class MidiConverter {
 
     public static BinaryDataDto convert(Blob blob) {
         return new BinaryDataDto()
-            .binaryId(blob.blobId().id())
             .midiFile(convert(blob.midiData()));
-    }
-
-    public static Blob convert(BinaryDataDto binaryDataDto) {
-        var blobId = new BlobId(binaryDataDto.getBinaryId());
-        return new Blob(
-            blobId,
-            convert(binaryDataDto.getMidiFile())
-        );
     }
 
     public static String convert(byte[] bytes) {
