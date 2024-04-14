@@ -397,7 +397,7 @@ public class UserControllerTest {
 
     private final Supplier<UserCreateRequestDto> userCreateRequest = () ->
         new UserCreateRequestDto()
-            .username("user")
+            .username("bubbles")
             .email("email@example.com")
             .password("super-duper-secret");
 
