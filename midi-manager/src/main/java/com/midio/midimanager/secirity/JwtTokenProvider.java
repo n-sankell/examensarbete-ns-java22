@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 public class JwtTokenProvider {
 
@@ -25,8 +27,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         var key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            var claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            var exp = claims.getExpiration();
+            return exp != null && exp.toInstant().isAfter(Instant.now());
         } catch (Exception e) {
             return false;
         }

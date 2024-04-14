@@ -412,6 +412,20 @@ components:
         - error
         - invalidValue
 
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        errorType:
+          type: string
+        errorMessage:
+          type: string
+      required:
+        - statusCode
+        - errorType
+        - errorMessage
+
     EmptyResponse:
       type: object
       properties: { }
@@ -425,14 +439,40 @@ components:
             $ref: '#/components/schemas/ValidationException'
     NotFound:
       description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Unauthorized:
       description: User was not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     Forbidden:
       description: User was forbidden access to a resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     BadRequest:
       description: There was an issue with the request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: There was an issue with unique constrains
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     InternalServerError:
       description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   securitySchemes:
     bearerAuth:

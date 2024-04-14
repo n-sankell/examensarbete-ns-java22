@@ -42,7 +42,7 @@ public class MidiControllerTest {
     void createMidiWithInvalidBinaryData() throws Exception {
         var token = getTokenByType(TokenType.VALID);
 
-        // Create a midi with a empty midi file
+        // Create a midi with an empty midi file
         var createRequestDto = tetrisCreatePublicRequest.get()
             .midiFile(MidiGenerator.generateEmptyMidi());
 
