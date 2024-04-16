@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Foods, FoodsApi } from './generated';
+import { Midi, Midis, MidiApi } from './generated/midi-api';
 import Content from './app/components/Content';
 import Header from './app/components/Header';
 import './App.css';
 import AddFoodModal from './app/components/AddFoodModal';
 
-const foodsApi = new FoodsApi();
+const foodsApi = new MidiApi();
 
 function App() {
   const [content, setContent] = useState(<></>);
@@ -13,11 +13,11 @@ function App() {
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showDeleteBoxes, setShowDeleteBoxes] = useState<boolean>(false);
-  const [foods, setFoods] = useState<Foods>({});
+  const [foods, setFoods] = useState<Midis>({});
 
   async function fetchFoods(): Promise<void> {
     try {
-      const foodsResponse = await foodsApi.getFoods();
+      const foodsResponse = await foodsApi.getPublicMidis();
       setFoods(foodsResponse);
       setContent(<Content foods={foodsResponse} showDeleteBox={showDeleteBoxes} setUpdate={setDoFetch}/>)
       setDoFetch(false);
