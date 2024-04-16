@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { MidiApi } from "../../generated/midi-api";
 import { CreateMidiRequest } from "../../generated/midi-api";
 import "./AddFoodModal.css";

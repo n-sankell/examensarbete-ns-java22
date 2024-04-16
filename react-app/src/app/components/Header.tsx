@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import "./Header.css";
-import { Foods } from "../../generated";
+import { Midis } from "../../generated/midi-api";
 import Content from "./Content";
+import "./Header.css";
 
 interface HeaderProps {
     setShowAddModal: Dispatch<SetStateAction<boolean>>;
@@ -9,7 +9,7 @@ interface HeaderProps {
     setShowDeleteBoxes: Dispatch<SetStateAction<boolean>>;
     setUpdate: Dispatch<SetStateAction<boolean>>;
     showDeleteBoxes: boolean;
-    foods: Foods;
+    foods: Midis;
     setContent: Dispatch<SetStateAction<JSX.Element>>;
 }
 

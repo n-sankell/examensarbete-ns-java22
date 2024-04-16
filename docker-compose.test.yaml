@@ -1,16 +1,59 @@
 version: '3'
 services:
 
-  react-app:
-    container_name: react-app
-    build:
-      dockerfile: Dockerfile
-      args:
-        - MIDI_ADDRESS=localhost:8082
-        - USER_ADDRESS=localhost:8081
-    image: ex-react-app:test
+  midi_meta_db:
+    container_name: midi_meta_db
+    image: postgres:16.1
+    environment:
+      POSTGRES_USER: midiuser
+      POSTGRES_PASSWORD: midipass
+      POSTGRES_DB: midi_meta_db
     ports:
-      - "3000:3000"
+      - "127.0.0.1:5432:5432"
+    networks:
+      - midi_network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  midi_blob_db:
+    container_name: midi_blob_db
+    image: postgres:16.1
+    environment:
+      POSTGRES_USER: blobuser
+      POSTGRES_PASSWORD: blobpass
+      POSTGRES_DB: midi_blob_db
+    ports:
+      - "127.0.0.1:5433:5432"
+    networks:
+      - midi_network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  midi_user_db:
+    container_name: midi_user_db
+    image: postgres:16.1
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpass
+      POSTGRES_DB: midi_user_db
+    ports:
+      - "127.0.0.1:5434:5432"
+    networks:
+      - midi_network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   user-service:
     container_name: user-service
@@ -22,9 +65,11 @@ services:
       - "8081:8081"
     environment:
       USER_DB_NAME: "midi_user_db"
-    #depends_on:
-    #  mysql:
-    #    condition: service_healthy
+      #USER_DB_URL: "midi_user_db"
+    depends_on:
+      midi_user_db:
+        condition: service_healthy
+    network_mode: "host"
 
   midi-manager:
     container_name: midi-manager
@@ -36,7 +81,28 @@ services:
       - "8082:8082"
     environment:
       META_DB_NAME: "midi_meta_db"
+      META_DB_URL: "midi_meta_db"
       BLOB_DB_NAME: "midi_blob_db"
-    #depends_on:
-    #  mysql:
-    #    condition: service_healthy
+      BLOB_DB_URL: "midi_blob_db"
+    networks:
+      - midi_network
+    depends_on:
+      midi_blob_db:
+        condition: service_healthy
+      midi_meta_db:
+        condition: service_healthy
+
+  react-app:
+    container_name: react-app
+    build:
+      dockerfile: Dockerfile
+      args:
+        - MIDI_ADDRESS=localhost:8082
+        - USER_ADDRESS=localhost:8081
+    image: ex-react-app:test
+    ports:
+      - "3000:3000"
+
+networks:
+  midi_network:
+    driver: bridge

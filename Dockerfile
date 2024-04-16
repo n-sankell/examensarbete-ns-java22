@@ -24,7 +24,7 @@ WORKDIR /app/react-app
 COPY ./react-app/ .
 
 RUN rm -rf ./src/generated
-RUN rm -rf ./src/generated
+RUN mkdir -p ./src/generated
 
 COPY --from=openapi-generator /abc/generated ./src/generated
 
