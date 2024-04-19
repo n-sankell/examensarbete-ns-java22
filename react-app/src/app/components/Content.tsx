@@ -6,10 +6,10 @@ type Props = {
     foods: Midis;
     showDeleteBox: boolean;
     setUpdate: Dispatch<SetStateAction<boolean>>;
+    midiApi: MidiApi;
 }
 
 const Content = (props: Props) => {
-    const foodsApi = new MidiApi();
     const foods = props.foods.midis === undefined ? [] : props.foods.midis;
     const handleDeleteBoxClick = async (event: React.MouseEvent<HTMLDivElement>, food: Midi): Promise<void> => {
         
@@ -17,7 +17,7 @@ const Content = (props: Props) => {
         console.log(foodId);
         try {
             const requestObject: DeleteMidiRequest = { id: food.midiId ? food.midiId : "" };
-            const response = await foodsApi.deleteMidi(requestObject);
+            const response = await props.midiApi.deleteMidi(requestObject);
             console.log(response);
             props.setUpdate(true);
         } catch (error) {
@@ -30,7 +30,7 @@ const Content = (props: Props) => {
 
     return (
     <div className="content">
-        <h1 className='heading'>My favourite foods</h1>
+        <h1 className='heading'></h1>
         <div className='list-wrapper'>
             <ul className='ul-list'> { foods.map((food: Midi, index: number) => (
                 <li key={index} className='list-item'>

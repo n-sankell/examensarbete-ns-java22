@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { Midis } from "../../generated/midi-api";
+import { MidiApi, Midis } from "../../generated/midi-api";
+import { UserApi } from "../../generated/user-api";
 import Content from "./Content";
 import "./Header.css";
 
@@ -11,6 +12,8 @@ interface HeaderProps {
     showDeleteBoxes: boolean;
     foods: Midis;
     setContent: Dispatch<SetStateAction<JSX.Element>>;
+    midiApi: MidiApi;
+    userApi: UserApi;
 }
 
 const Header = (headerProps: HeaderProps) => {
@@ -26,12 +29,12 @@ const Header = (headerProps: HeaderProps) => {
         if (headerProps.showDeleteBoxes == true) {
             headerProps.setShowDeleteBoxes(false);
             headerProps.setContent(
-            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate}/>
+            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi}/>
             )
         } else {
             headerProps.setShowDeleteBoxes(true);
             headerProps.setContent(
-                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate}/>
+                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi}/>
                 )
         }
         setMenuOpen(false);
