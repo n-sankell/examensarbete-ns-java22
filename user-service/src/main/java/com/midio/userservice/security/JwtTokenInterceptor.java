@@ -1,4 +1,4 @@
-package com.midio.userservice.secirity;
+package com.midio.userservice.security;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -16,8 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-import static com.midio.userservice.secirity.JwtConstants.TOKEN_ID_CLAIM;
-import static com.midio.userservice.secirity.JwtConstants.TOKEN_PREFIX;
+import static com.midio.userservice.security.JwtConstants.TOKEN_ID_CLAIM;
+import static com.midio.userservice.security.JwtConstants.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component

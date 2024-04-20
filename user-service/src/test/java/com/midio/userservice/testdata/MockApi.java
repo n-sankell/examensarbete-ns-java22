@@ -6,7 +6,7 @@ import com.midio.userservice.exception.ForbiddenException;
 import com.midio.userservice.exception.NotFoundException;
 import com.midio.userservice.exception.ValidationError;
 import com.midio.userservice.exception.ValidationException;
-import com.midio.userservice.secirity.JwtConstants;
+import com.midio.userservice.security.JwtConstants;
 import generatedapi.model.DeleteUserRequestDto;
 import generatedapi.model.EditPasswordRequestDto;
 import generatedapi.model.EditUserRequestDto;

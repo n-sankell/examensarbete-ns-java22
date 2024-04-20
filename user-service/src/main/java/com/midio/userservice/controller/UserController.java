@@ -1,8 +1,8 @@
 package com.midio.userservice.controller;
 
-import com.midio.userservice.secirity.CurrentUser;
-import com.midio.userservice.secirity.CurrentUserSupplier;
-import com.midio.userservice.secirity.SCryptPasswordEncoder;
+import com.midio.userservice.security.CurrentUser;
+import com.midio.userservice.security.CurrentUserSupplier;
+import com.midio.userservice.security.SCryptPasswordEncoder;
 import com.midio.userservice.service.UserService;
 import com.midio.userservice.util.RequestValidator;
 import generatedapi.UserApi;
@@ -22,7 +22,7 @@ import static com.midio.userservice.converter.UserConverter.buildCreateData;
 import static com.midio.userservice.converter.UserConverter.buildDetailsUpdate;
 import static com.midio.userservice.converter.UserConverter.buildUpdatePassword;
 import static com.midio.userservice.converter.UserConverter.convert;
-import static com.midio.userservice.secirity.JwtConstants.TOKEN_PREFIX;
+import static com.midio.userservice.security.JwtConstants.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.ok;

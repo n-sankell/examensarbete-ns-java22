@@ -1,4 +1,4 @@
-package com.midio.userservice.secirity;
+package com.midio.userservice.security;
 
 import com.midio.userservice.model.UserId;
 

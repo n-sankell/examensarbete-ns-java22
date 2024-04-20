@@ -1,4 +1,4 @@
-package com.midio.userservice.secirity;
+package com.midio.userservice.security;
 
 import com.lambdaworks.crypto.SCryptUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;

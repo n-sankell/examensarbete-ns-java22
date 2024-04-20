@@ -7,6 +7,7 @@ type Props = {
     showDeleteBox: boolean;
     setUpdate: Dispatch<SetStateAction<boolean>>;
     midiApi: MidiApi;
+    token: string;
 }
 
 const Content = (props: Props) => {

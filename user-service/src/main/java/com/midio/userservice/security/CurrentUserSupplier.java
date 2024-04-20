@@ -1,4 +1,4 @@
-package com.midio.userservice.secirity;
+package com.midio.userservice.security;
 
 import com.midio.userservice.model.UserId;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-import static com.midio.userservice.secirity.UserAuthentication.AUTHENTICATED;
-import static com.midio.userservice.secirity.UserAuthentication.UNAUTHENTICATED;
+import static com.midio.userservice.security.UserAuthentication.AUTHENTICATED;
+import static com.midio.userservice.security.UserAuthentication.UNAUTHENTICATED;
 
 @Component
 public class CurrentUserSupplier {

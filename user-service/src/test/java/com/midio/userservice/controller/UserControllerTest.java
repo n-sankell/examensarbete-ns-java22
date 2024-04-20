@@ -2,7 +2,7 @@ package com.midio.userservice.controller;
 
 import com.midio.userservice.config.UserServiceTestEnvironment;
 import com.midio.userservice.exception.ValidationException;
-import com.midio.userservice.secirity.JwtTokenProvider;
+import com.midio.userservice.security.JwtTokenProvider;
 import com.midio.userservice.testdata.Identifier;
 import com.midio.userservice.testdata.MockApi;
 import com.midio.userservice.testdata.MockTokenGenerator;
@@ -26,8 +26,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.midio.userservice.secirity.JwtTokenInterceptor.extractStringIdFromClaims;
-import static com.midio.userservice.secirity.JwtTokenInterceptor.extractTokenFromHeaders;
+import static com.midio.userservice.security.JwtTokenInterceptor.extractStringIdFromClaims;
+import static com.midio.userservice.security.JwtTokenInterceptor.extractTokenFromHeaders;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
