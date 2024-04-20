@@ -2,8 +2,8 @@ package com.midio.midimanager.controller;
 
 import com.midio.midimanager.converter.MidiConverter;
 import com.midio.midimanager.model.MidiId;
-import com.midio.midimanager.secirity.CurrentUser;
-import com.midio.midimanager.secirity.CurrentUserSupplier;
+import com.midio.midimanager.security.CurrentUser;
+import com.midio.midimanager.security.CurrentUserSupplier;
 import com.midio.midimanager.service.MidiService;
 import com.midio.midimanager.util.RequestValidator;
 import generatedapi.MidisApi;

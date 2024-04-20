@@ -1,4 +1,4 @@
-package com.midio.midimanager.secirity;
+package com.midio.midimanager.security;
 
 public enum UserAuthentication {
 

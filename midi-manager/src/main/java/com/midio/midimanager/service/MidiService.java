@@ -8,7 +8,7 @@ import com.midio.midimanager.model.MidiAndBlob;
 import com.midio.midimanager.model.MidiId;
 import com.midio.midimanager.model.UserId;
 import com.midio.midimanager.repository.MidiMetaRepository;
-import com.midio.midimanager.secirity.CurrentUser;
+import com.midio.midimanager.security.CurrentUser;
 import com.midio.midimanager.util.MidiValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,7 +90,7 @@ public class MidiService {
             }
             return getMidiAndBlobById(midiId, currentUser);
         } else {
-            logger.warn("Warning: User " + currentUser.userId() + " tried to edit a file without permission");
+            logger.warn("Warning: User {} tried to edit a file without permission", currentUser.userId());
             throw new ForbiddenException("The current user has no edit rights to this file", currentUser.idToString());
         }
     }
@@ -113,7 +113,7 @@ public class MidiService {
                 logger.warn("Warning: Midi meta data is still present");
             }
         } else {
-            logger.warn("Warning: User " + currentUser.userId() + " tried to delete a file without permission");
+            logger.warn("Warning: User {} tried to delete a file without permission", currentUser.userId());
             throw new ForbiddenException("The current user has no right to delete this file", currentUser.idToString());
         }
     }

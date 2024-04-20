@@ -1,4 +1,4 @@
-package com.midio.midimanager.secirity;
+package com.midio.midimanager.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
