@@ -6,12 +6,17 @@ import "./Header.css";
 
 interface HeaderProps {
     setShowAddModal: Dispatch<SetStateAction<boolean>>;
+    setShowCreateUserModal: Dispatch<SetStateAction<boolean>>;
+    setShowLoginModal: Dispatch<SetStateAction<boolean>>;
     setShowEditModal: Dispatch<SetStateAction<boolean>>;
     setShowDeleteBoxes: Dispatch<SetStateAction<boolean>>;
     setUpdate: Dispatch<SetStateAction<boolean>>;
-    showDeleteBoxes: boolean;
-    foods: Midis;
+    //seLoggedIn: Dispatch<SetStateAction<boolean>>;
+    setToken: Dispatch<SetStateAction<string>>;
     setContent: Dispatch<SetStateAction<JSX.Element>>;
+    //loggedIn: boolean;
+    showDeleteBoxes: boolean;
+    midis: Midis;
     midiApi: MidiApi;
     userApi: UserApi;
     token: string;
@@ -22,6 +27,24 @@ const Header = (headerProps: HeaderProps) => {
     const addButtonClick = () => {
         headerProps.setShowAddModal(true);
         headerProps.setShowDeleteBoxes(false);
+        headerProps.setShowCreateUserModal(false);
+        headerProps.setShowLoginModal(false);
+        setMenuOpen(false);
+    };
+
+    const createUserClick = () => {
+        headerProps.setShowCreateUserModal(true);
+        headerProps.setShowAddModal(false);
+        headerProps.setShowDeleteBoxes(false);
+        headerProps.setShowLoginModal(false);
+        setMenuOpen(false);
+    };
+
+    const loginClick = () => {
+        headerProps.setShowLoginModal(true);
+        headerProps.setShowCreateUserModal(false);
+        headerProps.setShowAddModal(false);
+        headerProps.setShowDeleteBoxes(false);
         setMenuOpen(false);
     };
 
@@ -30,13 +53,15 @@ const Header = (headerProps: HeaderProps) => {
         if (headerProps.showDeleteBoxes == true) {
             headerProps.setShowDeleteBoxes(false);
             headerProps.setContent(
-            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi} token={headerProps.token}/>
+                <Content foods={headerProps.midis} showDeleteBox={false} setUpdate={headerProps.setUpdate} 
+                midiApi={headerProps.midiApi} token={headerProps.token} />
             )
         } else {
             headerProps.setShowDeleteBoxes(true);
             headerProps.setContent(
-                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi} token={headerProps.token}/>
-                )
+                <Content foods={headerProps.midis} showDeleteBox={true} setUpdate={headerProps.setUpdate} 
+                midiApi={headerProps.midiApi} token={headerProps.token} />
+            )
         }
         setMenuOpen(false);
     };
@@ -60,9 +85,13 @@ const Header = (headerProps: HeaderProps) => {
             <div id="sidebarMenu">
                 <ul className="sidebarMenuInner">
                     <li><div className="menu-button" onClick={ addButtonClick } >
-                        <span className="buttonText">Add new food</span></div></li>
+                        <span className="buttonText">Create new midi</span></div></li>
                     <li><div className="menu-button" onClick={ deleteButtonClick } >
-                        <span className="buttonText">Delete foods</span></div></li>
+                        <span className="buttonText">Delete midi</span></div></li>
+                    <li><div className="menu-button" onClick={ createUserClick } >
+                        <span className="buttonText">Create account</span></div></li>
+                    <li><div className="menu-button" onClick={ loginClick } >
+                        <span className="buttonText">Login</span></div></li>
                 </ul>
             </div>
         </div>

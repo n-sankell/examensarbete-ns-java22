@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { MidiApi } from "../../generated/midi-api";
 import { CreateMidiRequest } from "../../generated/midi-api";
-import "./AddFoodModal.css";
+import "./CreateMidiModal.css";
 
 type Props = {
     setUpdate: Dispatch<SetStateAction<boolean>>;
@@ -11,7 +11,6 @@ type Props = {
 }
 
 const CreateMidiModal = (props: Props) => {
-    const [initialNumber] = useState<number>();
     const [foodName, setFoodName] = useState<string>("");
     const [foodRating, setFoodRating] = useState<string>("");
 
@@ -41,6 +40,7 @@ const CreateMidiModal = (props: Props) => {
             props.setUpdate(true);
             setFoodName("");
             setFoodRating("");
+            props.setShowAddModal(false);
         } catch (error) {
             console.error('Error creating midi ' + error);
         }
@@ -51,10 +51,10 @@ const CreateMidiModal = (props: Props) => {
     
     return (<>
         <div className='overhang' onClick={closeClick} />
-        <div className='addFoodModal'>
-        <div className="add-food">
-        <h3 className='h3-title'>Add a yummy food</h3>
-        <form className="add-food-form"
+        <div className='addMidiModal'>
+        <div className="add-midi">
+        <h3 className='h3-title'>Add new midi file</h3>
+        <form className="add-midi-form"
             onSubmit={handleSubmit} >
             <input
                 onChange={handleFoodNameChange} 
@@ -73,7 +73,7 @@ const CreateMidiModal = (props: Props) => {
                 min="1" max="10" step="0.5"
                 required={true} 
             />
-            <input className="add-button" type="submit" value="Add food" />
+            <input className="add-button" type="submit" value="Create midi" />
         </form>
         </div>
         </div>

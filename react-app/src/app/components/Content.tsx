@@ -22,7 +22,7 @@ const Content = (props: Props) => {
             console.log(response);
             props.setUpdate(true);
         } catch (error) {
-            console.error('Error deleting food: ' + error);
+            console.error('Error deleting midi: ' + error);
         }
     }
 

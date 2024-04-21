@@ -1,10 +1,10 @@
-.addFoodModal {
+.addUserModal {
     position: fixed;
     top: 30%;
     left: 39%;
 }
 
-.add-food {
+.add-user {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,14 +31,14 @@
     text-transform: uppercase;
 }
 
-.add-food-form {
+.add-user-form {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     padding: 20%;
 }
 
-.add-button {
+.submit-button {
     margin-top: 15%;
     background-color: rgb(237, 143, 1);
     border: none;
@@ -51,11 +51,11 @@
     text-transform: uppercase;
 }
 
-.add-button:hover{
+.submit-button:hover{
     background-color: rgb(214, 129, 1);
 }
 
-.input-add {
+.input-text {
     background-color: gainsboro;
     border: none;
     height: 100%;
@@ -64,6 +64,6 @@
     margin-bottom: 8%;
 }
 
-.input-add:hover {
+.input-text:hover {
     background-color: ghostwhite;
 }

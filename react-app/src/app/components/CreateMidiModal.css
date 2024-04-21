@@ -1,0 +1,69 @@
+.addMidiModal {
+    position: fixed;
+    top: 30%;
+    left: 39%;
+}
+
+.add-midi {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding-left: 40%;
+    padding-right: 40%;
+    background-color: rgb(84, 82, 151);
+}
+
+.overhang {
+    position: fixed;
+    top: 0px;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(161, 161, 161);
+    opacity: 60%;
+}
+
+.h3-title {
+    color: rgb(250, 250, 250);
+    text-transform: uppercase;
+}
+
+.add-midi-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 20%;
+}
+
+.add-button {
+    margin-top: 15%;
+    background-color: rgb(237, 143, 1);
+    border: none;
+    height: 100%;
+    padding-top: 7%;
+    padding-bottom: 7%;
+    width: 100%;
+    align-self: center;
+    color: rgb(250, 250, 250);
+    text-transform: uppercase;
+}
+
+.add-button:hover{
+    background-color: rgb(214, 129, 1);
+}
+
+.input-add {
+    background-color: gainsboro;
+    border: none;
+    height: 100%;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    margin-bottom: 8%;
+}
+
+.input-add:hover {
+    background-color: ghostwhite;
+}

@@ -1,26 +1,31 @@
+import { Configuration as MidiConfiguration } from './generated/midi-api';
+import { Configuration as UserConfiguration } from './generated/user-api';
+import { Midis, MidiApi } from './generated/midi-api';
+import { UserApi } from './generated/user-api';
 import { useEffect, useState } from 'react';
-import { Midi, Midis, MidiApi, Configuration } from './generated/midi-api';
+import CreateMidiModal from './app/components/CreateMidiModal';
 import Content from './app/components/Content';
 import Header from './app/components/Header';
 import './App.css';
-import CreateMidiModal from './app/components/AddFoodModal';
-import { UserApi } from './generated/user-api';
+import CreateUserModal from './app/components/CreateUserModal';
+import LoginModal from './app/components/LoginModal';
 
 function App() {
   const [content, setContent] = useState(<></>);
   const [doFetch, setDoFetch] = useState<boolean>(true);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState<boolean>(false);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showDeleteBoxes, setShowDeleteBoxes] = useState<boolean>(false);
   const [midis, setMidis] = useState<Midis>({});
   const [token, setToken] = useState<string>("");
 
-  const midiApi = new MidiApi(new Configuration({accessToken: token}));
-  const userApi = new UserApi();
+  const midiApi = new MidiApi(new MidiConfiguration({accessToken: token}));
+  const userApi = new UserApi(new UserConfiguration({accessToken: token}));
 
   async function fetchMidis(): Promise<void> {
     try {
-      login();
       const midiResponse = await midiApi.getPublicMidis();
       setMidis(midiResponse);
       setContent(<Content foods={midiResponse} showDeleteBox={showDeleteBoxes} setUpdate={setDoFetch} midiApi={midiApi} token={token}/>)
@@ -30,36 +35,6 @@ function App() {
     }
   };
 
-  async function login(): Promise<void> {
-    try {
-      const request = { userLoginRequest: {userIdentifier: "niklas", password: "niklasniklas"} };
-      const loginResponse = await userApi.loginRaw(request);
-      const rawToken = loginResponse.raw.headers.get("Authorization");
-      const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-      console.log("Token: " + token);
-      setToken(token);
-    } catch (error) {
-      console.error('Login failed: ' + error);
-    }
-  };
-
-  async function createUser(): Promise<void> {
-    try {
-      const request = { userCreateRequest: {
-        "username": "niklas",
-        "email": "niklas.san@mail.com",
-        "password": "niklasniklas"} 
-      };
-      const createResponse = await userApi.createUserRaw(request);
-      const rawToken = createResponse.raw.headers.get("Authorization");
-      //const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-      //console.log("Token: " + token);
-      //setToken(token);
-    } catch (error) {
-      console.error('User creation failed: ' + error);
-    }
-  };
-  
   useEffect((): void => {
   }, [content]);
 
@@ -75,16 +50,21 @@ function App() {
   }, [doFetch]);
 
   const addFoodModal = <CreateMidiModal setUpdate={setDoFetch} setShowAddModal={setShowAddModal} midiApi={midiApi} token={token}/>
+  const createUserModal = <CreateUserModal setUpdate={setDoFetch} setShowCreateUserModal={setShowCreateUserModal} userApi={userApi} setToken={setToken}/>
+  const loginModal = <LoginModal setUpdate={setDoFetch} setShowLoginModal={setShowLoginModal} userApi={userApi} setToken={setToken}/>
 
   return (
     <div className="App">
       <Header setShowAddModal={setShowAddModal} setShowEditModal={setShowEditModal} 
               setShowDeleteBoxes={setShowDeleteBoxes} showDeleteBoxes={showDeleteBoxes}
-              foods={midis} setContent={setContent} setUpdate={setDoFetch}
-              midiApi={midiApi} userApi={userApi} token={token}/>
+              midis={midis} setContent={setContent} setUpdate={setDoFetch}
+              midiApi={midiApi} userApi={userApi} token={token} setShowCreateUserModal={setShowCreateUserModal}
+              setToken={setToken} setShowLoginModal={setShowLoginModal} />
       <main className="main">
         { content }
         { showAddModal ? addFoodModal : "" }
+        { showLoginModal ? loginModal : "" }
+        { showCreateUserModal ? createUserModal : "" }
       </main>
     </div>
   );
