@@ -3,44 +3,45 @@ services:
 
   midi_meta_db:
     container_name: midi_meta_db
-    image: postgres:16.1
+    image: postgres:16.2
     environment:
+      PGUSER: pguser
       POSTGRES_USER: midiuser
       POSTGRES_PASSWORD: midipass
       POSTGRES_DB: midi_meta_db
     ports:
       - "5432:5432"
-    networks:
-      - midi_network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "midi_meta_db", "-U", "pguser" ]
       interval: 30s
       timeout: 10s
       retries: 5
+    network_mode: bridge
 
   midi_blob_db:
     container_name: midi_blob_db
-    image: postgres:16.1
+    image: postgres:16.2
     environment:
+      PGUSER: pguser
       POSTGRES_USER: blobuser
       POSTGRES_PASSWORD: blobpass
       POSTGRES_DB: midi_blob_db
     ports:
       - "5433:5432"
-    networks:
-      - midi_network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "midi_blob_db", "-U", "pguser" ]
       interval: 30s
       timeout: 10s
       retries: 5
+    network_mode: bridge
 
   midi_user_db:
     container_name: midi_user_db
-    image: postgres:16.1
+    image: postgres:16.2
     environment:
+      PGUSER: pguser
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: dbpass
       POSTGRES_DB: midi_user_db
@@ -48,7 +49,7 @@ services:
       - "5434:5432"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "midi_user_db", "-U", "pguser" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -80,16 +81,15 @@ services:
       - "8082:8082"
     environment:
       META_DB_NAME: "midi_meta_db"
-      META_DB_URL: "midi_meta_db"
+      META_DB_URL: "172.27.0.1"
       BLOB_DB_NAME: "midi_blob_db"
-      BLOB_DB_URL: "midi_blob_db"
-    networks:
-      - midi_network
+      BLOB_DB_URL: "172.27.0.1"
     depends_on:
       midi_blob_db:
         condition: service_healthy
       midi_meta_db:
         condition: service_healthy
+    network_mode: bridge
 
   react-app:
     container_name: react-app
@@ -101,7 +101,3 @@ services:
     image: ex-react-app:test
     ports:
       - "3000:3000"
-
-networks:
-  midi_network:
-    driver: bridge

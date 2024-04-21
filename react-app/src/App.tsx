@@ -3,7 +3,7 @@ import { Midi, Midis, MidiApi, Configuration } from './generated/midi-api';
 import Content from './app/components/Content';
 import Header from './app/components/Header';
 import './App.css';
-import AddFoodModal from './app/components/AddFoodModal';
+import CreateMidiModal from './app/components/AddFoodModal';
 import { UserApi } from './generated/user-api';
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
   const midiApi = new MidiApi(new Configuration({accessToken: token}));
   const userApi = new UserApi();
 
-  async function fetchFoods(): Promise<void> {
+  async function fetchMidis(): Promise<void> {
     try {
       login();
       const midiResponse = await midiApi.getPublicMidis();
@@ -26,7 +26,7 @@ function App() {
       setContent(<Content foods={midiResponse} showDeleteBox={showDeleteBoxes} setUpdate={setDoFetch} midiApi={midiApi} token={token}/>)
       setDoFetch(false);
     } catch (error) {
-      console.error('Error fetching foods: ' + error);
+      console.error('Error fetching midis: ' + error);
     }
   };
 
@@ -42,6 +42,23 @@ function App() {
       console.error('Login failed: ' + error);
     }
   };
+
+  async function createUser(): Promise<void> {
+    try {
+      const request = { userCreateRequest: {
+        "username": "niklas",
+        "email": "niklas.san@mail.com",
+        "password": "niklasniklas"} 
+      };
+      const createResponse = await userApi.createUserRaw(request);
+      const rawToken = createResponse.raw.headers.get("Authorization");
+      //const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
+      //console.log("Token: " + token);
+      //setToken(token);
+    } catch (error) {
+      console.error('User creation failed: ' + error);
+    }
+  };
   
   useEffect((): void => {
   }, [content]);
@@ -53,11 +70,11 @@ function App() {
   useEffect((): void => {
     if (doFetch === true) {
       setDoFetch(false);
-      fetchFoods();
+      fetchMidis();
     }
   }, [doFetch]);
 
-  const addFoodModal = <AddFoodModal setUpdate={setDoFetch} setShowAddModal={setShowAddModal} midiApi={midiApi} token={token}/>
+  const addFoodModal = <CreateMidiModal setUpdate={setDoFetch} setShowAddModal={setShowAddModal} midiApi={midiApi} token={token}/>
 
   return (
     <div className="App">

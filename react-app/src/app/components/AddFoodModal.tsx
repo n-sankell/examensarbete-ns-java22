@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Configuration, MidiApi } from "../../generated/midi-api";
+import { MidiApi } from "../../generated/midi-api";
 import { CreateMidiRequest } from "../../generated/midi-api";
 import "./AddFoodModal.css";
 
@@ -10,7 +10,7 @@ type Props = {
     token: string;
 }
 
-const AddFoodModal = (props: Props) => {
+const CreateMidiModal = (props: Props) => {
     const [initialNumber] = useState<number>();
     const [foodName, setFoodName] = useState<string>("");
     const [foodRating, setFoodRating] = useState<string>("");
@@ -80,4 +80,4 @@ const AddFoodModal = (props: Props) => {
     </>);
 }
 
-export default AddFoodModal;
+export default CreateMidiModal;

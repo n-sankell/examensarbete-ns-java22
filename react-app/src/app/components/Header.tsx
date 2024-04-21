@@ -14,6 +14,7 @@ interface HeaderProps {
     setContent: Dispatch<SetStateAction<JSX.Element>>;
     midiApi: MidiApi;
     userApi: UserApi;
+    token: string;
 }
 
 const Header = (headerProps: HeaderProps) => {
@@ -29,12 +30,12 @@ const Header = (headerProps: HeaderProps) => {
         if (headerProps.showDeleteBoxes == true) {
             headerProps.setShowDeleteBoxes(false);
             headerProps.setContent(
-            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi}/>
+            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi} token={headerProps.token}/>
             )
         } else {
             headerProps.setShowDeleteBoxes(true);
             headerProps.setContent(
-                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi}/>
+                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate} midiApi={headerProps.midiApi} token={headerProps.token}/>
                 )
         }
         setMenuOpen(false);
