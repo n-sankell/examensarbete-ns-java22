@@ -329,6 +329,10 @@ components:
         isPrivate:
           type: boolean
           description: "Flag indicating if the MIDI is private"
+        userMidi:
+          type: boolean
+          description: "Flag indicating if the MIDI belongs to the user"
+          default: false
         filename:
           type: string
           description: "Filename of the MIDI"
