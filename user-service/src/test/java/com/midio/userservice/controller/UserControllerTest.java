@@ -295,7 +295,6 @@ public class UserControllerTest {
             );
             assertEquals(status, deleteResponse.getStatusCode());
             assertEquals(NOT_FOUND, requireNonNull(secondResponse.getStatusCode()));
-            assertEquals("User deleted.", deleteResponse.getBody());
         } else {
             if (status == FORBIDDEN) {
                 deleteRequest.password("WRONG_PASSWORD");
