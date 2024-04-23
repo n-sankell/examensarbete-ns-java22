@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changesets-meta/v1_midi_table.sql
+  - include:
+      file: db/changesets-meta/v2_alter_midi_table.sql

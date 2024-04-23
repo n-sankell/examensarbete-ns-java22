@@ -89,7 +89,7 @@ public class MidiController implements MidisApi {
     @Override
     public ResponseEntity<Object> deleteMidi(UUID id) {
         midiService.deleteMidi(midiId(id), getCurrentUser());
-        return ok("Deleted");
+        return ok().build();
     }
 
     private MidiId midiId(UUID id) {
