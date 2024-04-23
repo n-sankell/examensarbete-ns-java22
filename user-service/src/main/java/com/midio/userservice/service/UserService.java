@@ -59,7 +59,7 @@ public class UserService {
         var token = tokenGenerator.generateTokenForUser(
             UserAndDetails.of(userInfo.user(), userInfo.userDetails()));
 
-        logger.info("User created with id: " + userInfo.user().userId());
+        logger.info("User created with id: {}", userInfo.user().userId());
         return new UserInfoAndToken(getUserInfoById(userInfo.user().userId()), token);
     }
 
@@ -81,7 +81,7 @@ public class UserService {
     public void updatePassword(UpdatePassword updatePassword, CurrentUser currentUser) {
         var user = getUserById(currentUser.userId());
         if (!passwordMatches(user, updatePassword.currentPassword())) {
-            logger.warn("Failed attempt to change password for user: " + currentUser.userId());
+            logger.warn("Failed attempt to change password for user: {}", currentUser.userId());
             throw new ForbiddenException("Password incorrect", currentUser.idToString());
         }
         var newPassword = passwordEncoder.encode(updatePassword.newPassword());
@@ -93,13 +93,13 @@ public class UserService {
     public void deleteUser(String password, CurrentUser currentUser) {
         var user = getUserById(currentUser.userId());
         if (!passwordMatches(user, password)) {
-            logger.warn("Failed attempt to delete user: " + currentUser.userId());
+            logger.warn("Failed attempt to delete user: {}", currentUser.userId());
             throw new ForbiddenException("Password incorrect", currentUser.idToString());
         }
         userRepository.deleteUserById(user.userId());
         userRepository.deleteDetailsById(user.detailsId());
         userRepository.deletePasswordById(user.passId());
-        logger.info("User: " + currentUser.userId() + " was deleted from the database");
+        logger.info("User: {} was deleted from the database", currentUser.userId());
     }
 
     @Transactional
@@ -115,7 +115,7 @@ public class UserService {
             UserAndDetails.of(user, getUserDetailsById(details.detailsId()))
         );
 
-        logger.info("User with id: " + user.userId() + " was updated with new info");
+        logger.info("User with id: {} was updated with new info", user.userId());
         return new UserInfoAndToken(getUserInfoById(user.userId()), token);
     }
 

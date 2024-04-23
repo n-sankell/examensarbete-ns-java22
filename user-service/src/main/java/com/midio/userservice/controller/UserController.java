@@ -14,8 +14,6 @@ import generatedapi.model.UserDto;
 import generatedapi.model.UserLoginRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.midio.userservice.converter.UserConverter.buildCreateData;
@@ -67,7 +65,7 @@ public class UserController implements UserApi {
     public ResponseEntity<Object> deleteUser(DeleteUserRequestDto deleteUserRequestDto) {
         validator.validateRequest(deleteUserRequestDto);
         userService.deleteUser(deleteUserRequestDto.getPassword(), getCurrentUser());
-        return ok("User deleted.");
+        return ok().build();
     }
 
     @Override
@@ -89,7 +87,7 @@ public class UserController implements UserApi {
         var passwordData = buildUpdatePassword(editPasswordRequestDto);
         userService.updatePassword(passwordData, getCurrentUser());
 
-        return ok("Password updated.");
+        return ok().build();
     }
 
     @Override
@@ -107,11 +105,6 @@ public class UserController implements UserApi {
         return ResponseEntity.status(OK)
             .header(AUTHORIZATION, TOKEN_PREFIX + userInfo.token())
             .body(convert(userInfo.userInfo()));
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/")
-    public String hello() {
-        return "Hello";
     }
 
     private CurrentUser getCurrentUser() {
