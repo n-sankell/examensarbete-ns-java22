@@ -48,11 +48,11 @@
     cursor: pointer;
     text-decoration: none;
 }
-input[type="checkbox"]:checked ~ #sidebarMenu {
+input[type="checkbox"]:checked.openSidebarMenu ~ #sidebarMenu {
     transform: translateX(0);
 }
 
-input[type=checkbox] {
+input[type=checkbox].openSidebarMenu {
     transition: all 0.3s;
     box-sizing: border-box;
     display: none;

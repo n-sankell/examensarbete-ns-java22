@@ -6,6 +6,7 @@ type Props = {
     setUpdate: Dispatch<SetStateAction<boolean>>;
     setShowLoginModal: Dispatch<SetStateAction<boolean>>;
     setToken: Dispatch<SetStateAction<string>>;
+    setLoggedIn: Dispatch<SetStateAction<boolean>>;
     userApi: UserApi;
 }
 
@@ -32,14 +33,17 @@ const LoginModal = (props: Props) => {
                     password: password
                  } };
             const response = await props.userApi.loginRaw(requestObject);
-            const rawToken = response.raw.headers.get("Authorization");
-            const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-            console.log(response);
-            props.setToken(token);
-            props.setUpdate(true);
-            setIdentifier("");
-            setPassword("");
-            props.setShowLoginModal(false);
+            if (response.raw.status === 200) {
+                const rawToken = response.raw.headers.get("Authorization");
+                const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
+                console.log(response);
+                props.setToken(token);
+                props.setUpdate(true);
+                setIdentifier("");
+                setPassword("");
+                props.setLoggedIn(true);
+                props.setShowLoginModal(false);
+            }
         } catch (error) {
             console.error('Error creating account ' + error);
         }

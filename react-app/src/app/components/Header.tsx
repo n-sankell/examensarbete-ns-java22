@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { MidiApi, Midis } from "../../generated/midi-api";
 import { UserApi } from "../../generated/user-api";
-import Content from "./Content";
+import PublicMidis from "./PublicMidis";
 import "./Header.css";
 
 interface HeaderProps {
@@ -11,12 +11,14 @@ interface HeaderProps {
     setShowEditModal: Dispatch<SetStateAction<boolean>>;
     setShowDeleteBoxes: Dispatch<SetStateAction<boolean>>;
     setUpdate: Dispatch<SetStateAction<boolean>>;
-    //seLoggedIn: Dispatch<SetStateAction<boolean>>;
+    setLoggedIn: Dispatch<SetStateAction<boolean>>;
     setToken: Dispatch<SetStateAction<string>>;
     setContent: Dispatch<SetStateAction<JSX.Element>>;
-    //loggedIn: boolean;
+    setUserMidis: Dispatch<SetStateAction<Midis>>;
+    loggedIn: boolean;
     showDeleteBoxes: boolean;
     midis: Midis;
+    userMidis: Midis;
     midiApi: MidiApi;
     userApi: UserApi;
     token: string;
@@ -48,19 +50,30 @@ const Header = (headerProps: HeaderProps) => {
         setMenuOpen(false);
     };
 
+    const logoutClick = () => {
+        headerProps.setShowLoginModal(false);
+        headerProps.setShowCreateUserModal(false);
+        headerProps.setShowAddModal(false);
+        headerProps.setShowDeleteBoxes(false);
+        headerProps.setToken("");
+        headerProps.setLoggedIn(false);
+        headerProps.setUserMidis({});
+        setMenuOpen(false);
+    };
+
     const deleteButtonClick = () => {
         console.log("Click");
-        if (headerProps.showDeleteBoxes == true) {
+        if (headerProps.showDeleteBoxes === true) {
             headerProps.setShowDeleteBoxes(false);
             headerProps.setContent(
-                <Content foods={headerProps.midis} showDeleteBox={false} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} />
+                <PublicMidis midis={headerProps.midis} showDeleteBox={false} setUpdate={headerProps.setUpdate} 
+                midiApi={headerProps.midiApi} token={headerProps.token} userMidis={headerProps.userMidis} />
             )
         } else {
             headerProps.setShowDeleteBoxes(true);
             headerProps.setContent(
-                <Content foods={headerProps.midis} showDeleteBox={true} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} />
+                <PublicMidis midis={headerProps.midis} showDeleteBox={true} setUpdate={headerProps.setUpdate} 
+                midiApi={headerProps.midiApi} token={headerProps.token} userMidis={headerProps.userMidis} />
             )
         }
         setMenuOpen(false);
@@ -84,14 +97,26 @@ const Header = (headerProps: HeaderProps) => {
                 </label>
             <div id="sidebarMenu">
                 <ul className="sidebarMenuInner">
+                    { headerProps.loggedIn === true ? 
                     <li><div className="menu-button" onClick={ addButtonClick } >
                         <span className="buttonText">Create new midi</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === true ? 
                     <li><div className="menu-button" onClick={ deleteButtonClick } >
                         <span className="buttonText">Delete midi</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === false ? 
                     <li><div className="menu-button" onClick={ createUserClick } >
                         <span className="buttonText">Create account</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === false ? 
                     <li><div className="menu-button" onClick={ loginClick } >
                         <span className="buttonText">Login</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ logoutClick } >
+                        <span className="buttonText">Logout</span></div></li>
+                    : "" }
                 </ul>
             </div>
         </div>
