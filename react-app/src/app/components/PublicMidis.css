@@ -65,6 +65,19 @@
     margin-bottom: 2%;
     background: rgb(182, 38, 230);
   }
+
+  .user-midis-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 2%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    background: rgb(182, 38, 230);
+  }
   
   .midi {
     position: relative;

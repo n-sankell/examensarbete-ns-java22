@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { MidiApi, Midis } from "../../generated/midi-api";
+import { MidiApi, MidiWithData, Midis } from "../../generated/midi-api";
 import { UserApi } from "../../generated/user-api";
 import PublicMidis from "./PublicMidis";
 import "./Header.css";
@@ -15,6 +15,7 @@ interface HeaderProps {
     setToken: Dispatch<SetStateAction<string>>;
     setContent: Dispatch<SetStateAction<JSX.Element>>;
     setUserMidis: Dispatch<SetStateAction<Midis>>;
+    setActiveMidi: Dispatch<SetStateAction<MidiWithData>>;
     loggedIn: boolean;
     showDeleteBoxes: boolean;
     midis: Midis;
@@ -67,13 +68,15 @@ const Header = (headerProps: HeaderProps) => {
             headerProps.setShowDeleteBoxes(false);
             headerProps.setContent(
                 <PublicMidis midis={headerProps.midis} showDeleteBox={false} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} userMidis={headerProps.userMidis} />
+                midiApi={headerProps.midiApi} token={headerProps.token} 
+                setActiveMidi={headerProps.setActiveMidi} />
             )
         } else {
             headerProps.setShowDeleteBoxes(true);
             headerProps.setContent(
                 <PublicMidis midis={headerProps.midis} showDeleteBox={true} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} userMidis={headerProps.userMidis} />
+                midiApi={headerProps.midiApi} token={headerProps.token} 
+                setActiveMidi={headerProps.setActiveMidi} />
             )
         }
         setMenuOpen(false);
