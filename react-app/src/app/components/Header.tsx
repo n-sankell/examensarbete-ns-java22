@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { MidiApi, MidiWithData, Midis } from "../../generated/midi-api";
-import { UserApi } from "../../generated/user-api";
-import PublicMidis from "./PublicMidis";
+import { User, UserApi } from "../../generated/user-api";
+import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
 import "./Header.css";
 
 interface HeaderProps {
@@ -9,7 +9,6 @@ interface HeaderProps {
     setShowCreateUserModal: Dispatch<SetStateAction<boolean>>;
     setShowLoginModal: Dispatch<SetStateAction<boolean>>;
     setShowEditModal: Dispatch<SetStateAction<boolean>>;
-    setShowDeleteBoxes: Dispatch<SetStateAction<boolean>>;
     setUpdate: Dispatch<SetStateAction<boolean>>;
     setLoggedIn: Dispatch<SetStateAction<boolean>>;
     setToken: Dispatch<SetStateAction<string>>;
@@ -17,8 +16,8 @@ interface HeaderProps {
     setUserMidis: Dispatch<SetStateAction<Midis>>;
     setActiveMidi: Dispatch<SetStateAction<MidiWithData>>;
     loggedIn: boolean;
-    showDeleteBoxes: boolean;
     midis: Midis;
+    user: User | undefined;
     userMidis: Midis;
     midiApi: MidiApi;
     userApi: UserApi;
@@ -29,7 +28,6 @@ const Header = (headerProps: HeaderProps) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const addButtonClick = () => {
         headerProps.setShowAddModal(true);
-        headerProps.setShowDeleteBoxes(false);
         headerProps.setShowCreateUserModal(false);
         headerProps.setShowLoginModal(false);
         setMenuOpen(false);
@@ -38,7 +36,6 @@ const Header = (headerProps: HeaderProps) => {
     const createUserClick = () => {
         headerProps.setShowCreateUserModal(true);
         headerProps.setShowAddModal(false);
-        headerProps.setShowDeleteBoxes(false);
         headerProps.setShowLoginModal(false);
         setMenuOpen(false);
     };
@@ -47,7 +44,6 @@ const Header = (headerProps: HeaderProps) => {
         headerProps.setShowLoginModal(true);
         headerProps.setShowCreateUserModal(false);
         headerProps.setShowAddModal(false);
-        headerProps.setShowDeleteBoxes(false);
         setMenuOpen(false);
     };
 
@@ -55,35 +51,39 @@ const Header = (headerProps: HeaderProps) => {
         headerProps.setShowLoginModal(false);
         headerProps.setShowCreateUserModal(false);
         headerProps.setShowAddModal(false);
-        headerProps.setShowDeleteBoxes(false);
         headerProps.setToken("");
         headerProps.setLoggedIn(false);
         headerProps.setUserMidis({});
         setMenuOpen(false);
     };
 
-    const deleteButtonClick = () => {
-        console.log("Click");
-        if (headerProps.showDeleteBoxes === true) {
-            headerProps.setShowDeleteBoxes(false);
-            headerProps.setContent(
-                <PublicMidis midis={headerProps.midis} showDeleteBox={false} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} 
-                setActiveMidi={headerProps.setActiveMidi} />
-            )
-        } else {
-            headerProps.setShowDeleteBoxes(true);
-            headerProps.setContent(
-                <PublicMidis midis={headerProps.midis} showDeleteBox={true} setUpdate={headerProps.setUpdate} 
-                midiApi={headerProps.midiApi} token={headerProps.token} 
-                setActiveMidi={headerProps.setActiveMidi} />
-            )
-        }
+    const userMidisClick = () => {
+        headerProps.setShowCreateUserModal(false);
+        headerProps.setShowLoginModal(false);
+        headerProps.setShowAddModal(false);
         setMenuOpen(false);
+        headerProps.userMidis.midis?.forEach(m => console.log(m.filename));
     };
+
+    const userAccountClick = () => {
+        headerProps.setShowCreateUserModal(false);
+        headerProps.setShowLoginModal(false);
+        headerProps.setShowAddModal(false);
+        setMenuOpen(false);
+        console.log("User: " + headerProps.user?.username);
+    };
+
+    useEffect((): void => {
+    }, [headerProps.user]);
 
     return (
     <div className="header">
+        <div className='user-info-wrapper'>{ headerProps.loggedIn && headerProps.user !== undefined? 
+        <> 
+            <span className='user-info-name'>{ headerProps.user.username }</span>
+            <UserSvg className='user-info-symbol'/> 
+        </> : "" } 
+        </div>
         <div className='header-button-wrapper'>
             <input type="checkbox" className="openSidebarMenu" id="openSidebarMenu" 
                     checked={menuOpen} onChange={(event: any): void => {
@@ -104,10 +104,6 @@ const Header = (headerProps: HeaderProps) => {
                     <li><div className="menu-button" onClick={ addButtonClick } >
                         <span className="buttonText">Create new midi</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === true ? 
-                    <li><div className="menu-button" onClick={ deleteButtonClick } >
-                        <span className="buttonText">Delete midi</span></div></li>
-                    : "" }
                     { headerProps.loggedIn === false ? 
                     <li><div className="menu-button" onClick={ createUserClick } >
                         <span className="buttonText">Create account</span></div></li>
@@ -115,6 +111,14 @@ const Header = (headerProps: HeaderProps) => {
                     { headerProps.loggedIn === false ? 
                     <li><div className="menu-button" onClick={ loginClick } >
                         <span className="buttonText">Login</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ userMidisClick } >
+                        <span className="buttonText">Your files</span></div></li>
+                    : "" }
+                    { headerProps.loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ userAccountClick } >
+                        <span className="buttonText">Your account</span></div></li>
                     : "" }
                     { headerProps.loggedIn === true ? 
                     <li><div className="menu-button" onClick={ logoutClick } >

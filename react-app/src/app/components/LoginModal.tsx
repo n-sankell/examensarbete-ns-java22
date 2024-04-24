@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { LoginRequest, UserApi } from "../../generated/user-api";
+import { LoginRequest, User, UserApi } from "../../generated/user-api";
 import "./LoginModal.css";
 
 type Props = {
@@ -7,6 +7,7 @@ type Props = {
     setShowLoginModal: Dispatch<SetStateAction<boolean>>;
     setToken: Dispatch<SetStateAction<string>>;
     setLoggedIn: Dispatch<SetStateAction<boolean>>;
+    setUser: Dispatch<SetStateAction<User | undefined>>;
     userApi: UserApi;
 }
 
@@ -34,9 +35,10 @@ const LoginModal = (props: Props) => {
                  } };
             const response = await props.userApi.loginRaw(requestObject);
             if (response.raw.status === 200) {
-                const rawToken = response.raw.headers.get("Authorization");
-                const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-                console.log(response);
+                const rawToken: string | null = response.raw.headers.get("Authorization");
+                const token: string = rawToken == null ? "" : rawToken.replace("Bearer ", "");
+                const user: User = await response.value();
+                props.setUser(user);
                 props.setToken(token);
                 props.setUpdate(true);
                 setIdentifier("");

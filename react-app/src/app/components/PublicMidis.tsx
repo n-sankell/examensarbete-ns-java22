@@ -1,12 +1,13 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DeleteMidiRequest, GetMidiRequest, Midi, MidiApi, MidiWithData, Midis } from '../../generated/midi-api';
+import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
 import "./PublicMidis.css";
 
 type Props = {
     midis: Midis;
-    showDeleteBox: boolean;
     setUpdate: Dispatch<SetStateAction<boolean>>;
     setActiveMidi: Dispatch<SetStateAction<MidiWithData>>;
+    activeMidi: MidiWithData;
     midiApi: MidiApi;
     token: string;
 }
@@ -31,10 +32,13 @@ const PublicMidis = (props: Props) => {
         } else {
             setSelectedMidiId(midi.midiId as string);
             const midiId = midi.midiId === null ? "" : midi.midiId as string;
-            const fetchRequest: GetMidiRequest = { id: midiId };
-            await props.midiApi.getMidi(fetchRequest)
-                .then(data => props.setActiveMidi(data))
-                .catch(error => console.log(error));
+            const activeId = props.activeMidi === undefined ? "" : props.activeMidi.meta?.midiId as string;
+            if (midiId !== activeId) {
+                const fetchRequest: GetMidiRequest = { id: midiId };
+                await props.midiApi.getMidi(fetchRequest)
+                    .then(data => props.setActiveMidi(data))
+                    .catch(error => console.log(error));
+            }
         }
     }
 
@@ -58,14 +62,15 @@ const PublicMidis = (props: Props) => {
                         <div className='edit-box' onClick={ (e) => handleDeleteBoxClick(e, midi) } >
                             <span className='edit-symbol'>E</span>
                         </div> </> : "" } </> : "" }
+                        { midi.userMidi === false ? "" : <UserSvg className='user-symbol'/> }
                     <div className= { midi.userMidi === true ? 'user-midis-wrapper' : 'midis-wrapper' }>
                         <div className='midi' onClick={ (e) => handleMidiClick(e, midi) }>
                             <span className='midi-text-field'>{ midi.filename }</span>
                             { midi.title === null ? "" : <span className='midi-text-field'>{ midi.title }</span> }
                             { midi.artist === null ? "" : <span className='midi-text-field'>{ midi.artist }</span> }
-                            { midi.userMidi === false ? "" : <span className='user-symbol'>U</span> }
                         </div>
                     </div>
+                    
                 </li>) ) }
             </ul>
         </div>
