@@ -22,8 +22,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    @Qualifier("blobPostgreSQLContainer")
-    public PostgreSQLContainer<?> blobPostgreSQLContainer() {
+    @Qualifier("blobPostgresContainer")
+    public PostgreSQLContainer<?> blobPostgresContainer() {
         try (PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:16.1")) {
             container
                 .withDatabaseName("blob_test_db")
@@ -34,8 +34,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    @Qualifier("metaPostgreSQLContainer")
-    public PostgreSQLContainer<?> metaPostgreSQLContainer() {
+    @Qualifier("metaPostgresContainer")
+    public PostgreSQLContainer<?> metaPostgresContainer() {
         try (PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:16.1")) {
             container
                 .withDatabaseName("meta_test_db")
@@ -47,7 +47,7 @@ public class TestConfiguration {
 
     @Bean
     @Qualifier("blobSQLDataSource")
-    public DataSource blobSQLDataSource(@Qualifier("blobPostgreSQLContainer")PostgreSQLContainer<?> blobPostgreSQLContainer) {
+    public DataSource blobSQLDataSource(@Qualifier("blobPostgresContainer")PostgreSQLContainer<?> blobPostgreSQLContainer) {
         blobPostgreSQLContainer.start();
         var dataSource = DataSourceBuilder.create()
             .driverClassName("org.postgresql.Driver")
@@ -59,31 +59,9 @@ public class TestConfiguration {
         return dataSource;
     }
 
-//    @Bean
-//    @Qualifier("blobDataSource")
-//    public DataSource blobDataSource(@Qualifier("blobDataSourceProperties")DataSourceProperties blobDataSourceProperties) {
-//        return DataSourceBuilder.create()
-//            .driverClassName("org.postgresql.Driver")
-//            .url(blobDataSourceProperties.getUrl())
-//            .username(blobDataSourceProperties.getUsername())
-//            .password(blobDataSourceProperties.getPassword())
-//            .build();
-//    }
-//
-//    @Bean
-//    @Qualifier("metaDataSource")
-//    public DataSource metaDataSource(@Qualifier("metaDataSourceProperties")DataSourceProperties metaDataSourceProperties) {
-//        return DataSourceBuilder.create()
-//            .driverClassName("org.postgresql.Driver")
-//            .url(metaDataSourceProperties.getUrl())
-//            .username(metaDataSourceProperties.getUsername())
-//            .password(metaDataSourceProperties.getPassword())
-//            .build();
-//    }
-
     @Bean
     @Qualifier("metaSQLDataSource")
-    public DataSource metaSQLDataSource(@Qualifier("metaPostgreSQLContainer")PostgreSQLContainer<?> metaPostgreSQLContainer) {
+    public DataSource metaSQLDataSource(@Qualifier("metaPostgresContainer")PostgreSQLContainer<?> metaPostgreSQLContainer) {
         metaPostgreSQLContainer.start();
         var dataSource = DataSourceBuilder.create()
             .driverClassName("org.postgresql.Driver")
@@ -107,19 +85,5 @@ public class TestConfiguration {
     public NamedParameterJdbcTemplate blobNamedParameterJdbcTemplate(@Qualifier("blobSQLDataSource") DataSource blobSQLDataSource) {
         return new NamedParameterJdbcTemplate(blobSQLDataSource);
     }
-
-//    @Bean
-//    @Qualifier("metaDataSourceProperties")
-//    @ConfigurationProperties("spring.datasource.meta")
-//    DataSourceProperties metaDataSourceProperties() {
-//        return new DataSourceProperties();
-//    }
-//
-//    @Bean
-//    @Qualifier("blobDataSourceProperties")
-//    @ConfigurationProperties("spring.datasource.blob")
-//    DataSourceProperties blobDataSourceProperties() {
-//        return new DataSourceProperties();
-//    }
 
 }
