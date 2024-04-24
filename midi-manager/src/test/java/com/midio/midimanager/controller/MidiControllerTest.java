@@ -222,7 +222,7 @@ public class MidiControllerTest {
                 () -> mockApi.editMidi(midiId, token, editRequest)
             );
             assertEquals(status, editResponse.getStatusCode());
-            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            var secondResponse = mockApi.getMidiById(midiId, validToken);
             assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
             assertEquals(Base64Midi.TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
@@ -250,7 +250,7 @@ public class MidiControllerTest {
             assertEquals("Hirokazu Tanaka", requireNonNull(editResponse.getBody()).getMeta().getArtist());
             assertEquals(Base64Midi.GYMNOPEDIE, editResponse.getBody().getBinary().getMidiFile());
         } else {
-            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            var secondResponse = mockApi.getMidiById(midiId, validToken);
             assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
             assertEquals(Base64Midi.TETRIS, requireNonNull(secondResponse.getBody()).getBinary().getMidiFile());
         }
@@ -289,7 +289,7 @@ public class MidiControllerTest {
                 () -> mockApi.editMidiMeta(midiId, token, editRequest)
             );
             assertEquals(status, editResponse.getStatusCode());
-            var secondResponse = mockApi.getMidiBiId(midiId, validToken);
+            var secondResponse = mockApi.getMidiById(midiId, validToken);
             assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
             assertEquals(Base64Midi.TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
@@ -319,7 +319,6 @@ public class MidiControllerTest {
             var secondResponse = mockApi.getUserMidis(validToken);
             assertEquals(status, deleteResponse.getStatusCode());
             assertEquals(1, requireNonNull(secondResponse.getBody()).getMidis().size());
-            assertEquals("Deleted", deleteResponse.getBody());
         } else {
             var deleteResponse = assertThrows(
                 HttpClientErrorException.class,
@@ -342,7 +341,7 @@ public class MidiControllerTest {
         var createResponseMidiId = requireNonNull(createdMidi.getBody()).getMeta().getMidiId();
 
         // create a get request for the created public midi
-        var response = mockApi.getMidiBiId(createResponseMidiId, token);
+        var response = mockApi.getMidiById(createResponseMidiId, token);
 
         // extract midi and blob from the response
         var midi = requireNonNull(response.getBody()).getMeta();
@@ -367,7 +366,7 @@ public class MidiControllerTest {
         // create a get request for the created private midi with different tokens
         if (status == HttpStatus.OK) {
             var response = assertDoesNotThrow(
-                () -> mockApi.getMidiBiId(midiId, token)
+                () -> mockApi.getMidiById(midiId, token)
             );
             // when status is OK assert that response values matches the expected values
             assertEquals(status, response.getStatusCode());
@@ -376,7 +375,7 @@ public class MidiControllerTest {
         } else {
             var response = assertThrows(
                 HttpClientErrorException.class,
-                () -> mockApi.getMidiBiId(midiId, token)
+                () -> mockApi.getMidiById(midiId, token)
             );
             assertEquals(status, response.getStatusCode());
         }

@@ -36,7 +36,7 @@ public class MockApi {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public ResponseEntity<MidiWithDataDto> getMidiBiId(UUID midiId, String token) throws Exception {
+    public ResponseEntity<MidiWithDataDto> getMidiById(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/midis/midi/" + midiId)

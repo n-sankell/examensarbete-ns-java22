@@ -1,6 +1,5 @@
 package com.midio.midimanager.controller;
 
-import com.midio.midimanager.converter.MidiConverter;
 import com.midio.midimanager.model.MidiId;
 import com.midio.midimanager.security.CurrentUser;
 import com.midio.midimanager.security.CurrentUserSupplier;
@@ -21,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.midio.midimanager.converter.MidiConverter.buildCreateData;
+import static com.midio.midimanager.converter.MidiConverter.buildEditData;
+import static com.midio.midimanager.converter.MidiConverter.convert;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -44,9 +46,9 @@ public class MidiController implements MidisApi {
     @Override
     public ResponseEntity<MidisDto> getPublicMidis() {
         var currentUser = getCurrentUser();
-        var publicMidis = MidiConverter.convert(midiService.getPublicMidis());
+        var publicMidis = convert(midiService.getPublicMidis());
         if (currentUser.isAuthenticated()) {
-            var userMidis = MidiConverter.convert(midiService.getMidisByUserId(currentUser)).getMidis().stream()
+            var userMidis = convert(midiService.getMidisByUserId(currentUser)).getMidis().stream()
                 .map(MidiDto::getMidiId).collect(Collectors.toSet());
             publicMidis.getMidis().forEach(midiDto -> midiDto.userMidi(userMidis.contains(midiDto.getMidiId())));
         }
@@ -57,7 +59,7 @@ public class MidiController implements MidisApi {
     public ResponseEntity<MidiWithDataDto> getMidi(UUID id) {
         var currentUser = getCurrentUser();
         var midiAndBlob = midiService.getMidiAndBlobById(midiId(id), currentUser);
-        var apiMidi = MidiConverter.convert(midiAndBlob);
+        var apiMidi = convert(midiAndBlob);
 
         if (currentUser.isAuthenticated() && midiAndBlob.metaData().userRef().equals(currentUser.userId())) {
             apiMidi.getMeta().userMidi(true);
@@ -67,7 +69,7 @@ public class MidiController implements MidisApi {
 
     @Override
     public ResponseEntity<MidisDto> getUserMidis() {
-        var userMidis = MidiConverter.convert(midiService.getMidisByUserId(getCurrentUser()));
+        var userMidis = convert(midiService.getMidisByUserId(getCurrentUser()));
         userMidis.getMidis().forEach(midiDto -> midiDto.userMidi(true));
         return ok(userMidis);
     }
@@ -76,32 +78,39 @@ public class MidiController implements MidisApi {
     public ResponseEntity<MidiWithDataDto> createMidi(MidiCreateRequestDto midiCreateData) {
         validator.validateRequest(midiCreateData);
         var currentUser = getCurrentUser();
-        var midiAndData = MidiConverter.buildCreateData(midiCreateData, currentUser.userId());
-        return ok(MidiConverter.convert(midiService.createMidi(midiAndData, currentUser)));
+        var midiAndData = buildCreateData(midiCreateData, currentUser.userId());
+        var createdMidi = convert(midiService.createMidi(midiAndData, currentUser));
+        createdMidi.getMeta().userMidi(true);
+        return ok(createdMidi);
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidi(UUID id, MidiEditRequestDto editDataDto) {
         var midiId = midiId(id);
         validator.validateRequest(editDataDto);
-        var editData = MidiConverter.buildEditData(editDataDto, midiId);
-        return ok(MidiConverter.convert(midiService.updateMidi(midiId, editData, getCurrentUser())));
+        var editData = buildEditData(editDataDto, midiId);
+        var updatedMidi = convert(midiService.updateMidi(midiId, editData, getCurrentUser()));
+        updatedMidi.getMeta().userMidi(true);
+        return ok(updatedMidi);
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiBinary(UUID id, MidiEditBinaryRequestDto editDataDto) {
-        var midiId = midiId(id);
         validator.validateRequest(editDataDto);
-        var editData = MidiConverter.buildEditData(editDataDto, midiId);
-        return ok(MidiConverter.convert(midiService.updateMidi(midiId, editData, getCurrentUser())));
+        var editData = buildEditData(editDataDto, null);
+        var updatedMidi = convert(midiService.updateMidi(midiId(id), editData, getCurrentUser()));
+        updatedMidi.getMeta().userMidi(true);
+        return ok(updatedMidi);
     }
 
     @Override
     public ResponseEntity<MidiWithDataDto> editMidiMeta(UUID id, MidiEditMetaRequestDto editDataDto) {
         var midiId = midiId(id);
         validator.validateRequest(editDataDto);
-        var editData = MidiConverter.buildEditData(editDataDto, midiId);
-        return ok(MidiConverter.convert(midiService.updateMidi(midiId, editData, getCurrentUser())));
+        var editData = buildEditData(editDataDto, midiId);
+        var updatedMidi = convert(midiService.updateMidi(midiId(id), editData, getCurrentUser()));
+        updatedMidi.getMeta().userMidi(true);
+        return ok(updatedMidi);
     }
 
     @Override
