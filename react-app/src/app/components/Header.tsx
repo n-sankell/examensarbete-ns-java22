@@ -1,86 +1,81 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { MidiApi, MidiWithData, Midis } from "../../generated/midi-api";
-import { User, UserApi } from "../../generated/user-api";
+import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, displayCreateMidiModal, displayCreateUserModal, displayLoginModal } from "../actions/displayActions";
 import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
+import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
+import { Midi, Midis } from "../../generated/midi-api";
+import { User } from "../../generated/user-api";
+import { logout } from "../actions/userActions";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
 import "./Header.css";
 
-interface HeaderProps {
-    setShowAddModal: Dispatch<SetStateAction<boolean>>;
-    setShowCreateUserModal: Dispatch<SetStateAction<boolean>>;
-    setShowLoginModal: Dispatch<SetStateAction<boolean>>;
-    setShowEditModal: Dispatch<SetStateAction<boolean>>;
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    setLoggedIn: Dispatch<SetStateAction<boolean>>;
-    setToken: Dispatch<SetStateAction<string>>;
-    setContent: Dispatch<SetStateAction<JSX.Element>>;
-    setUserMidis: Dispatch<SetStateAction<Midis>>;
-    setActiveMidi: Dispatch<SetStateAction<MidiWithData>>;
+interface StateProps {
     loggedIn: boolean;
-    midis: Midis;
-    user: User | undefined;
-    userMidis: Midis;
-    midiApi: MidiApi;
-    userApi: UserApi;
-    token: string;
+    user: User | null;
+    userMidis: Midis | null;
 }
+interface DispatchProps {
+    displayLoginModal: () => void;
+    displayCreateUserModal: () => void;
+    displayCreateMidiModal: () => void;
+    closeCreateMidiModal: () => void;
+    closeCreateUserModal: () => void;
+    closeLoginModal: () => void;
+    logout: () => void;
+}
+interface HeaderProps extends StateProps, DispatchProps {}
 
-const Header = (headerProps: HeaderProps) => {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const addButtonClick = () => {
-        headerProps.setShowAddModal(true);
-        headerProps.setShowCreateUserModal(false);
-        headerProps.setShowLoginModal(false);
+const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,  
+    displayLoginModal, displayCreateUserModal, displayCreateMidiModal, 
+    closeLoginModal, closeCreateUserModal, closeCreateMidiModal }) => {
+
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+    const addButtonClick = (): void => {
+        closeAllModals();
+        displayCreateMidiModal();
         setMenuOpen(false);
     };
-
-    const createUserClick = () => {
-        headerProps.setShowCreateUserModal(true);
-        headerProps.setShowAddModal(false);
-        headerProps.setShowLoginModal(false);
+    const createUserClick = (): void => {
+        closeAllModals();
+        displayCreateUserModal();
         setMenuOpen(false);
     };
-
-    const loginClick = () => {
-        headerProps.setShowLoginModal(true);
-        headerProps.setShowCreateUserModal(false);
-        headerProps.setShowAddModal(false);
+    const loginClick = (): void => {
+        closeAllModals();
+        displayLoginModal();
         setMenuOpen(false);
     };
-
-    const logoutClick = () => {
-        headerProps.setShowLoginModal(false);
-        headerProps.setShowCreateUserModal(false);
-        headerProps.setShowAddModal(false);
-        headerProps.setToken("");
-        headerProps.setLoggedIn(false);
-        headerProps.setUserMidis({});
+    const logoutClick = (): void => {
+        logout();
+        closeAllModals();
         setMenuOpen(false);
     };
-
     const userMidisClick = () => {
-        headerProps.setShowCreateUserModal(false);
-        headerProps.setShowLoginModal(false);
-        headerProps.setShowAddModal(false);
+        closeAllModals();
         setMenuOpen(false);
-        headerProps.userMidis.midis?.forEach(m => console.log(m.filename));
+        const midis = userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : new Array<Midi>();
+        midis.forEach(m => console.log(m.filename));
     };
-
     const userAccountClick = () => {
-        headerProps.setShowCreateUserModal(false);
-        headerProps.setShowLoginModal(false);
-        headerProps.setShowAddModal(false);
+        closeAllModals();
         setMenuOpen(false);
-        console.log("User: " + headerProps.user?.username);
+        console.log("User: " + user?.username);
     };
+    const closeAllModals = (): void => {
+        closeLoginModal();
+        closeCreateUserModal();
+        closeCreateMidiModal();
+    }
 
     useEffect((): void => {
-    }, [headerProps.user]);
+    }, [loggedIn, user, userMidis]);
 
     return (
     <div className="header">
-        <div className='user-info-wrapper'>{ headerProps.loggedIn && headerProps.user !== undefined? 
+        <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
         <> 
-            <span className='user-info-name'>{ headerProps.user.username }</span>
+            <span className='user-info-name'>{ user.username }</span>
             <UserSvg className='user-info-symbol'/> 
         </> : "" } 
         </div>
@@ -100,27 +95,27 @@ const Header = (headerProps: HeaderProps) => {
                 </label>
             <div id="sidebarMenu">
                 <ul className="sidebarMenuInner">
-                    { headerProps.loggedIn === true ? 
+                    { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ addButtonClick } >
                         <span className="buttonText">Create new midi</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === false ? 
+                    { loggedIn === false ? 
                     <li><div className="menu-button" onClick={ createUserClick } >
                         <span className="buttonText">Create account</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === false ? 
+                    { loggedIn === false ? 
                     <li><div className="menu-button" onClick={ loginClick } >
                         <span className="buttonText">Login</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === true ? 
+                    { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ userMidisClick } >
                         <span className="buttonText">Your files</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === true ? 
+                    { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ userAccountClick } >
                         <span className="buttonText">Your account</span></div></li>
                     : "" }
-                    { headerProps.loggedIn === true ? 
+                    { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ logoutClick } >
                         <span className="buttonText">Logout</span></div></li>
                     : "" }
@@ -130,4 +125,20 @@ const Header = (headerProps: HeaderProps) => {
     </div>);
 }
 
-export default Header;
+const mapStateToProps = (state: RootState): StateProps => ({
+    loggedIn: state.user.loggedIn,
+    user: state.user.user,
+    userMidis: state.midi.userMidis,
+  });
+  
+  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    displayLoginModal: bindActionCreators(displayLoginModal, dispatch),
+    closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
+    displayCreateUserModal: bindActionCreators(displayCreateUserModal, dispatch),
+    displayCreateMidiModal: bindActionCreators(displayCreateMidiModal, dispatch),
+    closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+    closeCreateMidiModal: bindActionCreators(closeCreateMidiModal, dispatch),
+    logout: bindActionCreators(logout, dispatch),
+  });
+  
+  export default connect(mapStateToProps, mapDispatchToProps)(Header);

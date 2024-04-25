@@ -1,30 +1,33 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { DeleteMidiRequest, GetMidiRequest, Midi, MidiApi, MidiWithData, Midis } from '../../generated/midi-api';
+import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../generated/midi-api';
+import { deleteMidi, fetchMidiAndData, fetchPublicMidis } from '../actions/midiActions';
 import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
+import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
+import { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { RootState } from '../store';
 import "./PublicMidis.css";
 
-type Props = {
-    midis: Midis;
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    setActiveMidi: Dispatch<SetStateAction<MidiWithData>>;
-    activeMidi: MidiWithData;
-    midiApi: MidiApi;
-    token: string;
-}
+interface StateProps {
+    publicMidis: Midis | null;
+    activeMidi: MidiWithData | null;
+} 
+interface DispatchProps {
+    fetchPublicMidis: () => void;
+    fetchMidiAndData: (gerMidiRequest: GetMidiRequest) => void;
+    deleteMidi: (deleteMidiRequest: DeleteMidiRequest) => void;
+} 
+interface PublicMidiListProps extends DispatchProps, StateProps {}
 
-const PublicMidis = (props: Props) => {
+const PublicMidiList: React.FC<PublicMidiListProps> = ({ publicMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi }) => {
     const [selectedMidiId, setSelectedMidiId] = useState<string>();
-    const midis = props.midis.midis === undefined ? [] : props.midis.midis;
+    const midis = publicMidis !== null && publicMidis.midis !== undefined ? publicMidis.midis : [];
 
     const handleDeleteBoxClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         const midiId = midi.midiId === null ? "" : midi.midiId as string;
-        try {
-            const requestObject: DeleteMidiRequest = { id: midiId };
-            await props.midiApi.deleteMidi(requestObject);
-            props.setUpdate(true);
-        } catch (error) {
-            console.error('Error deleting midi: ' + error);
-        }
+        const requestObject: DeleteMidiRequest = { id: midiId };
+        deleteMidi(requestObject);
+        fetchPublicMidis();
+
     }
     const handleMidiClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         if (selectedMidiId === midi.midiId as string) {
@@ -32,18 +35,19 @@ const PublicMidis = (props: Props) => {
         } else {
             setSelectedMidiId(midi.midiId as string);
             const midiId = midi.midiId === null ? "" : midi.midiId as string;
-            const activeId = props.activeMidi === undefined ? "" : props.activeMidi.meta?.midiId as string;
+            const activeId = activeMidi === null ? "" : activeMidi.meta?.midiId as string;
             if (midiId !== activeId) {
                 const fetchRequest: GetMidiRequest = { id: midiId };
-                await props.midiApi.getMidi(fetchRequest)
-                    .then(data => props.setActiveMidi(data))
-                    .catch(error => console.log(error));
+                fetchMidiAndData(fetchRequest);
             }
         }
     }
 
     useEffect((): void => {
     }, []);
+
+    useEffect((): void => {
+    }, [publicMidis]);
 
     return (
     <div className="content">
@@ -77,4 +81,15 @@ const PublicMidis = (props: Props) => {
     </div>);
 }
 
-export default PublicMidis;
+const mapStateToProps = (state: RootState): StateProps => ({
+    publicMidis: state.midi.publicMidis,
+    activeMidi: state.midi.activeMidi,
+  });
+
+  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    fetchPublicMidis: bindActionCreators(fetchPublicMidis, dispatch),
+    fetchMidiAndData: bindActionCreators(fetchMidiAndData, dispatch),
+    deleteMidi: bindActionCreators(deleteMidi, dispatch),
+  });
+
+export default connect(mapStateToProps, mapDispatchToProps)(PublicMidiList);

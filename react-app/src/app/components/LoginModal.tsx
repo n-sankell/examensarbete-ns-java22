@@ -1,22 +1,28 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { LoginRequest, User, UserApi } from "../../generated/user-api";
+import { LoginRequest, UserLoginRequest } from "../../generated/user-api";
+import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
+import { closeLoginModal } from "../actions/displayActions";
+import { login } from "../actions/userActions";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
 import "./LoginModal.css";
 
-type Props = {
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    setShowLoginModal: Dispatch<SetStateAction<boolean>>;
-    setToken: Dispatch<SetStateAction<string>>;
-    setLoggedIn: Dispatch<SetStateAction<boolean>>;
-    setUser: Dispatch<SetStateAction<User | undefined>>;
-    userApi: UserApi;
+interface StateProps {
+    displayError: boolean;
+    loggedIn: boolean;
 }
+interface DispatchProps {
+    login: (loginRequest: UserLoginRequest) => void;
+    closeLoginModal: () => void;
+}
+interface LoginModalProps extends StateProps, DispatchProps {}
 
-const LoginModal = (props: Props) => {
+const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn }) => {
     const [identifier, setIdentifier] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const closeClick = (): void => {
-        props.setShowLoginModal(false);
+        closeLoginModal();
     }
     const handleIdentifierChange = (identifierEvent: any) => {
         setIdentifier(identifierEvent.target.value);
@@ -27,32 +33,23 @@ const LoginModal = (props: Props) => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        try {
-            const requestObject: LoginRequest = { 
-                userLoginRequest: { 
-                    userIdentifier: identifier, 
-                    password: password
-                 } };
-            const response = await props.userApi.loginRaw(requestObject);
-            if (response.raw.status === 200) {
-                const rawToken: string | null = response.raw.headers.get("Authorization");
-                const token: string = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-                const user: User = await response.value();
-                props.setUser(user);
-                props.setToken(token);
-                props.setUpdate(true);
-                setIdentifier("");
-                setPassword("");
-                props.setLoggedIn(true);
-                props.setShowLoginModal(false);
-            }
-        } catch (error) {
-            console.error('Error creating account ' + error);
-        }
+        const requestObject: LoginRequest = { 
+            userLoginRequest: { 
+                userIdentifier: identifier, 
+                password: password
+            } 
+        };
+        login(requestObject.userLoginRequest);
     }
-    
+
     useEffect((): void => {
     }, []);
+    
+    useEffect((): void => {
+        if (loggedIn) {
+            closeLoginModal();
+        }
+    }, [loggedIn]);
     
     return (<>
         <div className='overhang' onClick={closeClick} />
@@ -83,8 +80,19 @@ const LoginModal = (props: Props) => {
             <input className="submit-button" type="submit" value="Login" />
         </form>
         </div>
+        { displayError === true ? <span>Login failed</span> : "" }
         </div>
     </>);
 }
 
-export default LoginModal;
+const mapStateToProps = (state: RootState): StateProps => ({
+    displayError: state.user.displayLoginError,
+    loggedIn: state.user.loggedIn,
+  });
+
+  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    login: bindActionCreators(login, dispatch),
+    closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
+  });
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginModal);

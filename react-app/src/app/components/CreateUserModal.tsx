@@ -1,22 +1,28 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { CreateUserRequest, UserApi } from "../../generated/user-api";
+import { CreateUserRequest, UserCreateRequest } from "../../generated/user-api";
+import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
+import { closeCreateUserModal } from "../actions/displayActions";
+import { createUser } from "../actions/userActions";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
 import "./CreateUserModal.css";
 
-type Props = {
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    setShowCreateUserModal: Dispatch<SetStateAction<boolean>>;
-    setToken: Dispatch<SetStateAction<string>>;
-    setLoggedIn: Dispatch<SetStateAction<boolean>>;
-    userApi: UserApi;
+interface DispatchProps {
+    createUser: (userCreateRequest: UserCreateRequest) => void;
+    closeCreateUserModal: () => void;
 }
+interface StateProps {
+    displayUserCreateError: boolean;
+}
+interface CreateUserModalProps extends StateProps, DispatchProps {}
 
-const CreateUserModal = (props: Props) => {
+const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError } ) => {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const closeClick = (): void => {
-        props.setShowCreateUserModal(false);
+        closeCreateUserModal();
     }
     const handleUsernameChange = (usernameEvent: any) => {
         setUsername(usernameEvent.target.value);
@@ -30,29 +36,14 @@ const CreateUserModal = (props: Props) => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        try {
-            const requestObject: CreateUserRequest = { 
-                userCreateRequest: { 
-                    username: username, 
-                    email: email, 
-                    password: password
-                 } };
-            const response = await props.userApi.createUserRaw(requestObject);
-            if (response.raw.status === 200) {
-                const rawToken = response.raw.headers.get("Authorization");
-                const token = rawToken == null ? "" : rawToken.replace("Bearer ", "");
-                console.log(response);
-                props.setToken(token);
-                props.setUpdate(true);
-                setUsername("");
-                setEmail("");
-                setPassword("");
-                props.setLoggedIn(true);
-                props.setShowCreateUserModal(false);
+        const requestObject: CreateUserRequest = { 
+            userCreateRequest: { 
+                username: username, 
+                email: email, 
+                password: password
             }
-        } catch (error) {
-            console.error('Error creating account ' + error);
-        }
+        };
+        createUser(requestObject.userCreateRequest); 
     }
     
     useEffect((): void => {
@@ -101,4 +92,13 @@ const CreateUserModal = (props: Props) => {
     </>);
 }
 
-export default CreateUserModal;
+const mapStateToProps = (state: RootState): StateProps => ({
+    displayUserCreateError: state.user.displayUserCreateError,
+});
+  
+const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    createUser: bindActionCreators(createUser, dispatch),
+    closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+});
+  
+export default connect(mapStateToProps, mapDispatchToProps)(CreateUserModal);

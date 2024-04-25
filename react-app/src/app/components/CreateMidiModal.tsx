@@ -1,16 +1,22 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
+import { closeCreateMidiModal } from "../actions/displayActions";
 import { CreateMidiRequest } from "../../generated/midi-api";
-import { MidiApi } from "../../generated/midi-api";
+import { createMidi } from "../actions/midiActions";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
 import "./CreateMidiModal.css";
 
-type Props = {
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    setShowAddModal: Dispatch<SetStateAction<boolean>>;
-    midiApi: MidiApi;
-    token: string;
+interface DispatchProps {
+    createMidi: (createMidiRequest: CreateMidiRequest) => void;
+    closeCreateMidiModal: () => void;
 }
+interface StateProps {
+    displayCreateMidiError: boolean;
+}
+interface CreateMidiModalProps extends StateProps, DispatchProps {}
 
-const CreateMidiModal = (props: Props) => {
+const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCreateMidiModal, displayCreateMidiError } ) => {
     const [title, setTitle] = useState<string>("");
     const [artist, setArtist] = useState<string>("");
     const [isPrivate, setIsPrivate] = useState<boolean>(true);
@@ -19,8 +25,8 @@ const CreateMidiModal = (props: Props) => {
     const [fileName, setFileName] = useState<string>("");
 
     const closeClick = (): void => {
+        closeCreateMidiModal();
         resetValues();
-        props.setShowAddModal(false);
     }
     const handleTitleChange = (titleEvent: any) => {
         setTitle(titleEvent.target.value);
@@ -56,23 +62,20 @@ const CreateMidiModal = (props: Props) => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        try {
-            const requestObject: CreateMidiRequest = { 
-                midiCreateRequest: { 
-                    isPrivate: isPrivate, 
-                    filename: fileName, 
-                    artist: artist === "" ? undefined : artist, 
-                    title: title === "" ? undefined : title,
-                    midiFile: fileString
-                 } };
-            const response = await props.midiApi.createMidiRaw(requestObject);
-            console.log(response);
-            resetValues();
-            props.setUpdate(true);
-            props.setShowAddModal(false);
-        } catch (error) {
-            console.error('Error creating midi ' + error);
-        }
+        
+        const requestObject: CreateMidiRequest = { 
+            midiCreateRequest: { 
+                isPrivate: isPrivate, 
+                filename: fileName, 
+                artist: artist === "" ? undefined : artist, 
+                title: title === "" ? undefined : title,
+                midiFile: fileString
+            }
+        };
+        createMidi(requestObject)
+        resetValues();
+        //TODO: add option to add more?
+        closeCreateMidiModal();
     }
 
     const resetValues = () => {
@@ -144,5 +147,13 @@ const CreateMidiModal = (props: Props) => {
         </div>
     </>);
 }
-
-export default CreateMidiModal;
+const mapStateToProps = (state: RootState): StateProps => ({
+    displayCreateMidiError: state.midi.displayCreateMidiError,
+});
+  
+const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    createMidi: bindActionCreators(createMidi, dispatch),
+    closeCreateMidiModal: bindActionCreators(closeCreateMidiModal, dispatch),
+});
+  
+export default connect(mapStateToProps, mapDispatchToProps)(CreateMidiModal);
