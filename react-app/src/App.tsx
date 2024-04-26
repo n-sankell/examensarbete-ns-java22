@@ -10,6 +10,7 @@ import { RootState } from './app/store';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import './App.css';
+import Piano from './app/components/Piano/Piano';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;
@@ -62,6 +63,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
         { showCreateMidiModal ? <CreateMidiModal /> : "" }
         { showLoginModal ? <LoginModal /> : "" }
         { showCreateUserModal ? <CreateUserModal /> : "" }
+        <Piano />
       </main>
     </div>
   );
