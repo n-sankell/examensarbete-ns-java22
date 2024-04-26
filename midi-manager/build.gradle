@@ -77,7 +77,7 @@ sourceSets {
 }
 
 openApiGenerate {
-    inputSpec = "$projectDir/src/main/resources/openapi.yaml"
+    inputSpec = "$projectDir/src/main/resources/midi-manager-api.yaml"
     generatorName = "spring"
     library = "spring-boot"
     modelNameSuffix = "Dto"

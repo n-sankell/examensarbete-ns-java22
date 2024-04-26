@@ -1,0 +1,495 @@
+openapi: 3.0.3
+info:
+  title: Midi API
+  version: 1.0.0
+
+paths:
+
+  /midis/create:
+    post:
+      summary: Create a new midi entry
+      description: "Create a new midi entry, with meta and binary data."
+      operationId: createMidi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiCreateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - Midi
+
+  /midis/public:
+    get:
+      summary: Get all public midis
+      description: "Returns a list of public midis."
+      operationId: getPublicMidis
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Midis'
+      tags:
+        - Midi
+
+  /midis/user:
+    get:
+      summary: Get all midis from a user
+      description: "Returns a list of midis that belongs to the userId provided in the JWT"
+      operationId: getUserMidis
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Midis'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Midi
+
+  /midis/midi/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Edit a midi item
+      description: "Edit a midi item in the database."
+      operationId: editMidi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiEditRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - Midi
+    delete:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Delete a midi item
+      description: "Deletes metadata and binary midi data from the database."
+      operationId: deleteMidi
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Midi
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get midi by blobId
+      description: "Get a midi with meta and binary data from the database by blobId."
+      operationId: getMidi
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Midi
+
+  /midis/meta/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Edit midi metadata
+      description: "Edit the metadata for a midi entry."
+      operationId: editMidiMeta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiEditMetaRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - Midi
+
+  /midis/binary/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Edit midi binary data
+      description: "Edit the binary data for a midi."
+      operationId: editMidiBinary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MidiEditBinaryRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidiWithData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+        - Midi
+
+components:
+  schemas:
+
+    MidiCreateRequest:
+      type: object
+      properties:
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        filename:
+          type: string
+          description: "Filename of the MIDI"
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
+          minLength: 4
+          maxLength: 100
+          example: "tetris.mid"
+          x-patternErrorMessage: "Invalid filename format"
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
+        title:
+          type: string
+          description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
+        midiFile:
+          type: string
+          description: "MIDI file in binary format (Base64)"
+          minLength: 1
+      required:
+        - filename
+        - midiFile
+
+    MidiEditRequest:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MidiEditMetaRequest'
+        binaryData:
+          $ref: '#/components/schemas/MidiEditBinaryRequest'
+      required:
+        - metadata
+        - binaryData
+
+    MidiEditBinaryRequest:
+      type: object
+      properties:
+        midiFile:
+          type: string
+          description: "MIDI file in binary format (Base64)"
+          minLength: 1
+      required:
+        - filename
+
+    MidiEditMetaRequest:
+      type: object
+      properties:
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        filename:
+          type: string
+          pattern: '^(?!.*([ -])\\1)[a-zA-Z0-9_?!]+(?:[a-zA-Z0-9_?! -]*[a-zA-Z0-9_?!])?\.mid$'
+          minLength: 4
+          maxLength: 100
+          description: "Filename of the MIDI"
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
+        title:
+          type: string
+          description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
+      required:
+        - filename
+
+    Midi:
+      type: object
+      properties:
+        midiId:
+          type: string
+          format: uuid
+          description: "Unique identifier for the MIDI"
+        isPrivate:
+          type: boolean
+          description: "Flag indicating if the MIDI is private"
+        userMidi:
+          type: boolean
+          description: "Flag indicating if the MIDI belongs to the user"
+          default: false
+        filename:
+          type: string
+          description: "Filename of the MIDI"
+          pattern: '^(?=.*\S).+\.mid$'
+          minLength: 4
+          maxLength: 100
+        artist:
+          type: string
+          description: "Artist of the MIDI"
+          minLength: 1
+          maxLength: 200
+        title:
+          type: string
+          description: "Title of the MIDI"
+          minLength: 1
+          maxLength: 200
+        dateCreated:
+          type: string
+          format: date-time
+          description: "Timestamp of creation"
+        dateEdited:
+          type: string
+          format: date-time
+          description: "Timestamp of last edit"
+      required:
+        - midiId
+        - filename
+        - dateCreated
+        - dateEdited
+
+    BinaryData:
+      type: object
+      properties:
+        midiFile:
+          type: string
+          description: "MIDI file in binary format"
+          minLength: 1
+      required:
+        - midiFile
+
+    MidiWithData:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/Midi'
+        binary:
+          $ref: '#/components/schemas/BinaryData'
+
+    Midis:
+      type: object
+      properties:
+        midis:
+          type: array
+          items:
+            $ref: '#/components/schemas/Midi'
+
+    ValidationException:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+      required:
+        - message
+        - errors
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        invalidValue:
+          type: string
+      required:
+        - field
+        - error
+        - invalidValue
+
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        errorType:
+          type: string
+        errorMessage:
+          type: string
+      required:
+        - statusCode
+        - errorType
+        - errorMessage
+
+    EmptyResponse:
+      type: object
+      properties: { }
+
+  responses:
+    UnprocessableEntity:
+      description: Data was missing or incorrect in the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationException'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: User was not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: User was forbidden access to a resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: There was an issue with the request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: There was an issue with unique constrains
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+servers:
+  - url: http://{address}
+    variables:
+      address:
+        default: localhost:8082
+        description: The current environment

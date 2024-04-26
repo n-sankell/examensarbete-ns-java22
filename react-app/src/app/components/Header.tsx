@@ -1,44 +1,84 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, displayCreateMidiModal, displayCreateUserModal, displayLoginModal } from "../actions/displayActions";
+import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
+import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
+import { Midi, Midis } from "../../generated/midi-api";
+import { User } from "../../generated/user-api";
+import { logout } from "../actions/userActions";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { RootState } from "../store";
 import "./Header.css";
-import { Foods } from "../../generated";
-import Content from "./Content";
 
-interface HeaderProps {
-    setShowAddModal: Dispatch<SetStateAction<boolean>>;
-    setShowEditModal: Dispatch<SetStateAction<boolean>>;
-    setShowDeleteBoxes: Dispatch<SetStateAction<boolean>>;
-    setUpdate: Dispatch<SetStateAction<boolean>>;
-    showDeleteBoxes: boolean;
-    foods: Foods;
-    setContent: Dispatch<SetStateAction<JSX.Element>>;
+interface StateProps {
+    loggedIn: boolean;
+    user: User | null;
+    userMidis: Midis | null;
 }
+interface DispatchProps {
+    displayLoginModal: () => void;
+    displayCreateUserModal: () => void;
+    displayCreateMidiModal: () => void;
+    closeCreateMidiModal: () => void;
+    closeCreateUserModal: () => void;
+    closeLoginModal: () => void;
+    logout: () => void;
+}
+interface HeaderProps extends StateProps, DispatchProps {}
 
-const Header = (headerProps: HeaderProps) => {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const addButtonClick = () => {
-        headerProps.setShowAddModal(true);
-        headerProps.setShowDeleteBoxes(false);
+const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,  
+    displayLoginModal, displayCreateUserModal, displayCreateMidiModal, 
+    closeLoginModal, closeCreateUserModal, closeCreateMidiModal }) => {
+
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+    const addButtonClick = (): void => {
+        closeAllModals();
+        displayCreateMidiModal();
         setMenuOpen(false);
     };
-
-    const deleteButtonClick = () => {
-        console.log("Click");
-        if (headerProps.showDeleteBoxes == true) {
-            headerProps.setShowDeleteBoxes(false);
-            headerProps.setContent(
-            <Content foods={headerProps.foods} showDeleteBox={false} setUpdate={headerProps.setUpdate}/>
-            )
-        } else {
-            headerProps.setShowDeleteBoxes(true);
-            headerProps.setContent(
-                <Content foods={headerProps.foods} showDeleteBox={true} setUpdate={headerProps.setUpdate}/>
-                )
-        }
+    const createUserClick = (): void => {
+        closeAllModals();
+        displayCreateUserModal();
         setMenuOpen(false);
     };
+    const loginClick = (): void => {
+        closeAllModals();
+        displayLoginModal();
+        setMenuOpen(false);
+    };
+    const logoutClick = (): void => {
+        logout();
+        closeAllModals();
+        setMenuOpen(false);
+    };
+    const userMidisClick = () => {
+        closeAllModals();
+        setMenuOpen(false);
+        const midis = userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : new Array<Midi>();
+        midis.forEach(m => console.log(m.filename));
+    };
+    const userAccountClick = () => {
+        closeAllModals();
+        setMenuOpen(false);
+        console.log("User: " + user?.username);
+    };
+    const closeAllModals = (): void => {
+        closeLoginModal();
+        closeCreateUserModal();
+        closeCreateMidiModal();
+    }
+
+    useEffect((): void => {
+    }, [loggedIn, user, userMidis]);
 
     return (
     <div className="header">
+        <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
+        <> 
+            <span className='user-info-name'>{ user.username }</span>
+            <UserSvg className='user-info-symbol'/> 
+        </> : "" } 
+        </div>
         <div className='header-button-wrapper'>
             <input type="checkbox" className="openSidebarMenu" id="openSidebarMenu" 
                     checked={menuOpen} onChange={(event: any): void => {
@@ -55,14 +95,50 @@ const Header = (headerProps: HeaderProps) => {
                 </label>
             <div id="sidebarMenu">
                 <ul className="sidebarMenuInner">
+                    { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ addButtonClick } >
-                        <span className="buttonText">Add new food</span></div></li>
-                    <li><div className="menu-button" onClick={ deleteButtonClick } >
-                        <span className="buttonText">Delete foods</span></div></li>
+                        <span className="buttonText">Create new midi</span></div></li>
+                    : "" }
+                    { loggedIn === false ? 
+                    <li><div className="menu-button" onClick={ createUserClick } >
+                        <span className="buttonText">Create account</span></div></li>
+                    : "" }
+                    { loggedIn === false ? 
+                    <li><div className="menu-button" onClick={ loginClick } >
+                        <span className="buttonText">Login</span></div></li>
+                    : "" }
+                    { loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ userMidisClick } >
+                        <span className="buttonText">Your files</span></div></li>
+                    : "" }
+                    { loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ userAccountClick } >
+                        <span className="buttonText">Your account</span></div></li>
+                    : "" }
+                    { loggedIn === true ? 
+                    <li><div className="menu-button" onClick={ logoutClick } >
+                        <span className="buttonText">Logout</span></div></li>
+                    : "" }
                 </ul>
             </div>
         </div>
     </div>);
 }
 
-export default Header;
+const mapStateToProps = (state: RootState): StateProps => ({
+    loggedIn: state.user.loggedIn,
+    user: state.user.user,
+    userMidis: state.midi.userMidis,
+  });
+  
+  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+    displayLoginModal: bindActionCreators(displayLoginModal, dispatch),
+    closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
+    displayCreateUserModal: bindActionCreators(displayCreateUserModal, dispatch),
+    displayCreateMidiModal: bindActionCreators(displayCreateMidiModal, dispatch),
+    closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+    closeCreateMidiModal: bindActionCreators(closeCreateMidiModal, dispatch),
+    logout: bindActionCreators(logout, dispatch),
+  });
+  
+  export default connect(mapStateToProps, mapDispatchToProps)(Header);

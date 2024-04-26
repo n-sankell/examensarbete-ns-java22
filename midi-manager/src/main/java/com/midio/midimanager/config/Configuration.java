@@ -1,8 +1,10 @@
 package com.midio.midimanager.config;
 
+import liquibase.integration.spring.SpringLiquibase;
 import org.apache.bval.jsr.ApacheValidationProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -65,6 +67,44 @@ public class Configuration {
     @ConfigurationProperties("spring.datasource.blob")
     DataSourceProperties blobDataSourceProperties() {
         return new DataSourceProperties();
+    }
+
+    @Bean
+    @Qualifier("metaLiquibaseProperties")
+    @ConfigurationProperties(prefix = "spring.datasource.meta.liquibase")
+    public LiquibaseProperties metaLiquibaseProperties() {
+        return new LiquibaseProperties();
+    }
+
+    @Bean
+    @Qualifier("blobLiquibaseProperties")
+    @ConfigurationProperties(prefix = "spring.datasource.blob.liquibase")
+    public LiquibaseProperties blobLiquibaseProperties() {
+        return new LiquibaseProperties();
+    }
+
+    @Bean
+    public SpringLiquibase metaLiquibase() {
+        return springLiquibase(metaDataSource(metaDataSourceProperties()), metaLiquibaseProperties());
+    }
+
+    @Bean
+    public SpringLiquibase blobLiquibase() {
+        return springLiquibase(blobDataSource(blobDataSourceProperties()), blobLiquibaseProperties());
+    }
+
+    private static SpringLiquibase springLiquibase(DataSource dataSource, LiquibaseProperties properties) {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource);
+        liquibase.setChangeLog(properties.getChangeLog());
+        liquibase.setContexts(properties.getContexts());
+        liquibase.setDefaultSchema(properties.getDefaultSchema());
+        liquibase.setDropFirst(properties.isDropFirst());
+        liquibase.setShouldRun(properties.isEnabled());
+        liquibase.setLabelFilter(properties.getLabelFilter());
+        liquibase.setChangeLogParameters(properties.getParameters());
+        liquibase.setRollbackFile(properties.getRollbackFile());
+        return liquibase;
     }
 
     @Bean

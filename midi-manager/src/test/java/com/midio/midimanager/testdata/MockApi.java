@@ -6,7 +6,7 @@ import com.midio.midimanager.exception.ValidationError;
 import com.midio.midimanager.exception.ValidationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.midio.midimanager.secirity.JwtConstants;
+import com.midio.midimanager.security.JwtConstants;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
@@ -36,7 +36,7 @@ public class MockApi {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public ResponseEntity<MidiWithDataDto> getMidiBiId(UUID midiId, String token) throws Exception {
+    public ResponseEntity<MidiWithDataDto> getMidiById(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
                     .get("/midis/midi/" + midiId)

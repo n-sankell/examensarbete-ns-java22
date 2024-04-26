@@ -11,7 +11,7 @@ spring:
   datasource:
     user:
       driverClassName: org.postgresql.Driver
-      url: jdbc:postgresql://${META_DB_URL:localhost}:${META_DB_PORT:5434}/${META_DB_NAME:midi_user_db}?gssEncMode=disable&useSSL=false
+      url: jdbc:postgresql://${USER_DB_URL:localhost}:${USER_DB_PORT:5434}/${USER_DB_NAME:user_db}?gssEncMode=disable&useSSL=false
       username: ${DB_USER:dbuser}
       password: ${DB_PASSWORD:dbpass}
 

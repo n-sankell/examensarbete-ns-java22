@@ -1,5 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: db/changelog-blob.yaml
-  - include:
-      file: db/changelog-meta.yaml
