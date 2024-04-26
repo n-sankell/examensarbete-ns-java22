@@ -1,31 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import { RootState } from '../../store';
+import { setKeyPressed, setKeyReleased } from '../../actions/pianoActions';
+import { bindActionCreators } from '@reduxjs/toolkit';
 
 interface KeyProps {
-  noteNumber: number;
-  noteName: string;
-  isSharp: boolean;
+    noteNumber: number;
+    noteName: string;
+    isSharp: boolean;
+}
+interface KeyStateProps {
+    isPressed: boolean;
+}
+interface KeyDispatchProps {
+    keyPress: (noteNumber: number) => void;
+    keyRelease: (noteNumber: number) => void;
 }
 
-const Key: React.FC<KeyProps> = ({ noteNumber, isSharp, noteName }) => {
-    const [isPressed, setIsPressed] = useState<boolean>(false);
+const Key: React.FC<KeyProps & KeyStateProps & KeyDispatchProps> = ({ noteNumber, isSharp, noteName, keyPress, keyRelease, isPressed }) => {
     const keyClassName = isSharp ? 'black-key' : 'white-key';
-
-    const onPress = (note: number, pressed: boolean): void => {
-        setIsPressed(pressed);
-    }
 
     useEffect(() => {
     }, [isPressed])
 
     return (
-    <div className={`${isPressed ? `pressed-${keyClassName}` : keyClassName}`} 
-        onMouseDown={() => onPress(noteNumber, true)} 
-        onMouseUp={() => onPress(noteNumber, false)}>
-            { isSharp ? "" : <span className='note-name'>{noteName}</span> }
-    </div>
-  );
+        <div className={`${isPressed ? `pressed-${keyClassName}` : keyClassName}`} 
+            onMouseDown={() => keyPress(noteNumber)} 
+            onMouseUp={() => keyRelease(noteNumber)}>
+                { isSharp ? "" : <span className='note-name'>{noteName}</span> }
+        </div>);
 };
 
-export default Key;
+const mapStateToProps = (state: RootState, props: KeyProps): KeyStateProps => ({
+    isPressed: state.piano[props.noteNumber] || false,
+});
+
+const mapDispatchToProps = (dispatch: Dispatch): KeyDispatchProps => ({
+    keyPress: bindActionCreators(setKeyPressed, dispatch),
+    keyRelease: bindActionCreators(setKeyReleased, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Key);

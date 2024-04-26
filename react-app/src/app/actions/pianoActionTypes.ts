@@ -18,3 +18,7 @@ interface SetKeyReleasedAction {
 export type PianoAction = 
       SetKeyPressedAction
     | SetKeyReleasedAction;
+
+export interface KeyState {
+    [noteNumber: number]: boolean;
+}
