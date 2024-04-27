@@ -62,4 +62,7 @@
 }
 .note-name {
     align-self: flex-end;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
