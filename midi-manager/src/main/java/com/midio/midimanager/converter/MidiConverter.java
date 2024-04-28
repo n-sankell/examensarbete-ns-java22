@@ -17,6 +17,7 @@ import generatedapi.model.MidisDto;
 import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MidiConverter {
@@ -35,14 +36,15 @@ public class MidiConverter {
     }
 
     public static MidiDto convert(Midi midi) {
+        var formatter = DateTimeFormatter.ISO_LOCAL_DATE;
         return new MidiDto()
             .midiId(midi.midiId().id())
             .filename(midi.filename())
             .isPrivate(midi.isPrivate())
             .artist(midi.artist())
             .title(midi.title())
-            .dateCreated(midi.dateCreated().toOffsetDateTime())
-            .dateEdited(midi.dateEdited().toOffsetDateTime());
+            .dateCreated(midi.dateCreated().format(formatter))
+            .dateEdited(midi.dateEdited().format(formatter));
     }
 
     public static BinaryDataDto convert(Blob blob) {
