@@ -1,7 +1,9 @@
-import { KeyState, PianoAction, SET_KEY_PRESSED, SET_KEY_RELEASED } from "../actions/pianoActionTypes";
+import { KeyState, PianoAction, SET_KEY_PRESSED, SET_KEY_RELEASED, SET_PIANO_READY } from "../actions/pianoActionTypes";
 import { AnyAction } from 'redux';
 
-const initialKeyState: KeyState = {};
+const initialKeyState: KeyState = {
+    pianoReady: false,
+};
 
 const pianoReducer = (state: KeyState = initialKeyState, action: AnyAction): KeyState => {
     switch (action.type) {
@@ -14,6 +16,11 @@ const pianoReducer = (state: KeyState = initialKeyState, action: AnyAction): Key
             return {
                 ...state,
                 [action.payload.noteNumber]: false,
+            };
+        case SET_PIANO_READY:
+            return {
+                ...state,
+                pianoReady: action.payload,
             };
         default:
             return state;

@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import { NoteType } from './NoteType'
 import Key from './Key';
 
@@ -11,10 +9,11 @@ interface OctaveProps {
 }
 
 const Octave: React.FC<OctaveProps> = ( {notes, octaveNumber, noteStartNumber } ) => {
-    let currentNumber = noteStartNumber;
+    let current: number = noteStartNumber;
     return (<div className='octave'>{ notes.map((note: NoteType) => {
-        const element = <Key noteName={note.name + octaveNumber} noteNumber={currentNumber} isSharp={!note.isNatural} />;
-        currentNumber++;
+        const noteName: string = note.name + octaveNumber;
+        const element = <Key key={ current } noteName={ noteName } noteNumber={ current } isSharp={ !note.isNatural } />;
+        current++;
         return element;
     }) }
     </div>);
