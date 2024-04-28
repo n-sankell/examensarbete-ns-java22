@@ -294,17 +294,17 @@ components:
           maxLength: 200
         lastActive:
           type: string
-          format: date-time
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
           description: "Timestamp of latest login"
           readOnly: true
         dateCreated:
           type: string
-          format: date-time
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
           description: "Timestamp of creation"
           readOnly: true
         dateEdited:
           type: string
-          format: date-time
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
           description: "Timestamp of last edit"
           readOnly: true
       required:
