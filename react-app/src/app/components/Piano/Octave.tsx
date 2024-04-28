@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NoteType } from './NoteType'
 import Key from './Key';
+import { RootState } from '../../store';
+import { connect } from 'react-redux';
 
-interface OctaveProps {
+interface LocalOctaveProps {
     octaveNumber: number;
     noteStartNumber: number;
     notes: NoteType[]
 }
+interface OctaveStateProps {
+    pianoReady: boolean;
+}
+interface OctaveProps extends LocalOctaveProps, OctaveStateProps {}
 
-const Octave: React.FC<OctaveProps> = ( {notes, octaveNumber, noteStartNumber } ) => {
+const Octave: React.FC<OctaveProps> = ( {notes, octaveNumber, noteStartNumber, pianoReady } ) => {
+
+    useEffect(() => {
+    }, [pianoReady]);
+
     let current: number = noteStartNumber;
     return (<div className='octave'>{ notes.map((note: NoteType) => {
         const noteName: string = note.name + octaveNumber;
@@ -19,4 +29,8 @@ const Octave: React.FC<OctaveProps> = ( {notes, octaveNumber, noteStartNumber } 
     </div>);
 };
 
-export default Octave;
+const mapStateToProps = (state: RootState): OctaveStateProps => ({
+    pianoReady: state.piano.pianoReady,
+  });
+
+export default connect(mapStateToProps, null)(Octave);

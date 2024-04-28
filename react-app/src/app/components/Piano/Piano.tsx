@@ -6,6 +6,7 @@ import { setPianoReady } from '../../actions/pianoActions';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
+import { MIDI_START, OctaveStartNote, octaves } from './OctaveHelper';
 
 interface PianoStateProps {
   pianoReady: boolean;
@@ -30,21 +31,14 @@ const Piano: React.FC<PianoProps> = ( { pianoReady, setPianoReady } ) => {
     setPianoReady(false);
   }
 
-  const octaveRange = range(-2, 8);
-  let currentNote = 0;
-
   return (<div className='piano-wrapper'>
     <div className="piano" onMouseDown={(event) => handleMouseDown(event)} onMouseUp={(event) => handleMouseUp(event)}>
-      { octaveRange.map((ocNum: number) => {
-        const octave = <Octave key={ ocNum } octaveNumber={ ocNum } noteStartNumber={ currentNote } notes={ notes } ></Octave>;
-        currentNote += notes.length;
-        return octave;
-  })}
+      { octaves.map((o: OctaveStartNote) => 
+        <Octave key={ o.octave } octaveNumber={ o.octave } noteStartNumber={ o.startNote } notes={ notes } ></Octave>
+  )}
   </div>
   </div>);
 };
-
-const range = (min: number, max: number) => Array(max - min + 1).fill(0).map((_, i) => min + i);
 
 const mapStateToProps = (state: RootState): PianoStateProps => ({
   pianoReady: state.piano.pianoReady,

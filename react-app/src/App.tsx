@@ -3,7 +3,7 @@ import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { Midi, Midis, MidiWithData } from './generated/midi-api';
 import CreateMidiModal from './app/components/CreateMidiModal';
 import CreateUserModal from './app/components/CreateUserModal';
-import PublicMidiList from './app/components/PublicMidis';
+import MidiList from './app/components/MidiList';
 import LoginModal from './app/components/LoginModal';
 import Header from './app/components/Header';
 import { RootState } from './app/store';
@@ -24,11 +24,13 @@ interface StateProps {
   showLoginModal: boolean;
   showCreateUserModal: boolean;
   showCreateMidiModal: boolean;
+  showUserMidis: boolean;
+  showPublicMidis: boolean;
 }
 interface AppProps extends StateProps, DispatchProps {}
 
 const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, 
-  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi }) => {
+  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis }) => {
 
   useEffect((): void => {
     fetchPublicMidis();
@@ -59,10 +61,12 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
     <div className="App">
       <Header />
       <main className="main">
-        { <PublicMidiList /> }
+        {  }
         { showCreateMidiModal ? <CreateMidiModal /> : "" }
         { showLoginModal ? <LoginModal /> : "" }
         { showCreateUserModal ? <CreateUserModal /> : "" }
+        { showUserMidis ? <MidiList privateFiles={true} /> : "" }
+        { showPublicMidis ? <MidiList privateFiles={false} /> : "" }
         <Piano />
       </main>
     </div>
@@ -77,6 +81,8 @@ const mapStateToProps = (state: RootState): StateProps => ({
   showLoginModal: state.display.showLoginModal,
   showCreateUserModal: state.display.showCreateUserModal,
   showCreateMidiModal: state.display.showCreateMidiModal,
+  showPublicMidis: state.display.showPublicMidis,
+  showUserMidis: state.display.showUserMidis,
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({

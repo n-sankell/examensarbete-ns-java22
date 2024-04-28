@@ -5,29 +5,38 @@ import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../store';
-import "./PublicMidis.css";
+import "./MidiList.css";
+import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
 
-interface StateProps {
+interface MidisLocalProps {
+    privateFiles: boolean;
+}
+interface MidisStateProps {
     publicMidis: Midis | null;
+    userMidis: Midis |null;
     activeMidi: MidiWithData | null;
-} 
-interface DispatchProps {
+}
+interface MidisDispatchProps {
     fetchPublicMidis: () => void;
     fetchMidiAndData: (gerMidiRequest: GetMidiRequest) => void;
     deleteMidi: (deleteMidiRequest: DeleteMidiRequest) => void;
+    closePublicMidis: () => void;
+    closeUserMidis: () => void;
 } 
-interface PublicMidiListProps extends DispatchProps, StateProps {}
+interface MidisProps extends MidisDispatchProps, MidisStateProps, MidisLocalProps {}
 
-const PublicMidiList: React.FC<PublicMidiListProps> = ({ publicMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi }) => {
+const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi, 
+    privateFiles, closeUserMidis, closePublicMidis }) => {
     const [selectedMidiId, setSelectedMidiId] = useState<string>();
-    const midis = publicMidis !== null && publicMidis.midis !== undefined ? publicMidis.midis : [];
+    const midis = privateFiles === true ? 
+    userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : [] :
+    publicMidis !== null && publicMidis.midis !== undefined ? publicMidis.midis : [];
 
     const handleDeleteBoxClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         const midiId = midi.midiId === null ? "" : midi.midiId as string;
         const requestObject: DeleteMidiRequest = { id: midiId };
         deleteMidi(requestObject);
         fetchPublicMidis();
-
     }
     const handleMidiClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         if (selectedMidiId === midi.midiId as string) {
@@ -42,16 +51,23 @@ const PublicMidiList: React.FC<PublicMidiListProps> = ({ publicMidis, activeMidi
             }
         }
     }
+    const handleCloseClick = (event: any):void => {
+        if (privateFiles === true) {
+            closeUserMidis();
+        } else {
+            closePublicMidis();
+        }
+    }
 
     useEffect((): void => {
     }, []);
 
     useEffect((): void => {
-    }, [publicMidis]);
+    }, [publicMidis, userMidis]);
 
     return (
     <div className="content">
-        <h1 className='heading'>Public midis</h1>
+        <h1 className='heading'> { privateFiles === true ? "User midis" : "Public midis" } </h1>
         <div className='list-wrapper'>
             <ul className='ul-list'> { midis.map((midi: Midi, index: number) => (
                 <li key={ index } className='list-item'>
@@ -66,7 +82,7 @@ const PublicMidiList: React.FC<PublicMidiListProps> = ({ publicMidis, activeMidi
                         <div className='edit-box' onClick={ (e) => handleDeleteBoxClick(e, midi) } >
                             <span className='edit-symbol'>E</span>
                         </div> </> : "" } </> : "" }
-                        { midi.userMidi === false ? "" : <UserSvg className='user-symbol'/> }
+                        { midi.userMidi === false || privateFiles === true ? "" : <UserSvg className='user-symbol'/> }
                     <div className= { midi.userMidi === true ? 'user-midis-wrapper' : 'midis-wrapper' }>
                         <div className='midi' onClick={ (e) => handleMidiClick(e, midi) }>
                             <span className='midi-text-field'>{ midi.filename }</span>
@@ -74,22 +90,25 @@ const PublicMidiList: React.FC<PublicMidiListProps> = ({ publicMidis, activeMidi
                             { midi.artist === null ? "" : <span className='midi-text-field'>{ midi.artist }</span> }
                         </div>
                     </div>
-                    
                 </li>) ) }
             </ul>
         </div>
+        <div className='list-close-button' onClick={(event) => handleCloseClick(event)}><span>X</span></div>
     </div>);
 }
 
-const mapStateToProps = (state: RootState): StateProps => ({
+const mapStateToProps = (state: RootState): MidisStateProps => ({
     publicMidis: state.midi.publicMidis,
+    userMidis: state.midi.userMidis,
     activeMidi: state.midi.activeMidi,
   });
 
-  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
+  const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): MidisDispatchProps => ({
     fetchPublicMidis: bindActionCreators(fetchPublicMidis, dispatch),
     fetchMidiAndData: bindActionCreators(fetchMidiAndData, dispatch),
     deleteMidi: bindActionCreators(deleteMidi, dispatch),
+    closePublicMidis: bindActionCreators(closePublicMidis, dispatch),
+    closeUserMidis: bindActionCreators(closeUserMidis, dispatch),
   });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PublicMidiList);
+export default connect(mapStateToProps, mapDispatchToProps)(MidiList);

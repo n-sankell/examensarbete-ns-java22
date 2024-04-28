@@ -3,7 +3,7 @@ export type NoteType = {
     isNatural: boolean;
 }
 
-export const notes = [
+export const notes: NoteType[] = [
     {
         name: "C",
         isNatural: true
