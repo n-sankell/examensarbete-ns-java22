@@ -59,8 +59,6 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,
         closeAllModals();
         setMenuOpen(false);
         displayUserMidis();
-        const midis = userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : new Array<Midi>();
-        midis.forEach(m => console.log(m.filename));
     };
     const publicMidisClick = () => {
         closeAllModals();

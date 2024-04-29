@@ -1,8 +1,8 @@
 import * as Tone from 'tone';
 
-const activeNotes: Record<number, any> = {};
+const activeNotes: Record<string, any> = {};
 
-export const playNote = (note: number) => {
+export const playNote = (note: string) => {
   if (!activeNotes[note]) {
     activeNotes[note] = new Tone.Synth({
       oscillator: {
@@ -19,7 +19,7 @@ export const playNote = (note: number) => {
   }
 };
 
-export const releaseNote = (note: number) => {
+export const releaseNote = (note: string) => {
   if (activeNotes[note]) {
     activeNotes[note].triggerRelease();
     delete activeNotes[note];

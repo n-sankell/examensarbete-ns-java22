@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
-import { NoteType } from './NoteType'
-import Key from './Key';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
+import { NoteType } from './NoteType';
+import Key from './Key';
 
 interface LocalOctaveProps {
     octaveNumber: number;
     noteStartNumber: number;
-    notes: NoteType[]
+    notes: NoteType[];
 }
 interface OctaveStateProps {
     pianoReady: boolean;

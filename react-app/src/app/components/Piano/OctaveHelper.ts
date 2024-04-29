@@ -16,34 +16,42 @@ export const octaves: OctaveStartNote[] = [
     },
     {
         octave: OCTAVE_START + 1,
-        startNote: MIDI_START + OCTAVE_STEPS
+        startNote: OCTAVE_STEPS
     },
     {
         octave: OCTAVE_START + 2,
-        startNote: MIDI_START + OCTAVE_STEPS * 2
+        startNote: OCTAVE_STEPS * 2
     },
     {
         octave: OCTAVE_START + 3,
-        startNote: MIDI_START + OCTAVE_STEPS * 3
+        startNote: OCTAVE_STEPS * 3
     },
     {
         octave: OCTAVE_START + 4,
-        startNote: MIDI_START + OCTAVE_STEPS * 4
+        startNote: OCTAVE_STEPS * 4
     },
     {
         octave: OCTAVE_START + 5,
-        startNote: MIDI_START + OCTAVE_STEPS * 5
+        startNote: OCTAVE_STEPS * 5
     },
     {
         octave: OCTAVE_START + 6,
-        startNote: MIDI_START + OCTAVE_STEPS * 6
+        startNote: OCTAVE_STEPS * 6
     },
     {
         octave: OCTAVE_START + 7,
-        startNote: MIDI_START + OCTAVE_STEPS * 7
+        startNote: OCTAVE_STEPS * 7
     },
     {
-        octave: OCTAVE_START + OCTAVE_END,
-        startNote: MIDI_START + OCTAVE_STEPS * OCTAVE_END
+        octave: OCTAVE_START + 8,
+        startNote: OCTAVE_STEPS * 8
+    },
+    {
+        octave: OCTAVE_START + 9,
+        startNote: OCTAVE_STEPS * 9
+    },
+    {
+        octave: OCTAVE_START + 10,
+        startNote: OCTAVE_STEPS * 10
     }
 ]

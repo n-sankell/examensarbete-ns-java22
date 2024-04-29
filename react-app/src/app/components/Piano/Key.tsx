@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { SetStateAction, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { RootState } from '../../store';
@@ -18,37 +18,36 @@ interface KeyStateProps {
 interface KeyDispatchProps {
     keyPress: (noteNumber: number) => void;
     keyRelease: (noteNumber: number) => void;
-    setPianoReady: (pianoReady: boolean) => void;
 }
 interface KeyProps extends LocalKeyProps, KeyStateProps, KeyDispatchProps {}
 
-const Key: React.FC<KeyProps> = ({ noteNumber, isSharp, noteName, keyPress, keyRelease, isPressed, pianoReady, setPianoReady }) => {
+const Key: React.FC<KeyProps> = ({ noteNumber, isSharp, noteName, keyPress, keyRelease, isPressed, pianoReady }) => {
     const keyClassName = isSharp ? 'black-key' : 'white-key';
     const handleKeyPress = (event: any) => {
         event.preventDefault();
         keyPress(noteNumber);
-        playNote(noteNumber);
+        playNote(noteName);
     }
     const handleKeyRelease = (event: any) => {
         event.preventDefault();
         keyRelease(noteNumber);
-        releaseNote(noteNumber);
+        releaseNote(noteName);
     }
     const handleKeyOut = (event: any) => {
         event.preventDefault();
         keyRelease(noteNumber);
-        releaseNote(noteNumber);
+        releaseNote(noteName);
     }
     const handleKeyOver = (event: any) => {
         event.preventDefault();
         if (pianoReady === true) {
             keyPress(noteNumber);
-            playNote(noteNumber);
+            playNote(noteName);
         }
     }
 
     useEffect(() => {
-    }, [isPressed, pianoReady])
+    }, [isPressed, pianoReady]);
 
     return (
         <div className={`${isPressed ? `pressed-${keyClassName}` : keyClassName}`} 
@@ -68,7 +67,6 @@ const mapStateToProps = (state: RootState, props: LocalKeyProps): KeyStateProps 
 const mapDispatchToProps = (dispatch: Dispatch): KeyDispatchProps => ({
     keyPress: bindActionCreators(setKeyPressed, dispatch),
     keyRelease: bindActionCreators(setKeyReleased, dispatch),
-    setPianoReady: bindActionCreators(setPianoReady, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Key);

@@ -53,22 +53,22 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
   }, [loggedIn]);
 
   useEffect(() => {
-    const midis: Midi[] = userMidis !== null && userMidis !== undefined && userMidis.midis !== undefined ? userMidis.midis : new Array<Midi>();
-    midis.forEach(m => console.log(m.filename));
   }, [userMidis]);
 
   return (
     <div className="App">
       <Header />
-      <main className="main">
-        {  }
-        { showCreateMidiModal ? <CreateMidiModal /> : "" }
-        { showLoginModal ? <LoginModal /> : "" }
-        { showCreateUserModal ? <CreateUserModal /> : "" }
-        { showUserMidis ? <MidiList privateFiles={true} /> : "" }
-        { showPublicMidis ? <MidiList privateFiles={false} /> : "" }
-        <Piano />
-      </main>
+      <div className='main-wrapper'>
+      { showCreateMidiModal ? <CreateMidiModal /> : "" }
+      { showLoginModal ? <LoginModal /> : "" }
+      { showCreateUserModal ? <CreateUserModal /> : "" }
+      { showUserMidis ? <MidiList privateFiles={true} /> : "" }
+      { showPublicMidis ? <MidiList privateFiles={false} /> : "" }
+        <main className="main">
+          {  }
+          <Piano />
+        </main>
+      </div>
     </div>
   );
 }

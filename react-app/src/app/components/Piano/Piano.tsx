@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import Octave from './Octave';
-import { notes } from './NoteType';
-import './Piano.css';
-import { setPianoReady } from '../../actions/pianoActions';
-import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
+import { setPianoReady } from '../../actions/pianoActions';
+import { OctaveStartNote, octaves } from './OctaveHelper';
+import React, { useEffect } from 'react';
 import { RootState } from '../../store';
-import { MIDI_START, OctaveStartNote, octaves } from './OctaveHelper';
+import { connect } from 'react-redux';
+import { notes } from './NoteType';
+import Octave from './Octave';
+import './Piano.css';
 
 interface PianoStateProps {
   pianoReady: boolean;
