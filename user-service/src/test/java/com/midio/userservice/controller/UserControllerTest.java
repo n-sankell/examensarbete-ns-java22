@@ -175,9 +175,9 @@ public class UserControllerTest {
         // Check if the username is correct and that the id is a valid UUID
         assertDoesNotThrow(() -> UUID.fromString(idFromToken));
         assertEquals(email, emailFromToken);
-        var createMillis = requireNonNull(createResponse.getBody()).getLastActive().toInstant().toEpochMilli();
-        var loginMillis = requireNonNull(loginResponse.getBody()).getLastActive().toInstant().toEpochMilli();
-        assertTrue(loginMillis > createMillis);
+        var loginBody = requireNonNull(loginResponse.getBody());
+        var createBody = requireNonNull(createResponse.getBody());
+        assertEquals(createBody.getDateCreated(), loginBody.getLastActive());
     }
 
     @ParameterizedTest

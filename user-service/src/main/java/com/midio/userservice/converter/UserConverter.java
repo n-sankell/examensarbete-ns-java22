@@ -16,16 +16,18 @@ import generatedapi.model.UserCreateRequestDto;
 import generatedapi.model.UserDto;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class UserConverter {
 
     public static UserDto convert(UserInfo userInfo) {
+        var formatter = DateTimeFormatter.ISO_LOCAL_DATE;
         return new UserDto()
             .username(userInfo.username())
             .email(userInfo.email())
-            .lastActive(userInfo.lastLogin().toOffsetDateTime())
-            .dateCreated(userInfo.dateCreated().toOffsetDateTime())
-            .dateEdited(userInfo.lastEdited().toOffsetDateTime());
+            .lastActive(userInfo.lastLogin().format(formatter))
+            .dateCreated(userInfo.dateCreated().format(formatter))
+            .dateEdited(userInfo.lastEdited().format(formatter));
     }
 
     public static UserBundle buildCreateData(UserCreateRequestDto createData) {

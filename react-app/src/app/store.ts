@@ -2,12 +2,14 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import userReducer from './reducers/userReducer';
 import midiReducer from './reducers/midiReducer';
 import displayReducer from './reducers/displayReducer';
+import pianoReducer from './reducers/pianoReducer';
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
     midi: midiReducer,
-    display: displayReducer
+    display: displayReducer,
+    piano: pianoReducer,
   },
 });
 
