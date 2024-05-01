@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import './App.css';
 import Piano from './app/components/Piano/Piano';
+import MidiVisualizer from './app/components/MidiVisualizer';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;
@@ -66,7 +67,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
       { showPublicMidis ? <MidiList privateFiles={false} /> : "" }
         <main className="main">
           {  }
-          <Piano />
+          <MidiVisualizer />
         </main>
       </div>
     </div>

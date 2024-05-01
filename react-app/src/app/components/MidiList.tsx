@@ -1,12 +1,12 @@
 import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../generated/midi-api';
 import { deleteMidi, fetchMidiAndData, fetchPublicMidis } from '../actions/midiActions';
-import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
+import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
+import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../store';
 import "./MidiList.css";
-import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
 
 interface MidisLocalProps {
     privateFiles: boolean;
@@ -82,7 +82,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
                         <div className='edit-box' onClick={ (e) => handleDeleteBoxClick(e, midi) } >
                             <span className='edit-symbol'>E</span>
                         </div> </> : "" } </> : "" }
-                        { midi.userMidi === false || privateFiles === true ? "" : <UserSvg className='user-symbol'/> }
+                        { midi.userMidi === false || privateFiles === true ? "" : <img src={UserSvg} className='user-symbol'/> }
                     <div className= { midi.userMidi === true ? 'user-midis-wrapper' : 'midis-wrapper' }>
                         <div className='midi' onClick={ (e) => handleMidiClick(e, midi) }>
                             <span className='midi-text-field'>{ midi.filename }</span>

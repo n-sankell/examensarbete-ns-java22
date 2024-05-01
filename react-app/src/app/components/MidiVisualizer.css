@@ -1,0 +1,22 @@
+.viz-wrapper {
+    display: block;
+    position: relative;
+    top: 60px;
+}
+
+#midi-visualization {
+    display: flex;
+    width: 1300px;
+    height: 1000px;
+}
+
+g {
+    display: flex;
+    width: 1300px;
+    height: 1000px;
+}
+
+rect {
+    display: flex;
+    background-color: blueviolet;
+}

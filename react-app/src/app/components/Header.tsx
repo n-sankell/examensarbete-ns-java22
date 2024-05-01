@@ -1,7 +1,7 @@
 import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../actions/displayActions";
-import { ReactComponent as UserSvg } from '../../assets/user-alt-1-svgrepo-com.svg';
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { Midi, Midis } from "../../generated/midi-api";
+import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
+import { Midis } from "../../generated/midi-api";
 import { User } from "../../generated/user-api";
 import { logout } from "../actions/userActions";
 import { useEffect, useState } from "react";
@@ -86,7 +86,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,
         <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
         <> 
             <span className='user-info-name'>{ user.username }</span>
-            <UserSvg className='user-info-symbol'/> 
+            <img src={UserSvg} className='user-info-symbol'/> 
         </> : "" } 
         </div>
         <div className='header-button-wrapper'>
