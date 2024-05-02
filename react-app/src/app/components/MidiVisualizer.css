@@ -1,5 +1,5 @@
 .viz-wrapper {
-    display: block;
+    display: inline-block;
     position: relative;
     top: 60px;
 }

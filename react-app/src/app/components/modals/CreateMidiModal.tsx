@@ -1,10 +1,10 @@
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateMidiModal } from "../actions/displayActions";
-import { CreateMidiRequest } from "../../generated/midi-api";
-import { createMidi } from "../actions/midiActions";
+import { closeCreateMidiModal } from "../../actions/displayActions";
+import { CreateMidiRequest } from "../../../generated/midi-api";
+import { createMidi } from "../../actions/midiActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import "./CreateMidiModal.css";
 
 interface DispatchProps {

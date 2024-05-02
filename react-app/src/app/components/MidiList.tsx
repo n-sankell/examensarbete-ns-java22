@@ -65,7 +65,9 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
     useEffect((): void => {
     }, [publicMidis, userMidis]);
 
-    return (
+    return (<>
+    <div className='overhang' onClick={ handleCloseClick } />
+    <div className='midi-list'>
     <div className="content">
         <h1 className='heading'> { privateFiles === true ? "User midis" : "Public midis" } </h1>
         <div className='list-wrapper'>
@@ -94,7 +96,9 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
             </ul>
         </div>
         <div className='list-close-button' onClick={(event) => handleCloseClick(event)}><span>X</span></div>
-    </div>);
+    </div>
+    </div>
+    </>);
 }
 
 const mapStateToProps = (state: RootState): MidisStateProps => ({

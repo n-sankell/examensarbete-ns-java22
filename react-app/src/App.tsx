@@ -1,10 +1,10 @@
 import { fetchPublicMidis, fetchUserMidis } from './app/actions/midiActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { Midi, Midis, MidiWithData } from './generated/midi-api';
-import CreateMidiModal from './app/components/CreateMidiModal';
-import CreateUserModal from './app/components/CreateUserModal';
+import CreateMidiModal from './app/components/modals/CreateMidiModal';
+import CreateUserModal from './app/components/modals/CreateUserModal';
 import MidiList from './app/components/MidiList';
-import LoginModal from './app/components/LoginModal';
+import LoginModal from './app/components/modals/LoginModal';
 import Header from './app/components/Header';
 import { RootState } from './app/store';
 import { connect } from 'react-redux';
@@ -60,14 +60,13 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
     <div className="App">
       <Header />
       <div className='main-wrapper'>
-      { showCreateMidiModal ? <CreateMidiModal /> : "" }
-      { showLoginModal ? <LoginModal /> : "" }
-      { showCreateUserModal ? <CreateUserModal /> : "" }
-      { showUserMidis ? <MidiList privateFiles={true} /> : "" }
-      { showPublicMidis ? <MidiList privateFiles={false} /> : "" }
         <main className="main">
-          {  }
           <MidiVisualizer />
+          { showCreateMidiModal ? <CreateMidiModal /> : "" }
+          { showLoginModal ? <LoginModal /> : "" }
+          { showCreateUserModal ? <CreateUserModal /> : "" }
+          { showUserMidis ? <MidiList privateFiles={ true } /> : "" }
+          { showPublicMidis ? <MidiList privateFiles={ false } /> : "" }
         </main>
       </div>
     </div>

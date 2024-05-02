@@ -8,6 +8,8 @@ import Piano from './Piano/Piano';
 import { connect as reduxConnect } from 'react-redux';
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { setKeyPressed, setKeyReleased } from '../actions/pianoActions';
+import { RootState } from '../store';
+import { MidiWithData } from '../../generated/midi-api';
 
 interface MidiNote {
     name: string;
@@ -23,7 +25,6 @@ interface NoteData {
     rect: d3.Selection<SVGRectElement, MidiNote, HTMLElement, any>;
     initialX: number;
 }
-
 const svgWidth = 1300;
 const svgHeight = 1000;
 
@@ -43,33 +44,22 @@ function debounce<F extends (...args: any[]) => any>(func: F, delay: number): De
     };
 }
 
+interface VisualizerStateProps {
+    activeMidi: MidiWithData | null;
+}
 interface VisualizerDispatchProps {
     keyPress: (noteNumber: number) => void;
     keyRelease: (noteNumber: number) => void;
 }
-interface VisualizerProps extends VisualizerDispatchProps {}
+interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps {}
 
-const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease } ) => {
+const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, activeMidi } ) => {
     const executedFlag = useRef<boolean>(false);
     useEffect(() => {
         if (executedFlag.current === false) { 
         const fetchAndVisualizeData = async () => {
         try {
             const filePath = 'Farmor-loop.mid';
-            const dateCreatedTimestamp = 1706783462.696802000;
-            const dateEditedTimestamp = 1706783462.696802000;
-
-            const dateCreatedMilliseconds = dateCreatedTimestamp * 1000;
-            const dateEditedMilliseconds = dateEditedTimestamp * 1000;
-
-            const dateCreated = new Date(dateCreatedMilliseconds);
-            const dateEdited = new Date(dateEditedMilliseconds);
-
-            const formattedDateCreated = dateCreated.toLocaleString(); // Adjust format as needed
-            const formattedDateEdited = dateEdited.toLocaleString(); // Adjust format as needed
-
-            console.log("Formatted Date Created:", formattedDateCreated);
-            console.log("Formatted Date Edited:", formattedDateEdited);
             const tetris: string = "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";
             const midiData: ArrayBuffer = base64ToArrayBuffer(tetris);
             const parsedMidi = new Midi(midiData);
@@ -334,9 +324,13 @@ return (<><div className='viz-wrapper'>
     </>);
 };
 
+const mapStateToProps = (state: RootState): VisualizerStateProps => ({
+    activeMidi: state.midi.activeMidi,
+});
+
 const mapDispatchToProps = (dispatch: Dispatch): VisualizerDispatchProps => ({
     keyPress: bindActionCreators(setKeyPressed, dispatch),
     keyRelease: bindActionCreators(setKeyReleased, dispatch),
 });
 
-export default reduxConnect(null, mapDispatchToProps)(MidiVisualizer);
+export default reduxConnect(mapStateToProps, mapDispatchToProps)(MidiVisualizer);

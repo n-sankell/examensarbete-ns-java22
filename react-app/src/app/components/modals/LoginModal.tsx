@@ -1,10 +1,10 @@
-import { LoginRequest, UserLoginRequest } from "../../generated/user-api";
+import { LoginRequest, UserLoginRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeLoginModal } from "../actions/displayActions";
-import { login } from "../actions/userActions";
+import { closeLoginModal } from "../../actions/displayActions";
+import { login } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import "./LoginModal.css";
 
 interface StateProps {

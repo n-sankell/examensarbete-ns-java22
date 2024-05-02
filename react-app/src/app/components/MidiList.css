@@ -1,3 +1,19 @@
+.midi-list {
+  position: fixed;
+  top: 5%;
+  left: 30%;
+}
+
+.overhang {
+  position: fixed;
+  top: 0px;
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(161, 161, 161);
+  opacity: 60%;
+}
+
 .content {
     display: flex;
     align-items: center;
