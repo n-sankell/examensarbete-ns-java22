@@ -7,7 +7,7 @@ import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_U
     CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, CREATE_MIDI_FAILURE, PARSE_MIDI_REQUEST, PARSE_MIDI_SUCCESS,
     PARSE_MIDI_FAILURE} from './midiActionTypes'
 import { base64ToArrayBuffer } from '../components/MidiParser';
-import { Midi } from '@tonejs/midi';
+import { Midi, MidiJSON } from '@tonejs/midi';
 import { MidiWrapper } from '../types/MidiWrapper';
 
 export const fetchUserMidis = (): ThunkAction<void, RootState, null, MidiAction> => async (dispatch, getState) => {
@@ -74,7 +74,7 @@ export const parseMidi = (request: string): ThunkAction<void, RootState, null, M
   dispatch({ type: PARSE_MIDI_REQUEST, payload: { request } });
   try {
     const midiData: ArrayBuffer = base64ToArrayBuffer(request);
-    const parsedMidi: Midi = new Midi(midiData);
+    const parsedMidi: MidiJSON = new Midi(midiData).toJSON();
     const stateObject: MidiWrapper = {
       midi: parsedMidi
     }

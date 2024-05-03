@@ -1,29 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import * as d3 from 'd3';
 import { select } from 'd3';
 import * as Tone from 'tone';
-import { Midi } from '@tonejs/midi';
-import './MidiVisualizer.css';
+import { MidiJSON, TrackJSON } from '@tonejs/midi';
 import Piano from './Piano/Piano';
 import { connect as reduxConnect } from 'react-redux';
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { setKeyPressed, setKeyReleased } from '../actions/pianoActions';
 import { RootState } from '../store';
-import { MidiWithData } from '../../generated/midi-api';
 import { MidiWrapper } from '../types/MidiWrapper';
-
-interface MidiNote {
-    name: string;
-    midi: number;
-    time: number;
-    ticks: number;
-    duration: number;
-    velocity: number;
-}
+import { NoteJSON } from '@tonejs/midi/dist/Note';
+import { TempoEvent } from '@tonejs/midi/dist/Header';
+import './MidiVisualizer.css';
 
 interface NoteData {
-    note: MidiNote;
-    rect: d3.Selection<SVGRectElement, MidiNote, HTMLElement, any>;
+    note: NoteJSON;
+    rect: d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
     initialX: number;
 }
 const svgWidth = 1300;
@@ -55,15 +47,11 @@ interface VisualizerDispatchProps {
 interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps {}
 
 const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, parsedMidi } ) => {
-    const executedFlag = useRef<boolean>(false);
+
     useEffect(() => {
-        if (executedFlag.current === false) { 
+        d3.select('#midi-visualization').selectAll('*').remove();
         const fetchAndVisualizeData = async () => {
         try {
-            const filePath = 'Farmor-loop.mid';
-            const tetris: string = "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";
-            const midiData: ArrayBuffer = base64ToArrayBuffer(tetris);
-            //const parsedMidi = new Midi(midiData);
             const synths: any[] = [];
 
             const svg = d3.select('#midi-visualization')
@@ -85,8 +73,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
             let noteData: NoteData[];
             let isPlaying = false;
 
-            const createStaticTimeline = () => {
-                noteData = parsedMidi.midi.tracks[0].notes.map((note: MidiNote, index: number) => {
+            const createStaticTimeline = (midiData: MidiJSON) => {
+                noteData = midiData.tracks[0].notes.map((note: NoteJSON, index: number) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 750)
@@ -105,7 +93,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
                                 .attr('fill', note.name.length === 3 ? 'lightblue' : 'blue')
                                 .select('title').remove();
             
-                        }) as d3.Selection<SVGRectElement, MidiNote, HTMLElement, any>;
+                        }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
                     const initialX = note.midi * 10;
             
                     return {
@@ -117,7 +105,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
             
                 scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll}) rotate(180 ${svgWidth / 2} ${svgHeight / 2}) ${scaleFlip}`);
             };
-            createStaticTimeline();
+            if (parsedMidi.midi !== null) {
+                createStaticTimeline(parsedMidi.midi);
+            }
 
             svg.on('wheel', (event) => {
                 let delta = event.deltaY;
@@ -163,18 +153,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
             });
 
             scrollContainer.call(dragHandler);
-            let isFirstUpdate = true;
             const updateNotePositions = () => {
                 
                 const currentTime = Tone.Transport.seconds * 1000;
                 setTimeout(() => {
                   noteData.forEach(({ note, initialX, rect }) => {
-                    if (note && typeof note.ticks !== 'undefined') {
+                    if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
                         let noteStartTime = 0;
                         let beatsPerMinute = 120;
               
-                        parsedMidi.midi.header.tempos.forEach((tempoEvent) => {
-                        if (tempoEvent.ticks <= note.ticks) {
+                        parsedMidi.midi.header.tempos.forEach((tempoEvent: TempoEvent) => {
+                        if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
                                 (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 1000 -
@@ -209,10 +198,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
                     
                     await Tone.start().then(() => {
                         const playing = e.detail;
-                        if (playing && parsedMidi) {
+                        if (playing && parsedMidi.midi !== null) {
                             const now = Tone.now() + 0.5;
                             const displayOffset = now - 6;
-                            parsedMidi.midi.tracks.forEach((track: any) => {
+                            parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
                                 const synth = new Tone.PolySynth(Tone.Synth, {
                                     envelope: {
                                         attack: 0.02,
@@ -222,7 +211,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
                                     },
                                 }).toDestination();
                             synths.push(synth);
-                            track.notes.forEach((note: MidiNote) => {
+                            track.notes.forEach((note: NoteJSON) => {
                                 const dur = note.duration === 0 ? 0.1 : note.duration;
                                 synth.triggerAttack(note.name, note.time + now, note.velocity);
                                 Tone.Transport.schedule(() => keyPress(note.midi), note.time + now);
@@ -254,27 +243,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
         };
 
         fetchAndVisualizeData();
-        executedFlag.current = true;
-    }
+    
     }, [parsedMidi]);
 
-    const playTone = (note: any) => {
-        const synth = new Tone.PolySynth(Tone.Synth, {
-            envelope: {
-                attack: 0.02,
-                decay: 0.1,
-                sustain: 0.3,
-                release: 1,
-            },
-        }).toDestination();
-        synth.triggerAttackRelease(
-            note.name,
-            note.duration,
-            Tone.now(),
-            note.velocity
-        )
-    }
-  
     const readFile = (filePath: string): Promise<ArrayBuffer> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -303,24 +274,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
         });
     };
 
-    function base64ToArrayBuffer(base64: string): ArrayBuffer {
-        const binaryString = window.atob(base64);
-        const length = binaryString.length;
-        const bytes = new Uint8Array(length);
-    
-        for (let i = 0; i < length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-    
-        return bytes.buffer;
-    }
-
-return (<><div className='viz-wrapper'>
-        <button id='startButton'>Start midi</button>
-        <div id="midi-visualization">
-            {}
+return (<>
+        <div className='viz-wrapper'>
+            { parsedMidi.midi !== null ? <button id='startButton'>Start midi</button> : "" }
+            <div id="midi-visualization">
+            </div>
             <Piano />
-        </div>
         </div>
     </>);
 };

@@ -1,9 +1,9 @@
-import { Midi } from "@tonejs/midi"
+import { MidiJSON } from "@tonejs/midi"
 
 export type MidiWrapper = {
-    midi: Midi;
+    midi: MidiJSON | null;
 }
 
 export const defaultMidi: MidiWrapper = {
-    midi: new Midi()
+    midi: null
 }
