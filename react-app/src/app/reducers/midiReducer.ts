@@ -7,6 +7,7 @@ import { MidiState, MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCE
     PARSE_MIDI_REQUEST,
 	PARSE_MIDI_FAILURE,
 	PARSE_MIDI_SUCCESS} from '../actions/midiActionTypes';
+import { defaultMidi } from '../types/MidiWrapper';
 
 const initialState: MidiState = {
   	doFetchMidis: false,
@@ -19,7 +20,7 @@ const initialState: MidiState = {
   	displayPrivateMidiFetchError: false,
   	displayCreateMidiError: false,
   	displayDeleteMidiError: false,
-  	parsedMidi: null,
+  	parsedMidi: defaultMidi,
 };
 
 const midiReducer = (state = initialState, action: MidiAction): MidiState => {
@@ -62,7 +63,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
     	case CREATE_MIDI_SUCCESS:
         	return {
             	...state,
-    	        doFetchMidis: false,
+    	        doFetchMidis: true,
         	    loading: false,
             	activeMidi: action.payload,
         	};

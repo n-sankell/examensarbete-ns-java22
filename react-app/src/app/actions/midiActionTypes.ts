@@ -1,5 +1,6 @@
 import { Midi } from "@tonejs/midi";
 import { CreateMidiRequest, DeleteMidiRequest, GetMidiRequest, MidiWithData, Midis } from "../../generated/midi-api";
+import { MidiWrapper } from "../types/MidiWrapper";
 
 export const FETCH_USER_MIDIS_REQUEST = 'FETCH_USER_MIDIS_REQUEST';
 export const FETCH_USER_MIDIS_SUCCESS = 'FETCH_USER_MIDIS_SUCCESS';
@@ -96,7 +97,7 @@ interface ParseMidiRequestAction {
 }
 interface ParseMidiSuccessAction {
     type: typeof PARSE_MIDI_SUCCESS;
-    payload: Midi;
+    payload: MidiWrapper;
 }
 interface ParseMidiFailureAction {
     type: typeof PARSE_MIDI_FAILURE;
@@ -134,5 +135,5 @@ export interface MidiState {
     displayPrivateMidiFetchError: boolean;
     displayCreateMidiError: boolean;
     displayDeleteMidiError: boolean;
-    parsedMidi: Midi | null;
+    parsedMidi: MidiWrapper;
 }

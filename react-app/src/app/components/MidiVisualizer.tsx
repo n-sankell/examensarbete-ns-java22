@@ -10,6 +10,7 @@ import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { setKeyPressed, setKeyReleased } from '../actions/pianoActions';
 import { RootState } from '../store';
 import { MidiWithData } from '../../generated/midi-api';
+import { MidiWrapper } from '../types/MidiWrapper';
 
 interface MidiNote {
     name: string;
@@ -45,7 +46,7 @@ function debounce<F extends (...args: any[]) => any>(func: F, delay: number): De
 }
 
 interface VisualizerStateProps {
-    activeMidi: MidiWithData | null;
+    parsedMidi: MidiWrapper;
 }
 interface VisualizerDispatchProps {
     keyPress: (noteNumber: number) => void;
@@ -53,7 +54,7 @@ interface VisualizerDispatchProps {
 }
 interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps {}
 
-const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, activeMidi } ) => {
+const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, parsedMidi } ) => {
     const executedFlag = useRef<boolean>(false);
     useEffect(() => {
         if (executedFlag.current === false) { 
@@ -62,7 +63,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, acti
             const filePath = 'Farmor-loop.mid';
             const tetris: string = "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";
             const midiData: ArrayBuffer = base64ToArrayBuffer(tetris);
-            const parsedMidi = new Midi(midiData);
+            //const parsedMidi = new Midi(midiData);
             const synths: any[] = [];
 
             const svg = d3.select('#midi-visualization')
@@ -85,7 +86,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, acti
             let isPlaying = false;
 
             const createStaticTimeline = () => {
-                noteData = parsedMidi.tracks[0].notes.map((note: MidiNote, index: number) => {
+                noteData = parsedMidi.midi.tracks[0].notes.map((note: MidiNote, index: number) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 750)
@@ -172,11 +173,11 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, acti
                         let noteStartTime = 0;
                         let beatsPerMinute = 120;
               
-                        parsedMidi.header.tempos.forEach((tempoEvent) => {
+                        parsedMidi.midi.header.tempos.forEach((tempoEvent) => {
                         if (tempoEvent.ticks <= note.ticks) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
-                                (note.ticks / parsedMidi.header.ppq) * (60 / beatsPerMinute) * 1000 -
+                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 1000 -
                                 svgHeight / 2 + 500; 
                             }
                         });
@@ -211,7 +212,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, acti
                         if (playing && parsedMidi) {
                             const now = Tone.now() + 0.5;
                             const displayOffset = now - 6;
-                            parsedMidi.tracks.forEach((track: any) => {
+                            parsedMidi.midi.tracks.forEach((track: any) => {
                                 const synth = new Tone.PolySynth(Tone.Synth, {
                                     envelope: {
                                         attack: 0.02,
@@ -255,7 +256,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, acti
         fetchAndVisualizeData();
         executedFlag.current = true;
     }
-    }, []);
+    }, [parsedMidi]);
 
     const playTone = (note: any) => {
         const synth = new Tone.PolySynth(Tone.Synth, {
@@ -325,7 +326,7 @@ return (<><div className='viz-wrapper'>
 };
 
 const mapStateToProps = (state: RootState): VisualizerStateProps => ({
-    activeMidi: state.midi.activeMidi,
+    parsedMidi: state.midi.parsedMidi,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch): VisualizerDispatchProps => ({

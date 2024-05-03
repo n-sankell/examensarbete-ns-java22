@@ -1,5 +1,5 @@
 import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../generated/midi-api';
-import { deleteMidi, fetchMidiAndData, fetchPublicMidis } from '../actions/midiActions';
+import { deleteMidi, fetchMidiAndData, fetchPublicMidis, fetchUserMidis, parseMidi } from '../actions/midiActions';
 import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
@@ -18,6 +18,7 @@ interface MidisStateProps {
     publicMidis: Midis | null;
     userMidis: Midis |null;
     activeMidi: MidiWithData | null;
+    doFetchMidis: boolean;
 }
 interface MidisDispatchProps {
     fetchPublicMidis: () => void;
@@ -25,11 +26,12 @@ interface MidisDispatchProps {
     deleteMidi: (deleteMidiRequest: DeleteMidiRequest) => void;
     closePublicMidis: () => void;
     closeUserMidis: () => void;
+    parseMidi: (request: string) => void;
 } 
 interface MidisProps extends MidisDispatchProps, MidisStateProps, MidisLocalProps {}
 
 const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi, 
-    privateFiles, closeUserMidis, closePublicMidis }) => {
+    privateFiles, closeUserMidis, closePublicMidis, parseMidi, doFetchMidis }) => {
     const [selectedMidiId, setSelectedMidiId] = useState<string>();
     const midis = privateFiles === true ? 
     userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : [] :
@@ -39,7 +41,6 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         const midiId = midi.midiId === null ? "" : midi.midiId as string;
         const requestObject: DeleteMidiRequest = { id: midiId };
         deleteMidi(requestObject);
-        fetchPublicMidis();
     }
     const handleMidiClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         if (selectedMidiId === midi.midiId as string) {
@@ -55,11 +56,8 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         }
     }
     const handleCloseClick = (event: any):void => {
-        if (privateFiles === true) {
-            closeUserMidis();
-        } else {
-            closePublicMidis();
-        }
+        event.preventDefault();
+        closeModal();
     }
 
     const handleEditBoxClick = (event: any, midiId: string): void => {
@@ -67,11 +65,37 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         console.log("Edit click! " + midiId);
     }
 
+    const handleLoadBoxClick = (event: any): void => {
+        event.preventDefault();
+        if (activeMidi !== null && activeMidi.binary !== undefined) {
+            parseMidi(activeMidi.binary.midiFile);
+            closeModal();
+        }
+    }
+
+    const closeModal = (): void => {
+        if (privateFiles === true) {
+            closeUserMidis();
+        } else {
+            closePublicMidis();
+        }
+    }
+
     useEffect((): void => {
     }, []);
 
     useEffect((): void => {
     }, [publicMidis, userMidis]);
+
+    useEffect((): void => {
+        if (doFetchMidis === true) {
+            if (privateFiles === true) {
+                fetchUserMidis();
+            } else {
+                fetchPublicMidis();
+            }
+        }
+    }, [doFetchMidis]);
 
     return (<>
     <div className='overhang' onClick={ handleCloseClick } />
@@ -84,11 +108,11 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
                     { midi.midiId === selectedMidiId ? <> 
                     <div className={ midi.userMidi === false || privateFiles === true ? 'select-wing' : 'user-select-wing'}>
                         <div className='load-box'>
-                            <img src={LoadSvg} className='load-symbol'/>
+                            <img src={LoadSvg} className='load-symbol' onClick={ (e) => handleLoadBoxClick(e) } />
                         </div>
                         { midi.userMidi === true ? <>
                         <div className='delete-box'>
-                            <img src={DeleteSvg} className='delete-symbol'  onClick={ (e) => handleDeleteBoxClick(e, midi) } />
+                            <img src={DeleteSvg} className='delete-symbol' onClick={ (e) => handleDeleteBoxClick(e, midi) } />
                         </div> 
                         <div className='edit-box'>
                             <img src={EditSvg} className='edit-symbol' onClick={ (e) => handleEditBoxClick(e, midi.midiId) }></img>
@@ -115,6 +139,7 @@ const mapStateToProps = (state: RootState): MidisStateProps => ({
     publicMidis: state.midi.publicMidis,
     userMidis: state.midi.userMidis,
     activeMidi: state.midi.activeMidi,
+    doFetchMidis: state.midi.doFetchMidis,
   });
 
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): MidisDispatchProps => ({
@@ -123,6 +148,7 @@ const mapStateToProps = (state: RootState): MidisStateProps => ({
     deleteMidi: bindActionCreators(deleteMidi, dispatch),
     closePublicMidis: bindActionCreators(closePublicMidis, dispatch),
     closeUserMidis: bindActionCreators(closeUserMidis, dispatch),
+    parseMidi: bindActionCreators(parseMidi, dispatch),
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(MidiList);
