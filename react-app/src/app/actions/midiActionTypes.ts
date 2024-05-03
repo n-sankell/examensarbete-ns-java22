@@ -1,3 +1,4 @@
+import { Midi } from "@tonejs/midi";
 import { CreateMidiRequest, DeleteMidiRequest, GetMidiRequest, MidiWithData, Midis } from "../../generated/midi-api";
 
 export const FETCH_USER_MIDIS_REQUEST = 'FETCH_USER_MIDIS_REQUEST';
@@ -15,6 +16,9 @@ export const CREATE_MIDI_FAILURE = 'CREATE_MIDI_FAILURE';
 export const DELETE_MIDI_REQUEST = 'DELETE_MIDI_REQUEST';
 export const DELETE_MIDI_SUCCESS = 'DELETE_MIDI_SUCCESS';
 export const DELETE_MIDI_FAILURE = 'DELETE_MIDI_FAILURE';
+export const PARSE_MIDI_REQUEST = 'PARSE_MIDI_REQUEST';
+export const PARSE_MIDI_SUCCESS = 'PARSE_MIDI_SUCCESS';
+export const PARSE_MIDI_FAILURE = 'PARSE_MIDI_FAILURE';
 
 interface FetchUserMidisRequestAction {
     type: typeof FETCH_USER_MIDIS_REQUEST;
@@ -84,6 +88,21 @@ interface DeleteMidiFailureAction {
     payload: string;
 }
 
+interface ParseMidiRequestAction {
+    type: typeof PARSE_MIDI_REQUEST;
+    payload: {
+        request: string;
+      }
+}
+interface ParseMidiSuccessAction {
+    type: typeof PARSE_MIDI_SUCCESS;
+    payload: Midi;
+}
+interface ParseMidiFailureAction {
+    type: typeof PARSE_MIDI_FAILURE;
+    payload: string;
+}
+
 export type MidiAction =
     | FetchUserMidisRequestAction
     | FetchUserMidisSuccessAction
@@ -99,7 +118,10 @@ export type MidiAction =
     | CreateMidiFailureAction
     | DeleteMidiRequestAction
     | DeleteMidiSuccessAction
-    | DeleteMidiFailureAction;
+    | DeleteMidiFailureAction
+    | ParseMidiRequestAction
+    | ParseMidiSuccessAction
+    | ParseMidiFailureAction;
 
 export interface MidiState {
     doFetchMidis: boolean;
@@ -112,4 +134,5 @@ export interface MidiState {
     displayPrivateMidiFetchError: boolean;
     displayCreateMidiError: boolean;
     displayDeleteMidiError: boolean;
+    parsedMidi: Midi | null;
 }

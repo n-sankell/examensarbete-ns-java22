@@ -3,6 +3,9 @@ import { deleteMidi, fetchMidiAndData, fetchPublicMidis } from '../actions/midiA
 import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
+import LoadSvg from '../../assets/music-stream-player-svgrepo-com.svg';
+import DeleteSvg from '../../assets/delete-2-svgrepo-com.svg';
+import EditSvg from '../../assets/edit-svgrepo-com.svg';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../store';
@@ -59,6 +62,11 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         }
     }
 
+    const handleEditBoxClick = (event: any, midiId: string): void => {
+        event.preventDefault();
+        console.log("Edit click! " + midiId);
+    }
+
     useEffect((): void => {
     }, []);
 
@@ -73,25 +81,27 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         <div className='list-wrapper'>
             <ul className='ul-list'> { midis.map((midi: Midi, index: number) => (
                 <li key={ index } className='list-item'>
-                    { midi.midiId === selectedMidiId ? <>
+                    { midi.midiId === selectedMidiId ? <> 
+                    <div className={ midi.userMidi === false || privateFiles === true ? 'select-wing' : 'user-select-wing'}>
                         <div className='load-box'>
-                            <span className='load-symbol'>L</span>
+                            <img src={LoadSvg} className='load-symbol'/>
                         </div>
                         { midi.userMidi === true ? <>
-                        <div className='delete-box' onClick={ (e) => handleDeleteBoxClick(e, midi) } >
-                            <span className='delete-symbol'>X</span>
+                        <div className='delete-box'>
+                            <img src={DeleteSvg} className='delete-symbol'  onClick={ (e) => handleDeleteBoxClick(e, midi) } />
                         </div> 
-                        <div className='edit-box' onClick={ (e) => handleDeleteBoxClick(e, midi) } >
-                            <span className='edit-symbol'>E</span>
-                        </div> </> : "" } </> : "" }
+                        <div className='edit-box'>
+                            <img src={EditSvg} className='edit-symbol' onClick={ (e) => handleEditBoxClick(e, midi.midiId) }></img>
+                        </div> </> : "" } </div> </> : "" }
                         { midi.userMidi === false || privateFiles === true ? "" : <img src={UserSvg} className='user-symbol'/> }
-                    <div className= { midi.userMidi === true ? 'user-midis-wrapper' : 'midis-wrapper' }>
+                    <div className= {  midi.userMidi === false || privateFiles === true ?  'midis-wrapper' : 'user-midis-wrapper' }>
                         <div className='midi' onClick={ (e) => handleMidiClick(e, midi) }>
                             <span className='midi-text-field'>{ midi.filename }</span>
                             { midi.title === null ? "" : <span className='midi-text-field'>{ midi.title }</span> }
                             { midi.artist === null ? "" : <span className='midi-text-field'>{ midi.artist }</span> }
                         </div>
                     </div>
+                    
                 </li>) ) }
             </ul>
         </div>
