@@ -55,6 +55,7 @@ public class MidiService {
                 blob
             );
         }
+        logger.warn("Warning: User {} tried to access a file without permission", currentUser.userId());
         throw new ForbiddenException("User does not have access to this midi", currentUser.idToString());
     }
 
@@ -64,6 +65,9 @@ public class MidiService {
 
         midiMetaRepository.saveMidiMeta(midiAndBlob.metaData());
         blobService.saveBlob(midiAndBlob.blob());
+
+        logger.info("User {} created a new {} midi-file.",
+            currentUser.userId(), midiAndBlob.metaData().isPrivate() ? "private" : "public");
 
         return getMidiAndBlobById(midiAndBlob.metaData().midiId(), currentUser);
     }
@@ -105,6 +109,7 @@ public class MidiService {
             blobService.deleteBlob(existingMidi.blobRef());
             midiMetaRepository.deleteMidiMetaById(deleteId);
 
+            logger.info("User {} deleted a midi-file with id: {}", currentUser.userId(), deleteId.id());
             // TODO: Handle this accordingly
             if (blobService.getBlobById(existingMidi.blobRef()).isPresent()) {
                 logger.warn("Warning: Blob file is still present");
