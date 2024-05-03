@@ -32,7 +32,7 @@ interface MidisProps extends MidisDispatchProps, MidisStateProps, MidisLocalProp
 
 const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi, 
     privateFiles, closeUserMidis, closePublicMidis, parseMidi, doFetchMidis }) => {
-    const [selectedMidiId, setSelectedMidiId] = useState<string>();
+    const [selectedMidiId, setSelectedMidiId] = useState<string>("");
     const midis = privateFiles === true ? 
     userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : [] :
     publicMidis !== null && publicMidis.midis !== undefined ? publicMidis.midis : [];
@@ -41,6 +41,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         const midiId = midi.midiId === null ? "" : midi.midiId as string;
         const requestObject: DeleteMidiRequest = { id: midiId };
         deleteMidi(requestObject);
+        setSelectedMidiId("");
     }
     const handleMidiClick = async (event: React.MouseEvent<HTMLDivElement>, midi: Midi): Promise<void> => {
         if (selectedMidiId === midi.midiId as string) {
@@ -82,6 +83,11 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
     }
 
     useEffect((): void => {
+        if (privateFiles === true) {
+            fetchUserMidis();
+        } else {
+            fetchPublicMidis();
+        }
     }, []);
 
     useEffect((): void => {
@@ -89,11 +95,8 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
 
     useEffect((): void => {
         if (doFetchMidis === true) {
-            if (privateFiles === true) {
-                fetchUserMidis();
-            } else {
-                fetchPublicMidis();
-            }
+            fetchUserMidis();
+            fetchPublicMidis();
         }
     }, [doFetchMidis]);
 

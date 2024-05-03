@@ -12,6 +12,7 @@ import { MidiWrapper } from '../types/MidiWrapper';
 import { NoteJSON } from '@tonejs/midi/dist/Note';
 import { TempoEvent } from '@tonejs/midi/dist/Header';
 import './MidiVisualizer.css';
+import { pauseMidi, playMidi } from '../actions/midiActions';
 
 interface NoteData {
     note: NoteJSON;
@@ -39,14 +40,17 @@ function debounce<F extends (...args: any[]) => any>(func: F, delay: number): De
 
 interface VisualizerStateProps {
     parsedMidi: MidiWrapper;
+    midiIsPlaying: boolean;
 }
 interface VisualizerDispatchProps {
     keyPress: (noteNumber: number) => void;
     keyRelease: (noteNumber: number) => void;
+    playMidi: () => void;
+    pauseMidi: () => void;
 }
 interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps {}
 
-const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, parsedMidi } ) => {
+const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, parsedMidi, midiIsPlaying, playMidi, pauseMidi } ) => {
 
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
@@ -71,7 +75,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
             const maxYScroll = -svgHeight * 2;
             const scaleFlip = `scale(-1, 1)`
             let noteData: NoteData[];
-            let isPlaying = false;
+            //let isPlaying = false;
 
             const createStaticTimeline = (midiData: MidiJSON) => {
                 noteData = midiData.tracks[0].notes.map((note: NoteJSON, index: number) => {
@@ -189,7 +193,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
             let loopIntervalId: any | null = null;
             if (startButton) {
                 startButton.addEventListener('click', async (e) => {
-                    if (!isPlaying) {
+                    if (!midiIsPlaying) {
                     Tone.Transport.start();
                     await Tone.Transport.cancel(0);
                     loopIntervalId = setInterval(() => {
@@ -225,14 +229,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
                                 synth.disconnect();
                             }
                         }
-                        isPlaying = true;
+                        playMidi();
                     });
                 } else {
                     Tone.Transport.pause();
                     if (loopIntervalId) {
                         clearInterval(loopIntervalId);
                       }
-                    isPlaying = false;
+                    pauseMidi();
                 }
             });
             }
@@ -246,37 +250,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
     
     }, [parsedMidi]);
 
-    const readFile = (filePath: string): Promise<ArrayBuffer> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onprogress = (event) => console.log('Reading progress:', event.loaded, 'bytes read');
-                reader.onload = (event) => {
-                if (event.target) {
-                    resolve(event.target.result as ArrayBuffer);
-                } else {
-                    reject(new Error('FileReader event target is null'));
-                }
-            };
-
-            reader.onerror = (error) => {
-                reject(error);
-            };
-    
-            fetch(filePath)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch file. Status code: ${response.status}`);
-                    }
-                    return response.blob();
-                })
-            .then(blob => reader.readAsArrayBuffer(blob))
-            .catch(error => reject(error));
-        });
-    };
-
 return (<>
         <div className='viz-wrapper'>
-            { parsedMidi.midi !== null ? <button id='startButton'>Start midi</button> : "" }
             <div id="midi-visualization">
             </div>
             <Piano />
@@ -286,11 +261,14 @@ return (<>
 
 const mapStateToProps = (state: RootState): VisualizerStateProps => ({
     parsedMidi: state.midi.parsedMidi,
+    midiIsPlaying: state.midi.midiIsPlaying,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch): VisualizerDispatchProps => ({
     keyPress: bindActionCreators(setKeyPressed, dispatch),
     keyRelease: bindActionCreators(setKeyReleased, dispatch),
+    playMidi: bindActionCreators(playMidi, dispatch),
+    pauseMidi: bindActionCreators(pauseMidi, dispatch),
 });
 
 export default reduxConnect(mapStateToProps, mapDispatchToProps)(MidiVisualizer);

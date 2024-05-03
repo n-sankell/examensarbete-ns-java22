@@ -1,18 +1,23 @@
 import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
+import PlaySvg from '../../assets/play-player-music-svgrepo-com.svg'
+import PauseSvg from '../../assets/pause-circle-svgrepo-com.svg'
 import { Midis } from "../../generated/midi-api";
 import { User } from "../../generated/user-api";
 import { logout } from "../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../store";
+import { MidiWrapper } from "../types/MidiWrapper";
 import "./Header.css";
 
 interface StateProps {
     loggedIn: boolean;
     user: User | null;
     userMidis: Midis | null;
+    parsedMidi: MidiWrapper;
+    midiIsPlaying: boolean;
 }
 interface DispatchProps {
     displayLoginModal: () => void;
@@ -29,7 +34,7 @@ interface DispatchProps {
 }
 interface HeaderProps extends StateProps, DispatchProps {}
 
-const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,  
+const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, midiIsPlaying, 
     displayLoginModal, displayCreateUserModal, displayCreateMidiModal, displayUserMidis, displayPublicMidis, 
     closeLoginModal, closeCreateUserModal, closeCreateMidiModal, closeUserMidis, closePublicMidis }) => {
 
@@ -79,25 +84,20 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,
     }
 
     useEffect((): void => {
-    }, [loggedIn, user, userMidis]);
+    }, [loggedIn, user, userMidis, parsedMidi, midiIsPlaying]);
 
     return (
     <div className="header">
-        <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
-        <> 
-            <span className='user-info-name'>{ user.username }</span>
-            <img src={UserSvg} className='user-info-symbol'/> 
-        </> : "" } 
-        </div>
+
         <div className='header-button-wrapper'>
             <input type="checkbox" className="openSidebarMenu" id="openSidebarMenu" 
-                    checked={menuOpen} onChange={(event: any): void => {
+                    checked={ menuOpen } onChange={ (event: any): void => {
                         if (menuOpen === true) {
                             setMenuOpen(event.target = false);
                         } else {
                             setMenuOpen(event.target = true);
                         }
-                }   } />
+                } } />
                 <label htmlFor="openSidebarMenu" className="sidebarIconToggle">
                     <div className="spinner diagonal part-1"></div>
                     <div className="spinner horizontal"></div>
@@ -134,6 +134,22 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout,
                 </ul>
             </div>
         </div>
+
+        <div className="control-panel"> { parsedMidi.midi !== null ? 
+            <img 
+                src={ midiIsPlaying === false ? PlaySvg : PauseSvg } 
+                id='startButton' 
+                className={ midiIsPlaying === false ? 'play-icon' : 'pause-icon' } >
+            </img> : "" } 
+        </div>
+        
+        <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
+        <> 
+            <img src={ UserSvg } className='user-info-symbol'/> 
+            <span className='user-info-name'>{ user.username }</span>
+        </> : "" } 
+        </div>
+
     </div>);
 }
 
@@ -141,6 +157,8 @@ const mapStateToProps = (state: RootState): StateProps => ({
     loggedIn: state.user.loggedIn,
     user: state.user.user,
     userMidis: state.midi.userMidis,
+    parsedMidi: state.midi.parsedMidi,
+    midiIsPlaying: state.midi.midiIsPlaying,
   });
   
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({

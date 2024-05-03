@@ -1,7 +1,9 @@
 import { MidiState, MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_USER_MIDIS_FAILURE,
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_SUCCESS, 
     FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE, CREATE_MIDI_FAILURE,
-    CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, PARSE_MIDI_REQUEST, PARSE_MIDI_FAILURE, PARSE_MIDI_SUCCESS } from '../actions/midiActionTypes';
+    CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, PARSE_MIDI_REQUEST, PARSE_MIDI_FAILURE, PARSE_MIDI_SUCCESS, 
+	PLAY_MIDI,
+	PAUSE_MIDI} from '../actions/midiActionTypes';
 import { defaultMidi } from '../types/MidiWrapper';
 
 const initialState: MidiState = {
@@ -16,6 +18,7 @@ const initialState: MidiState = {
   	displayCreateMidiError: false,
   	displayDeleteMidiError: false,
   	parsedMidi: defaultMidi,
+	midiIsPlaying: false,
 };
 
 const midiReducer = (state = initialState, action: MidiAction): MidiState => {
@@ -66,6 +69,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
         	return {
     	        ...state,
     	        doFetchMidis: true,
+				activeMidi: null,
     	        loading: false,
         	};
     	case PARSE_MIDI_REQUEST:
@@ -82,6 +86,16 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
 				...state,
 				parsedMidi: action.payload,
 			};
+		case PLAY_MIDI:
+			return {
+				...state,
+				midiIsPlaying: true,
+			}
+		case PAUSE_MIDI:
+			return {
+				...state,
+				midiIsPlaying: false,
+			}
     	default:
     		return state;
   	}
