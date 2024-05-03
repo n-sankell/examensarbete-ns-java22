@@ -73,7 +73,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmptyResponse'
+                $ref: '#/components/schemas/UserMessageResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -167,7 +167,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmptyResponse'
+                $ref: '#/components/schemas/UserMessageResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -351,6 +351,14 @@ components:
         - statusCode
         - errorType
         - errorMessage
+
+    UserMessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
 
     EmptyResponse:
       type: object

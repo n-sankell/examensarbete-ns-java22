@@ -12,6 +12,7 @@ import generatedapi.model.EditUserRequestDto;
 import generatedapi.model.UserCreateRequestDto;
 import generatedapi.model.UserDto;
 import generatedapi.model.UserLoginRequestDto;
+import generatedapi.model.UserMessageResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,10 +63,10 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Object> deleteUser(DeleteUserRequestDto deleteUserRequestDto) {
+    public ResponseEntity<UserMessageResponseDto> deleteUser(DeleteUserRequestDto deleteUserRequestDto) {
         validator.validateRequest(deleteUserRequestDto);
         userService.deleteUser(deleteUserRequestDto.getPassword(), getCurrentUser());
-        return ok().build();
+        return ok().body(new UserMessageResponseDto().message("User deleted"));
     }
 
     @Override
@@ -81,13 +82,13 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Object> editUserPassword(EditPasswordRequestDto editPasswordRequestDto) {
+    public ResponseEntity<UserMessageResponseDto> editUserPassword(EditPasswordRequestDto editPasswordRequestDto) {
         validator.validateRequest(editPasswordRequestDto);
 
         var passwordData = buildUpdatePassword(editPasswordRequestDto);
         userService.updatePassword(passwordData, getCurrentUser());
 
-        return ok().build();
+        return ok().body(new UserMessageResponseDto().message("Password updated successfully"));
     }
 
     @Override
