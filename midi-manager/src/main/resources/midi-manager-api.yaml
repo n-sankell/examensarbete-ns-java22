@@ -122,7 +122,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmptyResponse'
+                $ref: '#/components/schemas/MidiMessageResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -429,6 +429,14 @@ components:
         - statusCode
         - errorType
         - errorMessage
+
+    MidiMessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
 
     EmptyResponse:
       type: object
