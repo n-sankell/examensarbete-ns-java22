@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { select } from 'd3';
 import * as Tone from 'tone';
@@ -11,16 +11,16 @@ import { RootState } from '../store';
 import { MidiWrapper } from '../types/MidiWrapper';
 import { NoteJSON } from '@tonejs/midi/dist/Note';
 import { TempoEvent } from '@tonejs/midi/dist/Header';
-import './MidiVisualizer.css';
 import { pauseMidi, playMidi } from '../actions/midiActions';
+import './MidiVisualizer.css';
+import useWindowSize from './WindowSize';
+import MidiKeyboard from './Keyboard';
 
 interface NoteData {
     note: NoteJSON;
     rect: d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
     initialX: number;
 }
-const svgWidth = 1300;
-const svgHeight = 1000;
 
 type DebouncedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => void;
 
@@ -52,6 +52,11 @@ interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps 
 
 const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, parsedMidi, midiIsPlaying, playMidi, pauseMidi } ) => {
 
+    const keyboardRef = useRef<HTMLDivElement>(null);
+    const windowSize = useWindowSize();
+    const svgWidth = windowSize.width;
+    const svgHeight = windowSize.height - 300;
+
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
         const fetchAndVisualizeData = async () => {
@@ -62,12 +67,18 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { keyPress, keyRelease, pars
                 .append('svg')
                 .attr('width', svgWidth)
                 .attr('height', svgHeight)
-                .style('border', '1px solid black');
+                .style('border', '2px solid darkgray')
+                .style('overflow', 'hidden');
 
             const scrollContainer = svg.append('g')
                 .attr('transform', 'translate(0, 0)')
                 .attr('width', svgWidth)
                 .attr('height', svgHeight);
+
+            const keyboardForeignObject = scrollContainer.append('foreignObject')
+                .attr('width', '100%')
+                .attr('height', '100%')
+                .append('xhtml:div');
 
             const initialXScroll = -svgWidth;
             const initialYScroll = -svgHeight / 2;
@@ -254,7 +265,9 @@ return (<>
         <div className='viz-wrapper'>
             <div id="midi-visualization">
             </div>
-            <Piano />
+            {
+                <div ref={keyboardRef}></div>
+            }
         </div>
     </>);
 };

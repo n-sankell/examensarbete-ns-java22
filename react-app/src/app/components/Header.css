@@ -14,7 +14,6 @@
     background-color: whitesmoke;
 }
 .control-panel {
-    background-color: aqua;
     width: 600px;
     height: 100%;
     display: flex;
@@ -39,7 +38,6 @@
     cursor: pointer;
 }
 .user-info-wrapper {
-    background-color: gold;
     width: 200px;
     display: flex;
     flex-direction: row;

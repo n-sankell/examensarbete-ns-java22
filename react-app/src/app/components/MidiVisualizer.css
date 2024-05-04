@@ -6,14 +6,15 @@
 
 #midi-visualization {
     display: flex;
-    width: 1300px;
-    height: 1000px;
+    width: 100%;
+    height: 100%;
+    background-color: lightgrey;
 }
 
 g {
     display: flex;
-    width: 1300px;
-    height: 1000px;
+    width: 100%;
+    height: 100%;
 }
 
 rect {
