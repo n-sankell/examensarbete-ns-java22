@@ -21,6 +21,12 @@ interface NoteData {
     initialX: number;
 }
 
+interface KeyData {
+    key: Key;
+    pianoKey: d3.Selection<SVGRectElement, Key, HTMLElement, any>;
+    isPlaying: boolean;
+}
+
 type DebouncedFunction<F extends (...args: any[]) => any> = (...args: Parameters<F>) => void;
 
 function debounce<F extends (...args: any[]) => any>(func: F, delay: number): DebouncedFunction<F> {
@@ -78,8 +84,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 .attr('width', svgWidth)
                 .attr('height', svgHeight);
 
+            let keyData: KeyData[];
             const createKeyboard = (yPlacement: number): void => {
-                keys.forEach((key: Key) => {
+                keyData = keys.map((key: Key) => {
                     const xPosition = key.isNatural ? 25 : 25;
                     const pianoKey = scrollContainer.append('rect')
                         .attr('height', key.isNatural ? 200 : 130)
@@ -87,8 +94,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
                         .attr('y', key.isNatural ? yPlacement : yPlacement + 70)
                         .attr('x', key.midi * xPosition - svgWidth / 4)
-                        .style('border', '1px solid darkgray')
-                        .style('border-radius', '10 10 10 10')
                         .on('mouseenter', function () {
                             d3.select(this)
                                 .attr('fill', key.isNatural ? 'gray' : 'darkgray')
@@ -113,6 +118,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                                 .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
                             releaseNote(key.name);
                         }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
+
+                    let isPlaying: boolean = false;
+
+                    return {
+                        key,
+                        pianoKey,
+                        isPlaying,
+                    };
                 });
             };
         
@@ -124,7 +137,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             let isPlaying = false;
 
             const createStaticTimeline = (midiData: MidiJSON) => {
-                noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON, index: number) => {
+                noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 750)
@@ -232,9 +245,19 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             }
               
                         rect.attr('y', yPosition).attr('x', initialX);
-              
+                        
                     }
                 });
+
+                keyData.forEach( ({ key, pianoKey, isPlaying }) => {
+                    
+                    if (isPlaying === true) {
+                        pianoKey.attr('fill', key.isNatural ? 'red' : 'orange');
+                    } else {
+                        pianoKey.attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
+                    }
+                } );
+
                 requestAnimationFrame(debouncedUpdate);
                 }, 1);
             };
@@ -268,8 +291,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             synths.push(synth);
                             track.notes.forEach((note: NoteJSON) => {
                                 const dur = note.duration === 0 ? 0.1 : note.duration;
+                                const offset = -6;
                                 synth.triggerAttack(note.name, note.time + now, note.velocity);
+                                Tone.Transport.schedule( () => 
+                                    { keyData.filter((e: KeyData) => e.key.name === note.name)
+                                    .forEach((key: KeyData) => key.isPlaying = true); 
+                                }, note.time + now  + offset )
                                 synth.triggerRelease(note.name, note.time + now + dur);
+                                Tone.Transport.schedule( () => 
+                                    { keyData.filter((e: KeyData) => e.key.name === note.name)
+                                    .forEach((key: KeyData) => key.isPlaying = false); 
+                                }, note.time + now + offset + dur )
                             });
                         });
                         } else {
@@ -286,6 +318,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         clearInterval(loopIntervalId);
                       }
                     isPlaying = false;
+                    pauseMidi();
                 }
             });
             }
