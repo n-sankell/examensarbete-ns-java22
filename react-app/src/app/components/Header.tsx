@@ -158,7 +158,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
     user: state.user.user,
     userMidis: state.midi.userMidis,
     parsedMidi: state.midi.parsedMidi,
-    midiIsPlaying: state.midi.midiIsPlaying,
+    midiIsPlaying: state.visualizer.midiIsPlaying,
   });
   
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({

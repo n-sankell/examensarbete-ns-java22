@@ -54,7 +54,7 @@ interface LogoutUserAction {
 }
 
 export type UserAction = 
-  | LogoutUserAction
+    LogoutUserAction
   | LoginUserRequestAction
   | LoginUserSuccessAction
   | LoginUserFailureAction

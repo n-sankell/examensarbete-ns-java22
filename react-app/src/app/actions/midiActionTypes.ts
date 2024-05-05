@@ -23,8 +23,6 @@ export const PARSE_MIDI_FAILURE = 'PARSE_MIDI_FAILURE';
 export const READ_MIDI_REQUEST = 'READ_MIDI_REQUEST';
 export const READ_MIDI_SUCCESS = 'READ_MIDI_SUCCESS';
 export const READ_MIDI_FAILURE = 'READ_MIDI_FAILURE';
-export const PLAY_MIDI = 'PLAY_MIDI';
-export const PAUSE_MIDI = 'PAUSE_MIDI';
 
 interface FetchUserMidisRequestAction {
     type: typeof FETCH_USER_MIDIS_REQUEST;
@@ -124,13 +122,6 @@ interface ReadMidiFailureAction {
     payload: string;
 }
 
-interface PlayMidiAction {
-    type: typeof PLAY_MIDI;
-}
-interface PauseMidiAction {
-    type: typeof PAUSE_MIDI;
-}
-
 export type MidiAction =
     | FetchUserMidisRequestAction
     | FetchUserMidisSuccessAction
@@ -152,9 +143,7 @@ export type MidiAction =
     | ParseMidiFailureAction
     | ReadMidiRequestAction
     | ReadMidiSuccessAction
-    | ReadMidiFailureAction
-    | PlayMidiAction
-    | PauseMidiAction;
+    | ReadMidiFailureAction;
 
 export interface MidiState {
     doFetchMidis: boolean;
@@ -168,5 +157,4 @@ export interface MidiState {
     displayCreateMidiError: boolean;
     displayDeleteMidiError: boolean;
     parsedMidi: MidiWrapper;
-    midiIsPlaying: boolean;
 }

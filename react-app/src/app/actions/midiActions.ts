@@ -5,9 +5,7 @@ import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_U
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_REQUEST,
     FETCH_MIDI_DATA_SUCCESS, FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE,
     CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, CREATE_MIDI_FAILURE, PARSE_MIDI_REQUEST, PARSE_MIDI_SUCCESS,
-    PARSE_MIDI_FAILURE,
-    PLAY_MIDI,
-    PAUSE_MIDI} from './midiActionTypes'
+    PARSE_MIDI_FAILURE } from './midiActionTypes'
 import { base64ToArrayBuffer } from '../components/MidiParser';
 import { Midi, MidiJSON } from '@tonejs/midi';
 import { MidiWrapper } from '../types/MidiWrapper';
@@ -86,10 +84,3 @@ export const parseMidi = (request: string): ThunkAction<void, RootState, null, M
   }
 };
 
-export const playMidi = (): ThunkAction<void, RootState, null, MidiAction> => async (dispatch) => {
-  dispatch({ type: PLAY_MIDI });
-};
-
-export const pauseMidi = (): ThunkAction<void, RootState, null, MidiAction> => async (dispatch) => {
-  dispatch({ type: PAUSE_MIDI });
-};

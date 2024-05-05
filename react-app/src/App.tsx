@@ -27,10 +27,11 @@ interface StateProps {
   showCreateMidiModal: boolean;
   showUserMidis: boolean;
   showPublicMidis: boolean;
+  doFetch: boolean
 }
 interface AppProps extends StateProps, DispatchProps {}
 
-const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, 
+const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, 
   showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis }) => {
 
   useEffect((): void => {
@@ -51,7 +52,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
       fetchUserMidis();
     }
     fetchPublicMidis();
-  }, [loggedIn]);
+  }, [loggedIn, doFetch]);
 
   useEffect(() => {
   }, [userMidis]);
@@ -83,6 +84,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   showCreateMidiModal: state.display.showCreateMidiModal,
   showPublicMidis: state.display.showPublicMidis,
   showUserMidis: state.display.showUserMidis,
+  doFetch: state.midi.doFetchMidis,
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
