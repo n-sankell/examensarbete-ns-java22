@@ -4,6 +4,7 @@ import { OctaveStartNote, octaves } from "./OctaveHelper";
 export type Key = {
     midi: number,
     name: string,
+    note: string,
     isNatural: boolean
 }
 
@@ -15,7 +16,8 @@ const generateFullKeys = (): Key[] => {
         notes.forEach((note: NoteType) => {
             keys.push( {
                 midi: currentNote,
-                name: octave.octave + note.name,
+                name: note.name + octave.octave,
+                note: note.name,
                 isNatural: note.isNatural
             } );
             currentNote++;

@@ -13,6 +13,7 @@ import { pauseMidi, playMidi, setCurrentTrack } from '../actions/visualizerActio
 import useWindowSize, { WindowSize } from './WindowSize';
 import { keys, Key } from './Piano/KeysHelper';
 import './MidiVisualizer.css';
+import { playNote, releaseNote } from './Piano/PianoSynth';
 
 interface NoteData {
     note: NoteJSON;
@@ -80,20 +81,45 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         
             const createKeyboard = (): void => {
                 keys.forEach((key: Key) => {
+                    const xPosition = key.isNatural ? 15 : 15;
                     const pianoKey = scrollContainer.append('rect')
                         .attr('height', key.isNatural ? 200 : 150)
-                        .attr('width', key.isNatural ? 25 : 20)
-                        .attr('fill', key.midi === 0 ? 'yellow' : key.isNatural ? 'ghostwhite' : 'darkslategray')
+                        .attr('width', key.isNatural ? 30 : 20)
+                        .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
                         .attr('y', key.isNatural ? 0 : 50)
-                        .attr('x', key.midi * 11)
+                        .attr('x', key.midi * xPosition - svgWidth / 4)
                         .style('border', '2px solid darkgray')
-                        .style('border-radius', '10 10 10 10');
+                        .style('border-radius', '10 10 10 10')
+                        .on('mouseenter', function () {
+                            d3.select(this)
+                                .attr('fill', key.isNatural ? 'gray' : 'darkgray')
+                                .append('title')
+                                .text(key.name)
+                                .style('cursor', 'pointer');
+                        })
+                        .on('mouseout', function () {
+                            d3.select(this)
+                                .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
+                                .select('title').remove();
+                            releaseNote(key.name);
+                        })
+                        .on('mousedown', function () {
+                            d3.select(this)
+                                .attr('fill', key.isNatural ? 'red' : 'orange');
+                            playNote(key.name);
+                        })
+                        .on('mouseup', function () {
+                            console.log("mouse up!");
+                            d3.select(this)
+                                .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
+                            releaseNote(key.name);
+                        }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
                 });
             };
             createKeyboard();
         
             const initialXScroll = -svgWidth;
-            const initialYScroll = -svgHeight / 2;
+            const initialYScroll = svgHeight / 2;
             const maxXScroll = -svgWidth * 2;
             const maxYScroll = -svgHeight * 2;
             let noteData: NoteData[];
@@ -112,7 +138,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
                                 .append('title')
-                                .text(index + " - " + note.name)
+                                .text(note.name)
                                 .style('cursor', 'pointer');
                         })
                         .on('mouseout', function () {
@@ -130,7 +156,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     };
                 });
             
-                scrollContainer.attr('transform', `translate(${0}, ${0})`);
+                scrollContainer.attr('transform', `translate(${0}, ${initialYScroll})`);
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);

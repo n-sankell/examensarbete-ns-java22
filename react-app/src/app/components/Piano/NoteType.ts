@@ -17,7 +17,7 @@ export const notes: NoteType[] = [
         isNatural: true
     },
     {
-        name: "C#",
+        name: "D#",
         isNatural: false
     },
     {
