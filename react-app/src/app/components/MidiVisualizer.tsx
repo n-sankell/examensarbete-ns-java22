@@ -78,15 +78,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 .attr('width', svgWidth)
                 .attr('height', svgHeight);
 
-        
             const createKeyboard = (yPlacement: number): void => {
                 keys.forEach((key: Key) => {
                     const xPosition = key.isNatural ? 25 : 25;
                     const pianoKey = scrollContainer.append('rect')
-                        .attr('height', key.isNatural ? 200 : 150)
+                        .attr('height', key.isNatural ? 200 : 130)
                         .attr('width', key.isNatural ? 50 : 25)
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
-                        .attr('y', key.isNatural ? yPlacement : yPlacement + 50)
+                        .attr('y', key.isNatural ? yPlacement : yPlacement + 70)
                         .attr('x', key.midi * xPosition - svgWidth / 4)
                         .style('border', '1px solid darkgray')
                         .style('border-radius', '10 10 10 10')
@@ -117,7 +116,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 });
             };
         
-            const initialXScroll = -svgWidth;
+            const initialXScroll = -svgWidth / 2;
             const initialYScroll = svgHeight / 2;
             const maxXScroll = -svgWidth * 2;
             const maxYScroll = -svgHeight * 2;
@@ -156,7 +155,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     };
                 });
             
-                scrollContainer.attr('transform', `translate(${0}, ${initialYScroll})`);
+                scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);
