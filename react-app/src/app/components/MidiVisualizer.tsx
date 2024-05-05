@@ -79,16 +79,16 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 .attr('height', svgHeight);
 
         
-            const createKeyboard = (): void => {
+            const createKeyboard = (yPlacement: number): void => {
                 keys.forEach((key: Key) => {
-                    const xPosition = key.isNatural ? 15 : 15;
+                    const xPosition = key.isNatural ? 25 : 25;
                     const pianoKey = scrollContainer.append('rect')
                         .attr('height', key.isNatural ? 200 : 150)
-                        .attr('width', key.isNatural ? 30 : 20)
+                        .attr('width', key.isNatural ? 50 : 25)
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
-                        .attr('y', key.isNatural ? 0 : 50)
+                        .attr('y', key.isNatural ? yPlacement : yPlacement + 50)
                         .attr('x', key.midi * xPosition - svgWidth / 4)
-                        .style('border', '2px solid darkgray')
+                        .style('border', '1px solid darkgray')
                         .style('border-radius', '10 10 10 10')
                         .on('mouseenter', function () {
                             d3.select(this)
@@ -116,24 +116,23 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
                 });
             };
-            createKeyboard();
         
             const initialXScroll = -svgWidth;
             const initialYScroll = svgHeight / 2;
             const maxXScroll = -svgWidth * 2;
             const maxYScroll = -svgHeight * 2;
             let noteData: NoteData[];
-            //let isPlaying = false;
+            let isPlaying = false;
 
             const createStaticTimeline = (midiData: MidiJSON) => {
                 noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON, index: number) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 750)
-                        .attr('width', 10)
-                        .attr('fill', note.name.length === 3 ? 'lightblue' : 'blue')
+                        .attr('width', note.name.length === 3 ? 25 : 25)
+                        .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                         .attr('y', note.ticks)
-                        .attr('x', note.midi * 10)
+                        .attr('x', note.midi * 25 - svgWidth / 17.5)
                         .on('mouseover', function () {
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
@@ -143,11 +142,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         })
                         .on('mouseout', function () {
                             d3.select(this)
-                                .attr('fill', note.name.length === 3 ? 'lightblue' : 'blue')
+                                .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                                 .select('title').remove();
             
                         }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
-                    const initialX = note.midi * 10;
+                    rect.lower();
+                    const initialX = note.midi * 25 - svgWidth / 17.5;  
             
                     return {
                         note,
@@ -160,6 +160,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);
+                createKeyboard(-svgHeight / 2);
+            } else {
+                createKeyboard(0);
             }
 
             svg.on('wheel', (event) => {
@@ -212,15 +215,15 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 setTimeout(() => {
                   noteData.forEach(({ note, initialX, rect }) => {
                     if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
-                        let noteStartTime = 0;
-                        let beatsPerMinute = 120;
+                        let noteStartTime = svgHeight * 6;
+                        let beatsPerMinute = 110;
               
                         parsedMidi.midi.header.tempos.forEach((tempoEvent: TempoEvent) => {
                         if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
                                 (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 1000 -
-                                svgHeight / 2 + 500; 
+                                svgHeight / 2 + 800; 
                             }
                         });
               
@@ -242,7 +245,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             let loopIntervalId: any | null = null;
             if (startButton) {
                 startButton.addEventListener('click', async (e) => {
-                    if (!midiIsPlaying) {
+                    if (!isPlaying) {
+                    playMidi();
                     Tone.Transport.start();
                     await Tone.Transport.cancel(0);
                     loopIntervalId = setInterval(() => {
@@ -275,14 +279,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                                 synth.disconnect();
                             }
                         }
-                        playMidi();
+                        isPlaying = true;;
                     });
                 } else {
                     Tone.Transport.pause();
                     if (loopIntervalId) {
                         clearInterval(loopIntervalId);
                       }
-                    pauseMidi();
+                    isPlaying = false;
                 }
             });
             }
