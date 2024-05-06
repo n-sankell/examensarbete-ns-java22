@@ -12,8 +12,8 @@ import { TempoEvent } from '@tonejs/midi/dist/Header';
 import { pauseMidi, playMidi, setCurrentTrack } from '../actions/visualizerActions';
 import useWindowSize, { WindowSize } from './WindowSize';
 import { keys, Key } from './Piano/KeysHelper';
-import './MidiVisualizer.css';
 import { playNote, releaseNote } from './Piano/PianoSynth';
+import './MidiVisualizer.css';
 
 interface NoteData {
     note: NoteJSON;
@@ -65,7 +65,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
         const visualizeData = async () => {
-        try {
+        
             const synths: any[] = [];
 
             const svg = d3.select('#midi-visualization')
@@ -94,6 +94,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
                         .attr('y', key.isNatural ? yPlacement : yPlacement + 70)
                         .attr('x', key.midi * xPosition - 300)
+                        .attr('ry', "4")
+                        .attr('stroke', "darkslategray")
                         .on('mouseenter', function () {
                             d3.select(this)
                                 .attr('fill', key.isNatural ? 'gray' : 'darkgray')
@@ -145,6 +147,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                         .attr('y', note.ticks)
                         .attr('x', note.midi * 25)
+                        .attr('ry', "4")
+                        .attr('stroke', "lightgray")
                         .on('mouseover', function () {
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
@@ -168,7 +172,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     };
                 });
             
-                scrollContainer.attr('transform', `translate(${0}, ${initialYScroll})`);
+                scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);
@@ -316,9 +320,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             });
             }
 
-        } catch (error) {
-            console.error('Error reading or parsing MIDI data:', error);
-        }
         };
         
         visualizeData();
