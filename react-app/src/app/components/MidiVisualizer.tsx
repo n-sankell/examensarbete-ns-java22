@@ -222,10 +222,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             scrollContainer.call(dragHandler);
             const updateNotePositions = () => {
-                
+                const activeNotes: string[] = [];
                 const currentTime = Tone.Transport.seconds * 1000;
                 setTimeout(() => {
-                    const activeNotes: NoteJSON[] = [];
                     noteData.forEach(({ note, initialX, rect }) => {
                         if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
                             let noteStartTime = svgHeight * 6;
@@ -248,30 +247,19 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         rect.attr('y', yPosition).attr('x', initialX);
                         
                         if (yPosition < -300 && yPosition > -300 - note.duration * 750) {
-                            activeNotes.push(note);
+                            activeNotes.push(note.name);
                         }
                     }
                 } );
 
-                activeNotes.forEach((note: NoteJSON) => {
-                    keyData.forEach((key: KeyData) => { 
-                        if (key.key.name === note.name) {
-                            key.pianoKey.attr('fill', key.key.isNatural ? 'red' : 'orange');
-                        } else {
-                            key.pianoKey.attr('fill', key.key.isNatural ? 'ghostwhite' : 'darkslategray');
-                        }
-                    });
-                } );
-                /*
-                keyData.forEach( ({ key, pianoKey, isPlaying }) => {
-                    
-                    if (isPlaying === true) {
-                        pianoKey.attr('fill', key.isNatural ? 'red' : 'orange');
+                keyData.forEach((key: KeyData) => { 
+                    if (activeNotes.includes(key.key.name)) {
+                        key.pianoKey.attr('fill', key.key.isNatural ? 'red' : 'orange');
                     } else {
-                        pianoKey.attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
+                        key.pianoKey.attr('fill', key.key.isNatural ? 'ghostwhite' : 'darkslategray');
                     }
-                } );
-                */
+                });
+
                 requestAnimationFrame(debouncedUpdate);
                 }, 1);
             };
@@ -305,17 +293,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             synths.push(synth);
                             track.notes.forEach((note: NoteJSON) => {
                                 const dur = note.duration === 0 ? 0.1 : note.duration;
-                                //const offset = -6;
                                 synth.triggerAttack(note.name, note.time + now, note.velocity);
-                                //Tone.Transport.schedule( () => 
-                                //    { keyData.filter((e: KeyData) => e.key.name === note.name)
-                                //    .forEach((key: KeyData) => key.isPlaying = true); 
-                                //}, note.time + now  + offset )
                                 synth.triggerRelease(note.name, note.time + now + dur);
-                                //Tone.Transport.schedule( () => 
-                                //    { keyData.filter((e: KeyData) => e.key.name === note.name)
-                                //    .forEach((key: KeyData) => key.isPlaying = false); 
-                                //}, note.time + now + offset + dur )
                             });
                         });
                         } else {
