@@ -149,7 +149,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
                                 .append('title')
-                                .text(note.name)
+                                .text(note.name + " - " + note.ticks)
                                 .style('cursor', 'pointer');
                         })
                         .on('mouseout', function () {
@@ -225,13 +225,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 
                 const currentTime = Tone.Transport.seconds * 1000;
                 setTimeout(() => {
-                  noteData.forEach(({ note, initialX, rect }) => {
-                    if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
-                        let noteStartTime = svgHeight * 6;
-                        let beatsPerMinute = 110;
+                    const activeNotes: NoteJSON[] = [];
+                    noteData.forEach(({ note, initialX, rect }) => {
+                        if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
+                            let noteStartTime = svgHeight * 6;
+                            let beatsPerMinute = 110;
               
-                        parsedMidi.midi.header.tempos.forEach((tempoEvent: TempoEvent) => {
-                        if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
+                            parsedMidi.midi.header.tempos.forEach((tempoEvent: TempoEvent) => {
+                            if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
                                 (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 1000 -
@@ -246,9 +247,22 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
               
                         rect.attr('y', yPosition).attr('x', initialX);
                         
+                        if (yPosition < -300 && yPosition > -300 - note.duration * 750) {
+                            activeNotes.push(note);
+                        }
                     }
-                });
+                } );
 
+                activeNotes.forEach((note: NoteJSON) => {
+                    keyData.forEach((key: KeyData) => { 
+                        if (key.key.name === note.name) {
+                            key.pianoKey.attr('fill', key.key.isNatural ? 'red' : 'orange');
+                        } else {
+                            key.pianoKey.attr('fill', key.key.isNatural ? 'ghostwhite' : 'darkslategray');
+                        }
+                    });
+                } );
+                /*
                 keyData.forEach( ({ key, pianoKey, isPlaying }) => {
                     
                     if (isPlaying === true) {
@@ -257,7 +271,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         pianoKey.attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
                     }
                 } );
-
+                */
                 requestAnimationFrame(debouncedUpdate);
                 }, 1);
             };
@@ -291,17 +305,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             synths.push(synth);
                             track.notes.forEach((note: NoteJSON) => {
                                 const dur = note.duration === 0 ? 0.1 : note.duration;
-                                const offset = -6;
+                                //const offset = -6;
                                 synth.triggerAttack(note.name, note.time + now, note.velocity);
-                                Tone.Transport.schedule( () => 
-                                    { keyData.filter((e: KeyData) => e.key.name === note.name)
-                                    .forEach((key: KeyData) => key.isPlaying = true); 
-                                }, note.time + now  + offset )
+                                //Tone.Transport.schedule( () => 
+                                //    { keyData.filter((e: KeyData) => e.key.name === note.name)
+                                //    .forEach((key: KeyData) => key.isPlaying = true); 
+                                //}, note.time + now  + offset )
                                 synth.triggerRelease(note.name, note.time + now + dur);
-                                Tone.Transport.schedule( () => 
-                                    { keyData.filter((e: KeyData) => e.key.name === note.name)
-                                    .forEach((key: KeyData) => key.isPlaying = false); 
-                                }, note.time + now + offset + dur )
+                                //Tone.Transport.schedule( () => 
+                                //    { keyData.filter((e: KeyData) => e.key.name === note.name)
+                                //    .forEach((key: KeyData) => key.isPlaying = false); 
+                                //}, note.time + now + offset + dur )
                             });
                         });
                         } else {
