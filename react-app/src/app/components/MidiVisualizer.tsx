@@ -93,7 +93,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('width', key.isNatural ? 50 : 25)
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
                         .attr('y', key.isNatural ? yPlacement : yPlacement + 70)
-                        .attr('x', key.midi * xPosition - 300)
+                        .attr('x', key.index * xPosition - 350)
                         .attr('ry', "4")
                         .attr('stroke', "darkslategray")
                         .on('mouseenter', function () {
@@ -121,6 +121,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             releaseNote(key.name);
                         }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
 
+                    if (key.name === "ghostnote") {
+                        pianoKey.lower();
+                    }
                     let isPlaying: boolean = false;
 
                     return {
@@ -139,16 +142,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             let isPlaying = false;
 
             const createStaticTimeline = (midiData: MidiJSON) => {
+                const indexes: number[] = keys.map((key: Key) => key.midi);
                 noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 750)
-                        .attr('width', note.name.length === 3 ? 25 : 25)
+                        .attr('width', note.name.startsWith('B') || note.name.startsWith('E') ? 50 : 25)
                         .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                         .attr('y', note.ticks)
-                        .attr('x', note.midi * 25)
+                        .attr('x', indexes.indexOf(note.midi) * 25)
                         .attr('ry', "4")
-                        .attr('stroke', "lightgray")
+                        .attr('stroke', "darkslategray")
                         .on('mouseover', function () {
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
@@ -163,7 +167,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             
                         }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
                     rect.lower();
-                    const initialX = note.midi * 25;  
+                    const initialX = indexes.indexOf(note.midi) * 25;  
             
                     return {
                         note,
