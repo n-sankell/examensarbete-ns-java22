@@ -93,7 +93,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('width', key.isNatural ? 50 : 25)
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
                         .attr('y', key.isNatural ? yPlacement : yPlacement + 70)
-                        .attr('x', key.midi * xPosition - svgWidth / 4)
+                        .attr('x', key.midi * xPosition - 300)
                         .on('mouseenter', function () {
                             d3.select(this)
                                 .attr('fill', key.isNatural ? 'gray' : 'darkgray')
@@ -144,12 +144,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('width', note.name.length === 3 ? 25 : 25)
                         .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                         .attr('y', note.ticks)
-                        .attr('x', note.midi * 25 - svgWidth / 17.5)
+                        .attr('x', note.midi * 25)
                         .on('mouseover', function () {
                             d3.select(this)
                                 .attr('fill', note.name.length === 3 ? 'lightyellow' : 'yellow')
                                 .append('title')
-                                .text(note.name + " - " + note.ticks)
+                                .text(note.name)
                                 .style('cursor', 'pointer');
                         })
                         .on('mouseout', function () {
@@ -159,7 +159,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             
                         }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
                     rect.lower();
-                    const initialX = note.midi * 25 - svgWidth / 17.5;  
+                    const initialX = note.midi * 25;  
             
                     return {
                         note,
@@ -168,7 +168,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     };
                 });
             
-                scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
+                scrollContainer.attr('transform', `translate(${0}, ${initialYScroll})`);
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);
