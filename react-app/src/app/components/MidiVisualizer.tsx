@@ -146,10 +146,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const rect = scrollContainer.append('rect')
-                        .attr('height', dur * 750)
+                        .attr('height', dur * 350)
                         .attr('width', note.name.startsWith('B') || note.name.startsWith('E') ? 50 : 25)
                         .attr('fill', note.name.length === 3 ? 'orange' : 'red')
-                        .attr('y', note.ticks)
+                        .attr('y', note.ticks / 2)
                         .attr('x', indexes.indexOf(note.midi) * 25)
                         .attr('ry', "4")
                         .attr('stroke', "darkslategray")
@@ -231,19 +231,19 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             scrollContainer.call(dragHandler);
             const updateNotePositions = () => {
                 const activeNotes: string[] = [];
-                const currentTime = Tone.Transport.seconds * 1000;
+                const currentTime = Tone.Transport.seconds * 500;
                 setTimeout(() => {
                     noteData.forEach(({ note, initialX, rect }) => {
                         if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
-                            let noteStartTime = svgHeight * 6;
+                            let noteStartTime = 0;
                             let beatsPerMinute = 110;
               
                             parsedMidi.midi.header.tempos.forEach((tempoEvent: TempoEvent) => {
                             if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
-                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 1000 -
-                                svgHeight / 2 + 800; 
+                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 500 -
+                                svgHeight / 2 + 400; 
                             }
                         });
               
@@ -254,7 +254,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
               
                         rect.attr('y', yPosition).attr('x', initialX);
                         
-                        if (yPosition < -300 && yPosition > -300 - note.duration * 750) {
+                        if (yPosition < -300 && yPosition > -300 - note.duration * 350) {
                             activeNotes.push(note.name);
                         }
                     }
