@@ -67,6 +67,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         const visualizeData = async () => {
         
             const synths: any[] = [];
+            let mouseDown = false;
 
             const svg = d3.select('#midi-visualization')
                 .append('svg')
@@ -113,6 +114,11 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                                 .append('title')
                                 .text(key.name)
                                 .style('cursor', 'pointer');
+                            if (mouseDown === true) {
+                                d3.select(this)
+                                    .attr('fill', key.isNatural ? 'red' : 'orange');
+                                playNote(key.name);
+                            }
                         })
                         .on('mouseout', function () {
                             d3.select(this)
@@ -123,13 +129,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .on('mousedown', function () {
                             d3.select(this)
                                 .attr('fill', key.isNatural ? 'red' : 'orange');
+                                mouseDown = true;
                             playNote(key.name);
                         })
                         .on('mouseup', function () {
-                            console.log("mouse up!");
                             d3.select(this)
                                 .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
                             releaseNote(key.name);
+                            mouseDown = false;
                         }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
 
                     if (key.name === "ghostnote") {
