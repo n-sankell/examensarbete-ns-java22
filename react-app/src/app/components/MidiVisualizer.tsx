@@ -236,6 +236,25 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 }
             });
 
+            const keyboardScrollHandler = (event : any) => {
+                if (event.deltaX !== 0) {
+                    const transformAttr = keyboardContainer.attr('transform');
+            
+                    if (transformAttr) {
+                        const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
+                        let currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
+                        let currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
+                        const newScrollX = Math.max(currentXScroll - event.deltaX, maxXScroll);
+                        const newScrollY = Math.max(currentYScroll - event.deltaY, maxYScroll);
+                        
+                        scrollContainer.attr('transform', `translate(${newScrollX}, ${currentYScroll + scrollHeight / 2})`);
+                        keyboardContainer.attr('transform', `translate(${newScrollX}, ${0})`);
+                    }
+                }
+            };
+            
+            keyboardContainer.on('wheel', keyboardScrollHandler);
+
             const dragHandler: any = d3.drag()
             .on('start', function (event) {
                 select(this).attr('data-start-x', event.x);
