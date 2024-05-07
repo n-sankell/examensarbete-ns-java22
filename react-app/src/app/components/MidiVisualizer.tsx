@@ -275,53 +275,72 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const debouncedUpdate = debounce(updateNotePositions, 1);
             const startButton = document.getElementById("startButton");
             let loopIntervalId: any | null = null;
+            let transportPosition = 0;
+            let currentTick = 0;
+            let startLoopInitiated = false;
+
             if (startButton) {
                 startButton.addEventListener('click', async (e) => {
                     if (!isPlaying) {
-                    playMidi();
-                    Tone.Transport.start();
-                    await Tone.Transport.cancel(0);
-                    loopIntervalId = setInterval(() => {
-                        updateNotePositions();
-                    }, 1000 / 16);
-                    
-                    await Tone.start().then(() => {
-                        const playing = e.detail;
-                        if (playing && parsedMidi.midi !== null) {
-                            const now = Tone.now() + 0.5;
-                            parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
-                                const synth = new Tone.PolySynth(Tone.Synth, {
-                                    envelope: {
-                                        attack: 0.02,
-                                        decay: 0.1,
-                                        sustain: 0.3,
-                                        release: 1,
-                                    },
-                                }).toDestination();
-                            synths.push(synth);
-                            track.notes.forEach((note: NoteJSON) => {
-                                const dur = note.duration === 0 ? 0.1 : note.duration;
-                                synth.triggerAttack(note.name, note.time + now, note.velocity);
-                                synth.triggerRelease(note.name, note.time + now + dur);
-                            });
-                        });
+                        if (transportPosition === 0) {
+                            await Tone.Transport.cancel(0);
                         } else {
-                            while (synths.length) {
-                                const synth = synths.shift();
-                                synth.disconnect();
-                            }
+                            Tone.Transport.seconds = transportPosition;
                         }
-                        isPlaying = true;;
-                    });
-                } else {
-                    Tone.Transport.pause();
-                    if (loopIntervalId) {
-                        clearInterval(loopIntervalId);
-                      }
-                    isPlaying = false;
-                    pauseMidi();
-                }
-            });
+                
+                        playMidi();
+                        Tone.Transport.start();
+                
+                        if (!startLoopInitiated) {
+                            loopIntervalId = setInterval(() => {
+                                updateNotePositions();
+                            }, 1000 / 16);
+                            startLoopInitiated = true;
+                        }
+                
+                        await Tone.start().then(() => {
+                            const playing = e.detail;
+                            if (playing && parsedMidi.midi !== null) {
+                                const now = Tone.now() + 0.5;
+                                parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
+                                    const synth = new Tone.PolySynth(Tone.Synth, {
+                                        envelope: {
+                                            attack: 0.02,
+                                            decay: 0.1,
+                                            sustain: 0.3,
+                                            release: 1,
+                                        },
+                                    }).toDestination();
+                                    synths.push(synth);
+                                    track.notes.forEach((note: NoteJSON) => {
+                                        if (note.ticks >= currentTick) {
+                                            const dur = note.duration === 0 ? 0.1 : note.duration;
+                                            synth.triggerAttack(note.name, note.time + now - transportPosition, note.velocity);
+                                            synth.triggerRelease(note.name, note.time + now - transportPosition + dur);
+                                        }
+                                    });
+                                });
+                            }
+                            isPlaying = true;
+                        });
+                    } else {
+                        Tone.Transport.pause();
+                        if (loopIntervalId) {
+                            clearInterval(loopIntervalId);
+                        }
+                
+                        transportPosition = Tone.Transport.seconds;
+                        currentTick = Tone.Transport.ticks;
+                
+                        while (synths.length) {
+                            const synth = synths.shift();
+                            synth.disconnect();
+                        }
+                
+                        isPlaying = false;
+                        pauseMidi();
+                    }
+                });
             }
 
         };
