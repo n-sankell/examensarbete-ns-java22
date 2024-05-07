@@ -89,13 +89,11 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 .attr('width', svgWidth)
                 .attr('height', 200);
 
-            let initialXScroll = -svgWidth + svgWidth / 4;
-            let initialYScroll = scrollHeight / 2;
-            const maxXScroll = -svgWidth * 2;
-            const maxYScroll = -scrollHeight * 2;
-            let noteData: NoteData[];
+            let noteData: NoteData[] = [];
             let isPlaying = false;
             let keyData: KeyData[];
+            let initialXScroll = -svgWidth + svgWidth / 3;
+            let initialYScroll = scrollHeight / 2;
 
             const createKeyboard = (yPlacement: number): void => {
                 keyData = keys.map((key: Key) => {
@@ -156,14 +154,18 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         
             const createStaticTimeline = (midiData: MidiJSON) => {
                 const indexes: number[] = keys.map((key: Key) => key.midi);
-                noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON) => {
+                const notes = midiData.tracks[currentTrack].notes;
+                let minX = indexes.indexOf(notes[0].midi) * 25;
+                let maxX = indexes.indexOf(notes[0].midi) * 25;
+                noteData = notes.map((note: NoteJSON) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
+                    const xPos = indexes.indexOf(note.midi) * 25;
                     const rect = scrollContainer.append('rect')
                         .attr('height', dur * 350)
                         .attr('width', note.name.startsWith('B') || note.name.startsWith('E') ? 50 : 25)
                         .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                         .attr('y', note.ticks / 2)
-                        .attr('x', indexes.indexOf(note.midi) * 25)
+                        .attr('x', xPos)
                         .attr('ry', "4")
                         .attr('stroke', "darkslategray")
                         .on('mouseover', function () {
@@ -180,7 +182,13 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             
                         }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
                     rect.lower();
-                    const initialX = indexes.indexOf(note.midi) * 25;
+                    const initialX = xPos;
+                    if (xPos < minX) {
+                        minX = xPos;
+                    }
+                    if (xPos > maxX) {
+                        maxX = xPos;
+                    }
             
                     return {
                         note,
@@ -188,16 +196,25 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         initialX,
                     };
                 });
-                initialXScroll = -svgWidth / 3 - noteData[0].initialX / 3;
+                console.log("min:" + minX)
+                console.log("max:" + maxX)
+                const xDifferance = maxX / 2 + minX / 2;
+                initialXScroll = xDifferance / 2 -svgWidth;
             
                 scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
             };
+            let noteAmount;
             if (parsedMidi.midi !== null) {
+                noteAmount = parsedMidi.midi.tracks[currentTrack].notes.length;
                 createStaticTimeline(parsedMidi.midi);
                 createKeyboard(0);
             } else {
+                noteAmount = 2;
                 createKeyboard(0);
             }
+
+            const maxXScroll = -svgWidth * 2;
+            const maxYScroll = -svgWidth * noteAmount;
 
             svg.on('wheel', (event) => {
                 let delta = event.deltaY;
