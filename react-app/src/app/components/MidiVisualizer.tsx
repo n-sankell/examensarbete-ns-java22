@@ -61,13 +61,31 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     const windowSize: WindowSize = useWindowSize();
     const svgWidth = windowSize.width - 4;
     const svgHeight = windowSize.height - 64;
+    const scrollHeight = svgHeight - 200;
 
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
+        pauseMidi();
+        let loopIntervalId: any | null = null;
+        let transportPosition = 0;
+        let currentTick = 0;
+        let startLoopInitiated = false;
+        let isPlaying = false;
+        let noteData: NoteData[] = [];
+        let keyData: KeyData[];
+        let synths: any[] = [];
+
         const visualizeData = async () => {
         
-            const synths: any[] = [];
             let mouseDown = false;
+
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            Tone.Transport.position = 0;
+            Tone.Transport.clear(0);
+
+            synths.forEach(synth => synth.disconnect());
+            synths = [];
 
             const svg = d3.select('#midi-visualization')
                 .append('svg')
@@ -79,7 +97,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     d3.select(this)
                         .style("cursor", "grab"); 
                 });
-            const scrollHeight = svgHeight - 200;
+            
             const scrollContainer = svg.append('g')
                 .attr('transform', 'translate(0, 0)')
                 .attr('width', svgWidth)
@@ -89,9 +107,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 .attr('width', svgWidth)
                 .attr('height', 200);
 
-            let noteData: NoteData[] = [];
-            let isPlaying = false;
-            let keyData: KeyData[];
             let initialXScroll = -svgWidth + svgWidth / 3;
             let initialYScroll = scrollHeight / 2;
 
@@ -155,8 +170,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const createStaticTimeline = (midiData: MidiJSON) => {
                 const indexes: number[] = keys.map((key: Key) => key.midi);
                 const notes = midiData.tracks[currentTrack].notes;
-                let minX = indexes.indexOf(notes[0].midi) * 25;
-                let maxX = indexes.indexOf(notes[0].midi) * 25;
+                let minX = -1;
+                let maxX = -1;
+                if (notes.length > 0) {
+                    minX = indexes.indexOf(notes[0].midi) * 25;
+                    maxX = indexes.indexOf(notes[0].midi) * 25;
+                }
                 noteData = notes.map((note: NoteJSON) => {
                     const dur = note.duration === 0 ? 0.1 : note.duration;
                     const xPos = indexes.indexOf(note.midi) * 25;
@@ -196,10 +215,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         initialX,
                     };
                 });
-                console.log("min:" + minX)
-                console.log("max:" + maxX)
-                const xDifferance = maxX / 2 + minX / 2;
-                initialXScroll = xDifferance / 2 -svgWidth;
+                if (minX > -1 && maxX > -1) {
+                    const xDifferance = maxX / 2 + minX / 2;
+                    initialXScroll = xDifferance / 2 -svgWidth;
+                }
             
                 scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
             };
@@ -326,16 +345,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             const debouncedUpdate = debounce(updateNotePositions, 1);
             const startButton = document.getElementById("startButton");
-            let loopIntervalId: any | null = null;
-            let transportPosition = 0;
-            let currentTick = 0;
-            let startLoopInitiated = false;
 
             if (startButton) {
                 startButton.addEventListener('click', async (e) => {
                     if (!isPlaying) {
                         if (transportPosition === 0) {
-                            await Tone.Transport.cancel(0);
+                            Tone.Transport.cancel(0);
                         } else {
                             Tone.Transport.seconds = transportPosition;
                         }
@@ -398,6 +413,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         };
         
         visualizeData();
+        return () => {
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            Tone.Transport.position = 0;
+    
+            synths.forEach(synth => synth.disconnect());
+            synths = [];
+        };
     
     }, [parsedMidi]);
 
