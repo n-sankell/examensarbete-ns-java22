@@ -82,13 +82,24 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const scrollContainer = svg.append('g')
                 .attr('transform', 'translate(0, 0)')
                 .attr('width', svgWidth)
-                .attr('height', svgHeight);
+                .attr('height', svgHeight - 200);
+            const keyboardContainer = svg.append('g')
+                .attr('transform', 'translate(0, 0)')
+                .attr('width', svgWidth)
+                .attr('height', 200);
 
+            const initialXScroll = -svgWidth / 2;
+            const initialYScroll = svgHeight / 2;
+            const maxXScroll = -svgWidth * 2;
+            const maxYScroll = -svgHeight * 2;
+            let noteData: NoteData[];
+            let isPlaying = false;
             let keyData: KeyData[];
+
             const createKeyboard = (yPlacement: number): void => {
                 keyData = keys.map((key: Key) => {
                     const xPosition = key.isNatural ? 25 : 25;
-                    const pianoKey = scrollContainer.append('rect')
+                    const pianoKey = keyboardContainer.append('rect')
                         .attr('height', key.isNatural ? 200 : 130)
                         .attr('width', key.isNatural ? 50 : 25)
                         .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray')
@@ -126,6 +137,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     }
                     let isPlaying: boolean = false;
 
+                    keyboardContainer.attr('transform', `translate(${initialXScroll}, ${0})`);
+
                     return {
                         key,
                         pianoKey,
@@ -134,13 +147,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 });
             };
         
-            const initialXScroll = -svgWidth / 2;
-            const initialYScroll = svgHeight / 2;
-            const maxXScroll = -svgWidth * 2;
-            const maxYScroll = -svgHeight * 2;
-            let noteData: NoteData[];
-            let isPlaying = false;
-
             const createStaticTimeline = (midiData: MidiJSON) => {
                 const indexes: number[] = keys.map((key: Key) => key.midi);
                 noteData = midiData.tracks[currentTrack].notes.map((note: NoteJSON) => {
@@ -180,7 +186,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             };
             if (parsedMidi.midi !== null) {
                 createStaticTimeline(parsedMidi.midi);
-                createKeyboard(-svgHeight / 2);
+                createKeyboard(0);
             } else {
                 createKeyboard(0);
             }
@@ -213,19 +219,22 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             .on('drag', function (event) {
                 const deltaX = event.x - +d3.select(this).attr('data-start-x');
                 const deltaY = event.y - +d3.select(this).attr('data-start-y');
-
+        
                 const transformAttr = scrollContainer.attr('transform');
-            
+        
                 if (transformAttr) {
                     const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                     const currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                     const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
                     const newScrollX = Math.max(currentXScroll + deltaX, maxXScroll);
                     const newScrollY = Math.max(currentYScroll + deltaY, maxYScroll);
+                    
                     scrollContainer.attr('transform', `translate(${newScrollX}, ${newScrollY})`);
+                    keyboardContainer.attr('transform', `translate(${newScrollX}, ${0})`);
+        
+                    select(this).attr('data-start-x', event.x);
+                    select(this).attr('data-start-y', event.y);
                 }
-                select(this).attr('data-start-x', event.x);
-                select(this).attr('data-start-y', event.y);
             });
 
             scrollContainer.call(dragHandler);
