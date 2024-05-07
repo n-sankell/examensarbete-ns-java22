@@ -78,20 +78,20 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     d3.select(this)
                         .style("cursor", "grab"); 
                 });
-
+            const scrollHeight = svgHeight - 200;
             const scrollContainer = svg.append('g')
                 .attr('transform', 'translate(0, 0)')
                 .attr('width', svgWidth)
-                .attr('height', svgHeight - 200);
+                .attr('height', scrollHeight);
             const keyboardContainer = svg.append('g')
                 .attr('transform', 'translate(0, 0)')
                 .attr('width', svgWidth)
                 .attr('height', 200);
 
-            const initialXScroll = -svgWidth / 2;
-            const initialYScroll = svgHeight / 2;
+            let initialXScroll = -svgWidth + svgWidth / 4;
+            let initialYScroll = scrollHeight / 2;
             const maxXScroll = -svgWidth * 2;
-            const maxYScroll = -svgHeight * 2;
+            const maxYScroll = -scrollHeight * 2;
             let noteData: NoteData[];
             let isPlaying = false;
             let keyData: KeyData[];
@@ -173,7 +173,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             
                         }) as d3.Selection<SVGRectElement, NoteJSON, HTMLElement, any>;
                     rect.lower();
-                    const initialX = indexes.indexOf(note.midi) * 25;  
+                    const initialX = indexes.indexOf(note.midi) * 25;
             
                     return {
                         note,
@@ -181,6 +181,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         initialX,
                     };
                 });
+                initialXScroll = -svgWidth / 3 - noteData[0].initialX / 3;
             
                 scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
             };
@@ -251,8 +252,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
-                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 500 -
-                                svgHeight / 2 + 400; 
+                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 500; 
                             }
                         });
               
@@ -263,7 +263,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
               
                         rect.attr('y', yPosition).attr('x', initialX);
                         
-                        if (yPosition < -300 && yPosition > -300 - note.duration * 350) {
+                        if (yPosition < -200 && yPosition > -200 - note.duration * 350) {
                             activeNotes.push(note.name);
                         }
                     }
