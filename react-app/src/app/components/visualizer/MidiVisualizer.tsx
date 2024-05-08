@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { select } from 'd3';
 import { MidiJSON, TrackJSON } from '@tonejs/midi';
 import { connect as reduxConnect } from 'react-redux';
@@ -37,36 +37,34 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     const svgWidth = windowSize.width - 4;
     const svgHeight = windowSize.height - 64;
     const scrollHeight = svgHeight - 200;
-    let transportPosition: number = 0;
+    let transportPosition = 0;
     let part: Tone.Part | null = null;
     let loopIntervalId: any | null = null;
+    let isPlaying = false;
     const synthsRef = useRef<any[]>([]);
 
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
         pauseMidi();
-        
-        let currentTick = 0;
-        let startLoopInitiated = false;
-        let isPlaying = false;
+
+        Tone.Transport.stop();
+        Tone.Transport.clear(0);
+        Tone.Transport.position = 0;
+        Tone.Transport.seconds = 0;
+        Tone.Transport.ticks = 0;
+        while (synthsRef.current.length) {
+            const synth = synthsRef.current.shift();
+            synth.releaseAll();
+            synth.disconnect();
+        }
+        transportPosition = 0;
+        isPlaying = false;
+
         let mouseDown = false;
         let noteData: NoteData[] = [];
         let keyData: KeyData[];
 
         const visualizeData = async () => {
-            while (synthsRef.current.length) {
-                const synth = synthsRef.current.shift();
-                synth.releaseAll();
-                synth.disconnect();
-            }
-            Tone.Transport.cancel();
-            Tone.Transport.clear(0);
-            Tone.Transport.clear(transportPosition);
-            transportPosition = 0;
-            if (part !== null) {
-                part.cancel();
-                part.dispose(); 
-            }
 
             const svg = d3.select('#midi-visualization')
                 .append('svg')
@@ -360,12 +358,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             const startPlayback = async () => {
                 if (!isPlaying) {
-                    if (transportPosition === 0) {
-                        Tone.Transport.start();
-                    } else {
-                        Tone.Transport.seconds = transportPosition;
-                        Tone.Transport.start();
-                    }
+                    Tone.Transport.start();
+
                     isPlaying = true;
                     playMidi();
 
@@ -379,7 +373,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                                 synthsRef.current.push(new Tone.PolySynth().toDestination());
                                 const synth = synthsRef.current[index];
                                 part = new Tone.Part((time, event) => {
-                                    time = time + 0.5;
+                                    time = transportPosition === 0 ? time + 0.5 : time;
                                     const { note, velocity } = event;
                                     synth.triggerAttackRelease(note, "4n", time, velocity);
                                 }, track.notes.map((note: NoteJSON) => ({
@@ -395,9 +389,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             const pausePlayback = () => {
                 Tone.Transport.pause();
-        
+
                 transportPosition = Tone.Transport.seconds;
-                currentTick = Tone.Transport.ticks;
+
+                Tone.Transport.clear(0);
         
                 while (synthsRef.current.length) {
                     const synth = synthsRef.current.shift();
