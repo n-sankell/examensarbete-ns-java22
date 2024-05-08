@@ -111,9 +111,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             await Tone.start().then(() => {
                 if (parsedMidi.midi !== null) {
-                    parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
-                        const synth = new Tone.PolySynth().toDestination();
-                        synthsRef.current.push();
+                    parsedMidi.midi.tracks.forEach((track: TrackJSON, index: number) => {
+                        synthsRef.current.push(new Tone.PolySynth().toDestination());
+                        const synth = synthsRef.current[index];
                         part = new Tone.Part((time, event) => {
                             time = transportPosition === 0 ? time + 0.5 : time;
                             const { note, velocity, duration } = event;
@@ -311,7 +311,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
         svg.on('wheel', (event) => {
             let delta = event.deltaY;
-
+            if (isPlaying === true && delta !== 0) {
+                pausePlayback();
+            }
             if (event.deltaMode === 1) {
                 delta = delta * 20;
             } else if (event.deltaMode === 2) {
@@ -321,11 +323,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const transformAttr = scrollContainer.attr('transform');
         
             if (transformAttr) {
-
-                if (isPlaying === true && delta !== 0) {
-                    pausePlayback();
-                }
-
                 const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                 const currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                 const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
@@ -358,6 +355,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         .on('start', function (event) {
             select(this).attr('data-start-x', event.x);
             select(this).attr('data-start-y', event.y);
+            if (isPlaying === true) {
+                pausePlayback();
+            }
         })
         .on('drag', function (event) {
             const deltaX = event.x - +d3.select(this).attr('data-start-x');
@@ -366,11 +366,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const transformAttr = scrollContainer.attr('transform');
     
             if (transformAttr) {
-
-                if (isPlaying === true) {
-                    pausePlayback();
-                }
-
                 const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                 const currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                 const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
@@ -393,10 +388,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         if (startButton) {
             startButton.addEventListener('click', playButtonClick );
         }
-
     };
 
-    useEffect(() => {
+    const cleanup = () => {
         d3.select('#midi-visualization').selectAll('*').remove();
         pauseMidi();
 
@@ -412,13 +406,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         }
         transportPosition = 0;
         isPlaying = false;
-        
-        visualizeData();
+    }
 
+    useEffect(() => {
+        cleanup();
+        visualizeData();
         return () => { 
             startPlayback(); 
         }
-    
     }, [parsedMidi]);
 
 return (<>
