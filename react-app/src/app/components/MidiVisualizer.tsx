@@ -257,6 +257,11 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const transformAttr = scrollContainer.attr('transform');
             
                 if (transformAttr) {
+
+                    if (isPlaying === true && delta !== 0) {
+                        pausePlayback();
+                    }
+
                     const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                     const currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                     const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
