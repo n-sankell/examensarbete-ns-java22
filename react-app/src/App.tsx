@@ -39,10 +39,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
   }, []);
 
   useEffect((): void => {
-  }, [publicMidis]);
-
-  useEffect((): void => {
-  }, [activeMidi]);
+  }, [publicMidis, activeMidi, userMidis]);
 
   useEffect(() => {
     if (loggedIn === true) {
@@ -50,9 +47,6 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
     }
     fetchPublicMidis();
   }, [loggedIn, doFetch]);
-
-  useEffect(() => {
-  }, [userMidis]);
 
   return (
     <div className="App">
