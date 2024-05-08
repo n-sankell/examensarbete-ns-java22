@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 import * as d3 from 'd3';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { select } from 'd3';
 import { MidiJSON, TrackJSON } from '@tonejs/midi';
 import { connect as reduxConnect } from 'react-redux';
@@ -37,23 +37,36 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     const svgWidth = windowSize.width - 4;
     const svgHeight = windowSize.height - 64;
     const scrollHeight = svgHeight - 200;
+    let transportPosition: number = 0;
+    let part: Tone.Part | null = null;
     let loopIntervalId: any | null = null;
-    let synths: any[] = [];
+    const synthsRef = useRef<any[]>([]);
 
     useEffect(() => {
         d3.select('#midi-visualization').selectAll('*').remove();
         pauseMidi();
         
-        let transportPosition = 0;
         let currentTick = 0;
         let startLoopInitiated = false;
         let isPlaying = false;
         let mouseDown = false;
         let noteData: NoteData[] = [];
         let keyData: KeyData[];
-        synths = [];
 
         const visualizeData = async () => {
+            while (synthsRef.current.length) {
+                const synth = synthsRef.current.shift();
+                synth.releaseAll();
+                synth.disconnect();
+            }
+            Tone.Transport.cancel();
+            Tone.Transport.clear(0);
+            Tone.Transport.clear(transportPosition);
+            transportPosition = 0;
+            if (part !== null) {
+                part.cancel();
+                part.dispose(); 
+            }
 
             const svg = d3.select('#midi-visualization')
                 .append('svg')
@@ -345,60 +358,50 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
             const debouncedUpdate = debounce(updateNotePositions, 1);
 
-            const startPlayback = async() => {
-                if (transportPosition === 0) {
-                    Tone.Transport.cancel(0);
-                } else {
-                    Tone.Transport.seconds = transportPosition;
-                }
-                isPlaying = true;
-                Tone.Transport.start();
-        
-                if (!startLoopInitiated) {
-                    loopIntervalId = setInterval(() => {
-                        updateNotePositions();
-                    }, 1000 / 16);
-                    startLoopInitiated = true;
-                }
-        
-                await Tone.start().then(() => {
-                    if (parsedMidi.midi !== null) {
-                        const now = Tone.now() + 0.5;
-                        parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
-                            const synth = new Tone.PolySynth(Tone.Synth, {
-                                envelope: {
-                                    attack: 0.02,
-                                    decay: 0.1,
-                                    sustain: 0.3,
-                                    release: 1,
-                                },
-                            }).toDestination();
-                            synths.push(synth);
-                            track.notes.forEach((note: NoteJSON) => {
-                                if (note.ticks >= currentTick) {
-                                    const dur = note.duration === 0 ? 0.1 : note.duration;
-                                    synth.triggerAttack(note.name, note.time + now - transportPosition, note.velocity);
-                                    synth.triggerRelease(note.name, note.time + now - transportPosition + dur);
-                                }
-                            });
-                        });
+            const startPlayback = async () => {
+                if (!isPlaying) {
+                    if (transportPosition === 0) {
+                        Tone.Transport.start();
+                    } else {
+                        Tone.Transport.seconds = transportPosition;
+                        Tone.Transport.start();
                     }
                     isPlaying = true;
                     playMidi();
-                });
-            }
+
+                    loopIntervalId = setInterval(() => {
+                        updateNotePositions();
+                    }, 1000 / 16);
+
+                    await Tone.start().then(() => {
+                        if (parsedMidi.midi !== null) {
+                            parsedMidi.midi.tracks.forEach((track: TrackJSON, index: number) => {
+                                synthsRef.current.push(new Tone.PolySynth().toDestination());
+                                const synth = synthsRef.current[index];
+                                part = new Tone.Part((time, event) => {
+                                    time = time + 0.5;
+                                    const { note, velocity } = event;
+                                    synth.triggerAttackRelease(note, "4n", time, velocity);
+                                }, track.notes.map((note: NoteJSON) => ({
+                                    time: `+${note.time}`,
+                                    note: note.name,
+                                    velocity: note.velocity || 0.8
+                                }))).start(0, transportPosition);
+                            });
+                        }
+                    });
+                }
+            };
 
             const pausePlayback = () => {
                 Tone.Transport.pause();
-                if (loopIntervalId) {
-                    clearInterval(loopIntervalId);
-                }
         
                 transportPosition = Tone.Transport.seconds;
                 currentTick = Tone.Transport.ticks;
         
-                while (synths.length) {
-                    const synth = synths.shift();
+                while (synthsRef.current.length) {
+                    const synth = synthsRef.current.shift();
+                    synth.releaseAll();
                     synth.disconnect();
                 }
         
@@ -409,7 +412,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             const playButtonClick = async () => {
                 if (!isPlaying) {
                     startPlayback();
-                    isPlaying = true;
                 } else {
                     pausePlayback();
                 }
