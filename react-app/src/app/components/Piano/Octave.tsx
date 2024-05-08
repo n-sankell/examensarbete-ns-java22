@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
-import { NoteType } from './NoteType';
+import { NoteType } from '../../types/NoteType';
 import Key from './Key';
 
 interface LocalOctaveProps {

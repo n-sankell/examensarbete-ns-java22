@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import './App.css';
 import Piano from './app/components/Piano/Piano';
-import MidiVisualizer from './app/components/MidiVisualizer';
+import MidiVisualizer from './app/components/visualizer/MidiVisualizer';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;

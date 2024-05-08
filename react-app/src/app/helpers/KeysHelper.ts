@@ -1,13 +1,7 @@
-import { NoteType, notes } from "./NoteType";
+import { NoteType } from "../types/NoteType";
+import { Key } from "../types/Key";
 import { OctaveStartNote, octaves } from "./OctaveHelper";
-
-export type Key = {
-    index: number,
-    midi: number,
-    name: string,
-    note: string,
-    isNatural: boolean
-}
+import { notes } from "./NotesHelper";
 
 const generateFullKeys = (): Key[] => {
     const keys: Key[] = [];

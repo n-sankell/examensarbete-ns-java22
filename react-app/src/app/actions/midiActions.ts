@@ -6,7 +6,7 @@ import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_U
     FETCH_MIDI_DATA_SUCCESS, FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE,
     CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, CREATE_MIDI_FAILURE, PARSE_MIDI_REQUEST, PARSE_MIDI_SUCCESS,
     PARSE_MIDI_FAILURE } from './midiActionTypes'
-import { base64ToArrayBuffer } from '../components/MidiParser';
+import { base64ToArrayBuffer } from '../util/MidiParser';
 import { Midi, MidiJSON } from '@tonejs/midi';
 import { MidiWrapper } from '../types/MidiWrapper';
 
