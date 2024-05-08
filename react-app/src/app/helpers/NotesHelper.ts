@@ -1,7 +1,4 @@
-export type NoteType = {
-    name: string;
-    isNatural: boolean;
-}
+import { NoteType } from "../types/NoteType";
 
 export const notes: NoteType[] = [
     {
@@ -17,7 +14,7 @@ export const notes: NoteType[] = [
         isNatural: true
     },
     {
-        name: "C#",
+        name: "D#",
         isNatural: false
     },
     {

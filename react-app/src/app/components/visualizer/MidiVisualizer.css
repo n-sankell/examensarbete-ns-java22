@@ -1,0 +1,29 @@
+.viz-wrapper {
+    display: inline-block;
+    position: relative;
+    top: 60px;
+}
+
+#midi-visualization {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: lightgrey;
+    -moz-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    transform: scaleY(-1);
+    filter: FlipV;
+    -ms-filter: "FlipV";
+}
+
+g {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+rect {
+    display: flex;
+    background-color: blueviolet;
+}

@@ -1,10 +1,10 @@
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { setPianoReady } from '../../actions/pianoActions';
-import { OctaveStartNote, octaves } from './OctaveHelper';
+import { OctaveStartNote, octaves } from '../../helpers/OctaveHelper';
 import React, { useEffect } from 'react';
 import { RootState } from '../../store';
 import { connect } from 'react-redux';
-import { notes } from './NoteType';
+import { notes } from '../../types/NoteType';
 import Octave from './Octave';
 import './Piano.css';
 

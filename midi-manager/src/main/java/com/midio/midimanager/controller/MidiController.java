@@ -11,6 +11,7 @@ import generatedapi.model.MidiDto;
 import generatedapi.model.MidiEditBinaryRequestDto;
 import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
+import generatedapi.model.MidiMessageResponseDto;
 import generatedapi.model.MidiWithDataDto;
 import generatedapi.model.MidisDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,9 +115,9 @@ public class MidiController implements MidisApi {
     }
 
     @Override
-    public ResponseEntity<Object> deleteMidi(UUID id) {
+    public ResponseEntity<MidiMessageResponseDto> deleteMidi(UUID id) {
         midiService.deleteMidi(midiId(id), getCurrentUser());
-        return ok().build();
+        return ok().body(new MidiMessageResponseDto().message("Midi deleted"));
     }
 
     private MidiId midiId(UUID id) {

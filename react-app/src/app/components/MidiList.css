@@ -1,10 +1,89 @@
+.midi-list {
+  position: fixed;
+  top: 5%;
+  left: 30%;
+}
+
+.overhang {
+  position: fixed;
+  top: 0px;
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(161, 161, 161);
+  opacity: 60%;
+}
+
+.load-symbol {
+  border-radius: 0px 5px 0px 0px;
+  padding: 1px;
+  margin-right: 10px;
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 4px;
+  height: 27px;
+  width: 27px;
+}
+
+.delete-symbol {
+  border-radius: 0px 0px 5px 0px;
+  padding: 1px;
+  margin-right: 10px;
+  display: block;
+  position: absolute;
+  top: 55px;
+  left: 4px;
+  height: 27px;
+  width: 27px;
+}
+
+.edit-symbol {
+  border-radius: 0px 0px 0px 0px;
+  padding: 1px;
+  margin-right: 10px;
+  display: block;
+  position: absolute;
+  top: 27px;
+  left: 5px;
+  height: 26px;
+  width: 26px;
+}
+
+.select-wing {
+  border-radius: 0px 5px 5px 0px;
+  padding: 1px;
+  margin-right: 10px;
+  background-color: whitesmoke;
+  display: block;
+  position: absolute;
+  top: 4px;
+  left: 205px;
+  height: 81px;
+  width: 30px;
+}
+
+.user-select-wing {
+  border-radius: 0px 5px 5px 0px;
+  padding: 1px;
+  margin-right: 10px;
+  background-color: bisque;
+  display: block;
+  position: absolute;
+  top: 4px;
+  left: 205px;
+  height: 81px;
+  width: 30px;
+}
+
 .content {
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     width: 450px;
-    height: 100%;
+    height: 600px;
     margin: 10%;
     padding-bottom: 7%;
     padding: 10%;
@@ -29,7 +108,7 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color:rgb(15, 88, 20);
+    overflow: scroll;
   }
 
   .ul-list {
@@ -39,14 +118,14 @@
     justify-content: center;
     text-align: center;
     list-style-type: none;
-    width: 150px;
+    width: 200px;
     height: 100%;
   }
   
   .list-item {
     display: table;
     position: relative;
-    right: 15%;
+    right: 12%;
     align-items: center;
     justify-content: center;
     margin: 1% auto 1% auto;
@@ -55,29 +134,31 @@
   }
   
   .midis-wrapper {
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height:75px;
     padding: 2%;
     margin-top: 2%;
     margin-bottom: 2%;
-    background: rgb(182, 38, 230);
+    background-color: whitesmoke;
   }
 
   .user-midis-wrapper {
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: 75px;
     padding: 2%;
     margin-top: 2%;
     margin-bottom: 2%;
-    background: rgb(182, 38, 230);
+    background-color: bisque;
   }
   
   .midi {
@@ -90,8 +171,7 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    color: rgb(250, 250, 250);
-    text-transform: uppercase;
+    color: darkslategrey;
     font-weight: regular;
   }
 
@@ -102,26 +182,11 @@
     background-color: burlywood;
     display: block;
     position: absolute;
-    right: 135px;
+    top: 7px;
+    right: 165px;
     height: 20px;
     width: 20px;
     overflow: hidden;
-  }
-
-  .delete-box {
-    height: 40%;
-    width: 10%;
-    position: absolute;
-    left: 100%;
-    top: 20%;
-    background-color: red;
-    color: rgb(250, 250, 250);
-    text-transform: uppercase;
-  }
-
-  .delete-box:hover {
-    background-color: red;
-    cursor: pointer;
   }
 
   .midi-text-field {
@@ -132,6 +197,6 @@
   }
 
   .midi:hover {
-    color: rgb(240, 240, 240);
+    color: dimgray;
     cursor: pointer;
   }

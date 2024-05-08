@@ -4,7 +4,7 @@ import { Dispatch } from 'redux';
 import { RootState } from '../../store';
 import { setKeyPressed, setKeyReleased, setPianoReady } from '../../actions/pianoActions';
 import { bindActionCreators } from '@reduxjs/toolkit';
-import { playNote, releaseNote } from './PianoSynth';
+import { playNote, releaseNote } from '../../synths/InteractiveSynth';
 
 interface LocalKeyProps {
     noteNumber: number;

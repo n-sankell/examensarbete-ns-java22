@@ -3,6 +3,7 @@ import userReducer from './reducers/userReducer';
 import midiReducer from './reducers/midiReducer';
 import displayReducer from './reducers/displayReducer';
 import pianoReducer from './reducers/pianoReducer';
+import visualizerReducer from './reducers/visualizerReduser';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     midi: midiReducer,
     display: displayReducer,
     piano: pianoReducer,
+    visualizer: visualizerReducer,
   },
 });
 

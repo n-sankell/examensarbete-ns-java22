@@ -1,10 +1,10 @@
-import { CreateUserRequest, UserCreateRequest } from "../../generated/user-api";
+import { CreateUserRequest, UserCreateRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateUserModal } from "../actions/displayActions";
-import { createUser } from "../actions/userActions";
+import { closeCreateUserModal } from "../../actions/displayActions";
+import { createUser } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import "./CreateUserModal.css";
 
 interface DispatchProps {

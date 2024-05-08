@@ -1,10 +1,10 @@
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateMidiModal } from "../actions/displayActions";
-import { CreateMidiRequest } from "../../generated/midi-api";
-import { createMidi } from "../actions/midiActions";
+import { closeCreateMidiModal } from "../../actions/displayActions";
+import { CreateMidiRequest } from "../../../generated/midi-api";
+import { createMidi } from "../../actions/midiActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import "./CreateMidiModal.css";
 
 interface DispatchProps {
@@ -28,25 +28,25 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         closeCreateMidiModal();
         resetValues();
     }
-    const handleTitleChange = (titleEvent: any) => {
+    const handleTitleChange = (titleEvent: any): void => {
         setTitle(titleEvent.target.value);
     }
-    const handleArtistChange = (artistEvent: any) => {
+    const handleArtistChange = (artistEvent: any): void => {
         setArtist(artistEvent.target.value);
     }
-    const handlePrivateChange = (privateEvent: any) => {
+    const handlePrivateChange = (privateEvent: any): void => {
         if (isPrivate) {
             setIsPrivate(false);
         } else {
             setIsPrivate(true);
         }
     }
-    const handleFileInputChange = (fileEvent: any) => {
+    const handleFileInputChange = (fileEvent: any): void => {
         const file = fileEvent.target.files[0];
         if (!file) return;
         const reader = new FileReader();
     
-        reader.onloadend = () => {
+        reader.onloadend = (): void => {
           const fileString = reader.result == null ? "" : reader.result as string;
           const base64String = fileString.split(",")[1];
           setFileString(base64String);
@@ -56,7 +56,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         reader.readAsDataURL(file);
         setFileName(file.name == null ? "" : file.name);
     }
-    const handleFileNameChange = (filenameEvent: any) => {
+    const handleFileNameChange = (filenameEvent: any): void => {
         setFileName(filenameEvent.target.value);
     }
 
@@ -78,7 +78,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         closeCreateMidiModal();
     }
 
-    const resetValues = () => {
+    const resetValues = (): void => {
         setTitle("");
         setArtist("");
         setIsPrivate(true);
