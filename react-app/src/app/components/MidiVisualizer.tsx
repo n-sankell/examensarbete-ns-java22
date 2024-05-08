@@ -76,6 +76,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         let synths: any[] = [];
 
         const visualizeData = async () => {
+
+            console.log(Tone.Transport);
         
             let mouseDown = false;
 
@@ -123,12 +125,13 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         .attr('stroke', "darkslategray")
                         .on('mouseenter', function () {
                             d3.select(this)
+                                .style('cursor', 'pointer')
                                 .attr('fill', key.isNatural ? 'gray' : 'darkgray')
                                 .append('title')
-                                .text(key.name)
-                                .style('cursor', 'pointer');
+                                .text(key.name);
                             if (mouseDown === true) {
                                 d3.select(this)
+                                    .style('cursor', 'grab')
                                     .attr('fill', key.isNatural ? 'red' : 'orange');
                                 playNote(key.name);
                             }
@@ -141,12 +144,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         })
                         .on('mousedown', function () {
                             d3.select(this)
+                                .style('cursor', 'grab')
                                 .attr('fill', key.isNatural ? 'red' : 'orange');
                                 mouseDown = true;
                             playNote(key.name);
                         })
                         .on('mouseup', function () {
                             d3.select(this)
+                                .style('cursor', 'pointer')
                                 .attr('fill', key.isNatural ? 'ghostwhite' : 'darkslategray');
                             releaseNote(key.name);
                             mouseDown = false;
@@ -154,6 +159,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
                     if (key.name === "ghostnote") {
                         pianoKey.lower();
+                    }
+                    if (key.name === 'C4') {
+                        pianoKey.append('title')
+                            .text(key.name);
                     }
                     let isPlaying: boolean = false;
 
@@ -232,7 +241,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 createKeyboard(0);
             }
 
-            const maxXScroll = -svgWidth * 2;
+            const minXScroll = svgWidth / 2 - svgWidth / 8;
+            const maxXScroll = -svgWidth + -svgWidth / 2;
             const maxYScroll = -svgWidth * noteAmount;
 
             svg.on('wheel', (event) => {
@@ -256,6 +266,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             });
 
             const keyboardScrollHandler = (event : any) => {
+                event.preventDefault();
                 if (event.deltaX !== 0) {
                     const transformAttr = keyboardContainer.attr('transform');
             
@@ -263,8 +274,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                         let currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                         let currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
-                        const newScrollX = Math.max(currentXScroll - event.deltaX, maxXScroll);
-                        const newScrollY = Math.max(currentYScroll - event.deltaY, maxYScroll);
+                        let newScrollX = Math.max(currentXScroll - event.deltaX, maxXScroll);
+                        newScrollX = Math.min(minXScroll, newScrollX);
                         
                         scrollContainer.attr('transform', `translate(${newScrollX}, ${currentYScroll + scrollHeight / 2})`);
                         keyboardContainer.attr('transform', `translate(${newScrollX}, ${0})`);
@@ -286,10 +297,16 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const transformAttr = scrollContainer.attr('transform');
         
                 if (transformAttr) {
+
+                    if (isPlaying === true) {
+                        pausePlayback();
+                    }
+
                     const matchTransform = transformAttr.match(/translate\((.*?),(.*?)\)/);
                     const currentXScroll = +((matchTransform && matchTransform[1]) || initialXScroll);
                     const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
-                    const newScrollX = Math.max(currentXScroll + deltaX, maxXScroll);
+                    let newScrollX = Math.max(currentXScroll + deltaX, maxXScroll);
+                    newScrollX = Math.min(minXScroll, newScrollX);
                     const newScrollY = Math.max(currentYScroll + deltaY, maxYScroll);
                     
                     scrollContainer.attr('transform', `translate(${newScrollX}, ${newScrollY})`);
@@ -344,70 +361,80 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             };
 
             const debouncedUpdate = debounce(updateNotePositions, 1);
+
+            const startPlayback = async() => {
+                if (transportPosition === 0) {
+                    Tone.Transport.cancel(0);
+                } else {
+                    Tone.Transport.seconds = transportPosition;
+                }
+        
+                playMidi();
+                Tone.Transport.start();
+        
+                if (!startLoopInitiated) {
+                    loopIntervalId = setInterval(() => {
+                        updateNotePositions();
+                    }, 1000 / 16);
+                    startLoopInitiated = true;
+                }
+        
+                await Tone.start().then(() => {
+                    if (parsedMidi.midi !== null) {
+                        const now = Tone.now() + 0.5;
+                        parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
+                            const synth = new Tone.PolySynth(Tone.Synth, {
+                                envelope: {
+                                    attack: 0.02,
+                                    decay: 0.1,
+                                    sustain: 0.3,
+                                    release: 1,
+                                },
+                            }).toDestination();
+                            synths.push(synth);
+                            track.notes.forEach((note: NoteJSON) => {
+                                if (note.ticks >= currentTick) {
+                                    const dur = note.duration === 0 ? 0.1 : note.duration;
+                                    synth.triggerAttack(note.name, note.time + now - transportPosition, note.velocity);
+                                    synth.triggerRelease(note.name, note.time + now - transportPosition + dur);
+                                }
+                            });
+                        });
+                    }
+                    isPlaying = true;
+                });
+            }
+
+            const pausePlayback = () => {
+                Tone.Transport.pause();
+                if (loopIntervalId) {
+                    clearInterval(loopIntervalId);
+                }
+        
+                transportPosition = Tone.Transport.seconds;
+                currentTick = Tone.Transport.ticks;
+        
+                while (synths.length) {
+                    const synth = synths.shift();
+                    synth.disconnect();
+                }
+        
+                isPlaying = false;
+                pauseMidi();
+            }
+
+            const playButtonClick = async () => {
+                if (!isPlaying) {
+                    startPlayback();
+                } else {
+                    pausePlayback();
+                }
+            }
+
             const startButton = document.getElementById("startButton");
 
             if (startButton) {
-                startButton.addEventListener('click', async (e) => {
-                    if (!isPlaying) {
-                        if (transportPosition === 0) {
-                            Tone.Transport.cancel(0);
-                        } else {
-                            Tone.Transport.seconds = transportPosition;
-                        }
-                
-                        playMidi();
-                        Tone.Transport.start();
-                
-                        if (!startLoopInitiated) {
-                            loopIntervalId = setInterval(() => {
-                                updateNotePositions();
-                            }, 1000 / 16);
-                            startLoopInitiated = true;
-                        }
-                
-                        await Tone.start().then(() => {
-                            const playing = e.detail;
-                            if (playing && parsedMidi.midi !== null) {
-                                const now = Tone.now() + 0.5;
-                                parsedMidi.midi.tracks.forEach((track: TrackJSON) => {
-                                    const synth = new Tone.PolySynth(Tone.Synth, {
-                                        envelope: {
-                                            attack: 0.02,
-                                            decay: 0.1,
-                                            sustain: 0.3,
-                                            release: 1,
-                                        },
-                                    }).toDestination();
-                                    synths.push(synth);
-                                    track.notes.forEach((note: NoteJSON) => {
-                                        if (note.ticks >= currentTick) {
-                                            const dur = note.duration === 0 ? 0.1 : note.duration;
-                                            synth.triggerAttack(note.name, note.time + now - transportPosition, note.velocity);
-                                            synth.triggerRelease(note.name, note.time + now - transportPosition + dur);
-                                        }
-                                    });
-                                });
-                            }
-                            isPlaying = true;
-                        });
-                    } else {
-                        Tone.Transport.pause();
-                        if (loopIntervalId) {
-                            clearInterval(loopIntervalId);
-                        }
-                
-                        transportPosition = Tone.Transport.seconds;
-                        currentTick = Tone.Transport.ticks;
-                
-                        while (synths.length) {
-                            const synth = synths.shift();
-                            synth.disconnect();
-                        }
-                
-                        isPlaying = false;
-                        pauseMidi();
-                    }
-                });
+                startButton.addEventListener('click', playButtonClick );
             }
 
         };
@@ -417,9 +444,16 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             Tone.Transport.stop();
             Tone.Transport.cancel();
             Tone.Transport.position = 0;
-    
+            Tone.Transport.clear(0);
+
             synths.forEach(synth => synth.disconnect());
             synths = [];
+            isPlaying = false;
+            loopIntervalId = null;
+            transportPosition = 0;
+            currentTick = 0;
+            startLoopInitiated = false;
+            pauseMidi();
         };
     
     }, [parsedMidi]);
