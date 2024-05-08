@@ -42,9 +42,6 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
   }, [publicMidis]);
 
   useEffect((): void => {
-    if (activeMidi !== null) {
-      console.log("Active midi: " + activeMidi.binary?.midiFile);
-    }
   }, [activeMidi]);
 
   useEffect(() => {

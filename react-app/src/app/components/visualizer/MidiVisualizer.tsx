@@ -85,9 +85,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 });
 
                 keyData.forEach((key: KeyData) => { 
-                    if (key.isPlaying) {
-                        console.log(key.key.name);
-                    }
                     if (activeNotes.includes(key.key.name) || key.isPlaying === true) {
                         key.pianoKey.attr('fill', key.key.isNatural ? 'red' : 'orange');
                     } else {
@@ -417,7 +414,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         
         visualizeData();
 
-        return (() => startPlayback());
+        return () => { 
+            startPlayback(); 
+        }
     
     }, [parsedMidi]);
 
