@@ -131,10 +131,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     if (key.name === "ghostnote") {
                         pianoKey.lower();
                     }
-                    if (key.name === 'C4') {
-                        pianoKey.append('title')
-                            .text(key.name);
-                    }
                     
                     keyboardContainer.attr('transform', `translate(${initialXScroll}, ${0})`);
 
@@ -333,6 +329,9 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         });
     
                         keyData.forEach((key: KeyData) => { 
+                            if (key.isPlaying) {
+                                console.log(key.key.name);
+                            }
                             if (activeNotes.includes(key.key.name) || key.isPlaying === true) {
                                 key.pianoKey.attr('fill', key.key.isNatural ? 'red' : 'orange');
                             } else {
