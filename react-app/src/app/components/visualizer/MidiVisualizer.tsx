@@ -179,13 +179,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         const createKeyboard = (initialX: number): void => {
             keyData = keys.filter((filter: Key ) => filter.name !== 'ghostnote' ).map((key: Key) => {
                 let isPlaying: boolean = false;
-                const xPosition = key.isNatural ? 25 : 25;
                 const pianoKey = keyboardContainer.append('rect')
                     .attr('height', key.isNatural ? 200 : 130)
                     .attr('width', key.isNatural ? 50 : 25)
                     .attr('fill', isPlaying ? key.isNatural ? 'red' : 'orange' : key.isNatural ? 'ghostwhite' : 'darkslategray')
                     .attr('y', key.isNatural ? 0 : 0 + 70)
-                    .attr('x', key.isNatural ? key.index * xPosition - 350 : key.index * xPosition - 350 + 12)
+                    .attr('x', key.isNatural ? key.index * 25 - 350 : key.index * 25 - 350 + 12)
                     .attr('ry', "4")
                     .attr('stroke', "darkslategray")
                     .on('mouseenter', function () {
@@ -300,17 +299,19 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             });
             if (minX > -1 && maxX > -1) {
                 const xDifferance = maxX / 2 + minX / 2;
-                scrollX = xDifferance / 2 -svgWidth;
+                scrollX = -svgWidth / 2 - xDifferance / 6;
             }
         
-            scrollContainer.attr('transform', `translate(${initialXScroll}, ${initialYScroll})`);
+            scrollContainer.attr('transform', `translate(${scrollX}, ${initialYScroll})`);
         };
 
         if (parsedMidi.midi !== null) {
             noteAmount = parsedMidi.midi.tracks[currentTrack].notes.length;
             createStaticTimeline(parsedMidi.midi);
+            createKeyboard(scrollX);
+        } else {
+            createKeyboard(initialXScroll);
         }
-        createKeyboard(initialXScroll);
 
         maxYScroll = -svgWidth * noteAmount;
 
