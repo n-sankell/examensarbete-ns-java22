@@ -153,6 +153,9 @@ export type MidiAction =
     | CreateMidiRequestAction
     | CreateMidiSuccessAction
     | CreateMidiFailureAction
+    | EditMidiRequestAction
+    | EditMidiSuccessAction
+    | EditMidiFailureAction
     | DeleteMidiRequestAction
     | DeleteMidiSuccessAction
     | DeleteMidiFailureAction

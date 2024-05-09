@@ -1,7 +1,8 @@
 import { MidiState, MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_USER_MIDIS_FAILURE,
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_SUCCESS, 
     FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE, CREATE_MIDI_FAILURE,
-    CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, PARSE_MIDI_REQUEST, PARSE_MIDI_FAILURE, PARSE_MIDI_SUCCESS } from '../actions/midiActionTypes';
+    CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, PARSE_MIDI_REQUEST, PARSE_MIDI_FAILURE, PARSE_MIDI_SUCCESS, 
+	EDIT_MIDI_FAILURE, EDIT_MIDI_SUCCESS, EDIT_MIDI_REQUEST} from '../actions/midiActionTypes';
 import { defaultMidi } from '../types/MidiWrapper';
 
 const initialState: MidiState = {
@@ -24,6 +25,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
     	case FETCH_USER_MIDIS_REQUEST:
     	case CREATE_MIDI_REQUEST:
     	case DELETE_MIDI_REQUEST:
+		case EDIT_MIDI_REQUEST:
       		return {
         		...state,
         		doFetchMidis: false,
@@ -48,6 +50,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
     	case FETCH_MIDI_DATA_FAILURE:
     	case CREATE_MIDI_FAILURE:
     	case DELETE_MIDI_FAILURE:
+		case EDIT_MIDI_FAILURE:
         	return {
             	...state,
         	    doFetchMidis: false,
@@ -56,6 +59,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
         	};
 	    case FETCH_MIDI_DATA_SUCCESS:
     	case CREATE_MIDI_SUCCESS:
+		case EDIT_MIDI_SUCCESS:
         	return {
             	...state,
     	        doFetchMidis: true,

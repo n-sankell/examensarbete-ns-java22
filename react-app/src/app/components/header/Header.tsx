@@ -3,7 +3,7 @@ import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
 import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
 import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg';
-import LogoSvg from '../../../assets/midio-logo.svg';
+import LogoPng from '../../../assets/midio-logo.png';
 import { Midis } from "../../../generated/midi-api";
 import { User } from "../../../generated/user-api";
 import { logout } from "../../actions/userActions";
@@ -137,7 +137,9 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
                     : "" }
                 </ul>
             </div>
-            <div className='logo-wrapper'>{ LogoSvg }</div>
+            <div className='logo-wrapper'>
+                <img className='logo' src={ LogoPng } width='15%' height='15%'></img>
+            </div>
         </div>
 
         <div className="control-panel"> { parsedMidi.midi !== null ? 
