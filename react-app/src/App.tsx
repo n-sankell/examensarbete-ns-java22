@@ -9,8 +9,9 @@ import Header from './app/components/header/Header';
 import { RootState } from './app/store';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
-import './App.css';
 import MidiVisualizer from './app/components/visualizer/MidiVisualizer';
+import EditUserModal from './app/components/modals/EditUserModal';
+import './App.css';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;
@@ -24,6 +25,7 @@ interface StateProps {
   showLoginModal: boolean;
   showCreateUserModal: boolean;
   showCreateMidiModal: boolean;
+  showEditUserModal: boolean;
   showUserMidis: boolean;
   showPublicMidis: boolean;
   doFetch: boolean
@@ -31,7 +33,7 @@ interface StateProps {
 interface AppProps extends StateProps, DispatchProps {}
 
 const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, 
-  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis }) => {
+  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis, showEditUserModal }) => {
 
   useEffect((): void => {
     fetchPublicMidis();
@@ -56,6 +58,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
           { showCreateMidiModal ? <CreateMidiModal /> : "" }
           { showLoginModal ? <LoginModal /> : "" }
           { showCreateUserModal ? <CreateUserModal /> : "" }
+          { showEditUserModal ? <EditUserModal /> : "" }
           { showUserMidis ? <MidiList privateFiles={ true } /> : "" }
           { showPublicMidis ? <MidiList privateFiles={ false } /> : "" }
         </main>
@@ -71,6 +74,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   activeMidi: state.midi.activeMidi,
   showLoginModal: state.display.showLoginModal,
   showCreateUserModal: state.display.showCreateUserModal,
+  showEditUserModal: state.display.showEditUserModal,
   showCreateMidiModal: state.display.showCreateMidiModal,
   showPublicMidis: state.display.showPublicMidis,
   showUserMidis: state.display.showUserMidis,

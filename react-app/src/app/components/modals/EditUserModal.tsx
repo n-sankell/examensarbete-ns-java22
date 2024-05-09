@@ -1,6 +1,6 @@
 import { CreateUserRequest, UserCreateRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateUserModal } from "../../actions/displayActions";
+import { closeCreateUserModal, closeEditUserModal } from "../../actions/displayActions";
 import { createUser } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
@@ -10,29 +10,26 @@ import "./Modal.css";
 
 interface DispatchProps {
     createUser: (userCreateRequest: UserCreateRequest) => void;
-    closeCreateUserModal: () => void;
+    closeEditUserModal: () => void;
 }
 interface StateProps {
     displayUserCreateError: boolean;
 }
 interface CreateUserModalProps extends StateProps, DispatchProps {}
 
-const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError } ) => {
+const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeEditUserModal, displayUserCreateError } ) => {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const closeClick = (): void => {
-        closeCreateUserModal();
+        closeEditUserModal();
     }
     const handleUsernameChange = (usernameEvent: any) => {
         setUsername(usernameEvent.target.value);
     }
     const handleEmailChange = (emailEvent: any) => {
         setEmail(emailEvent.target.value);
-    }
-    const handlePasswordChange = (passwordEvent: any) => {
-        setPassword(passwordEvent.target.value);
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -55,7 +52,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
         <div className='modal'>
         <div className='addUserModal'>
         <div className="add-user">
-        <h3 className='h3-title'>Create account</h3>
+        <h3 className='h3-title'>Edit profile</h3>
         <form className="add-user-form"
             onSubmit={handleSubmit} >
             <input
@@ -77,16 +74,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
                 minLength={6}
                 required={true} 
             />
-            <input 
-                onChange={handlePasswordChange} 
-                placeholder="password..." 
-                className="input-text"
-                type="password"
-                value={password}
-                maxLength={40}
-                minLength={10}
-                required={true} 
-            />
             <input className="submit-button" type="submit" value="Create account" />
         </form>
         </div>
@@ -101,7 +88,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
     createUser: bindActionCreators(createUser, dispatch),
-    closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+    closeEditUserModal: bindActionCreators(closeEditUserModal, dispatch),
 });
   
 export default connect(mapStateToProps, mapDispatchToProps)(CreateUserModal);

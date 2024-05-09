@@ -1,4 +1,4 @@
-import { CLOSE_CREATE_MIDI_MODAL, CLOSE_CREATE_USER_MODAL, CLOSE_LOGIN_MODAL, CLOSE_PUBLIC_MIDIS, CLOSE_USER_MIDIS, DisplayAction, DisplayState, SHOW_CREATE_MIDI_MODAL, SHOW_CREATE_USER_MODAL, SHOW_LOGIN_MODAL, SHOW_PUBLIC_MIDIS, SHOW_USER_MIDIS } from "../actions/displayActionTypes";
+import { CLOSE_CREATE_MIDI_MODAL, CLOSE_CREATE_USER_MODAL, CLOSE_EDIT_USER_MODAL, CLOSE_LOGIN_MODAL, CLOSE_PUBLIC_MIDIS, CLOSE_USER_MIDIS, DisplayAction, DisplayState, SHOW_CREATE_MIDI_MODAL, SHOW_CREATE_USER_MODAL, SHOW_EDIT_USER_MODAL, SHOW_LOGIN_MODAL, SHOW_PUBLIC_MIDIS, SHOW_USER_MIDIS } from "../actions/displayActionTypes";
 
 const initialState: DisplayState = {
     showLoginModal: false,
@@ -6,6 +6,7 @@ const initialState: DisplayState = {
     showCreateMidiModal: false,
     showPublicMidis: false,
     showUserMidis: false,
+    showEditUserModal: false,
 };
 
 const displayReducer = (state = initialState, action: DisplayAction): DisplayState => {
@@ -39,6 +40,16 @@ const displayReducer = (state = initialState, action: DisplayAction): DisplaySta
             return {
                 ...state,
                 showCreateMidiModal: false,
+            }
+        case SHOW_EDIT_USER_MODAL:
+            return {
+                ...state,
+                showEditUserModal: true,
+            }
+        case CLOSE_EDIT_USER_MODAL:
+            return {
+                ...state,
+                showEditUserModal: false,
             }
         case SHOW_PUBLIC_MIDIS:
             return {

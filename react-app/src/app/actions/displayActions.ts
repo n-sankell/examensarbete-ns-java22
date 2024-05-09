@@ -1,6 +1,6 @@
 import { ThunkAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { CLOSE_CREATE_MIDI_MODAL, CLOSE_CREATE_USER_MODAL, CLOSE_LOGIN_MODAL, CLOSE_PUBLIC_MIDIS, CLOSE_USER_MIDIS, DisplayAction, SHOW_CREATE_MIDI_MODAL, SHOW_CREATE_USER_MODAL, SHOW_LOGIN_MODAL, SHOW_PUBLIC_MIDIS, SHOW_USER_MIDIS } from "./displayActionTypes";
+import { CLOSE_CREATE_MIDI_MODAL, CLOSE_CREATE_USER_MODAL, CLOSE_EDIT_USER_MODAL, CLOSE_LOGIN_MODAL, CLOSE_PUBLIC_MIDIS, CLOSE_USER_MIDIS, DisplayAction, SHOW_CREATE_MIDI_MODAL, SHOW_CREATE_USER_MODAL, SHOW_EDIT_USER_MODAL, SHOW_LOGIN_MODAL, SHOW_PUBLIC_MIDIS, SHOW_USER_MIDIS } from "./displayActionTypes";
 
 export const displayLoginModal = (): ThunkAction<void, RootState, null, DisplayAction> => (dispatch) => {
     dispatch({ type: SHOW_LOGIN_MODAL });
@@ -35,4 +35,11 @@ export const displayUserMidis = (): ThunkAction<void, RootState, null, DisplayAc
 }
 export const closeUserMidis = (): ThunkAction<void, RootState, null, DisplayAction> => (dispatch) => {
     dispatch({ type: CLOSE_USER_MIDIS });
+}
+
+export const displayEditUserModal = (): ThunkAction<void, RootState, null, DisplayAction> => (dispatch) => {
+    dispatch({ type: SHOW_EDIT_USER_MODAL });
+}
+export const closeEditUserModal = (): ThunkAction<void, RootState, null, DisplayAction> => (dispatch) => {
+    dispatch({ type: CLOSE_EDIT_USER_MODAL });
 }
