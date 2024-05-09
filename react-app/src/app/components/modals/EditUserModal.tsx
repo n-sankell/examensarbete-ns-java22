@@ -15,9 +15,9 @@ interface DispatchProps {
 interface StateProps {
     displayUserCreateError: boolean;
 }
-interface CreateUserModalProps extends StateProps, DispatchProps {}
+interface EditUserModalProps extends StateProps, DispatchProps {}
 
-const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeEditUserModal, displayUserCreateError } ) => {
+const EditUserModal: React.FC<EditUserModalProps> = ( { createUser, closeEditUserModal, displayUserCreateError } ) => {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -48,31 +48,31 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeEdi
     }, []);
     
     return (<>
-        <div className='overhang' onClick={closeClick} />
+        <div className='overhang' onClick={ closeClick } />
         <div className='modal'>
-        <div className='addUserModal'>
-        <div className="add-user">
+        <div className='content-wrapper'>
+        <div className="edit-user">
         <h3 className='h3-title'>Edit profile</h3>
-        <form className="add-user-form"
-            onSubmit={handleSubmit} >
+        <form className="edit-user-form"
+            onSubmit={ handleSubmit } >
             <input
-                onChange={handleUsernameChange} 
+                onChange={ handleUsernameChange } 
                 placeholder="username..." 
                 className="input-text"
-                value={username}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                value={ username }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input 
-                onChange={handleEmailChange} 
+                onChange={ handleEmailChange } 
                 placeholder="email..." 
                 className="input-text"
                 type="email"
-                value={email}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                value={ email }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input className="submit-button" type="submit" value="Create account" />
         </form>
@@ -91,4 +91,4 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): Disp
     closeEditUserModal: bindActionCreators(closeEditUserModal, dispatch),
 });
   
-export default connect(mapStateToProps, mapDispatchToProps)(CreateUserModal);
+export default connect(mapStateToProps, mapDispatchToProps)(EditUserModal);

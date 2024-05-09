@@ -299,7 +299,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             });
             if (minX > -1 && maxX > -1) {
                 const xDifferance = maxX / 2 + minX / 2;
-                scrollX = -svgWidth / 2 - xDifferance / 6;
+                scrollX = -svgWidth / 2 - xDifferance / xDifferance;
             }
         
             scrollContainer.attr('transform', `translate(${scrollX}, ${initialYScroll})`);

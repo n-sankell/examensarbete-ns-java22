@@ -53,9 +53,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
     }, [loggedIn]);
     
     return (<>
-        <div className='overhang' onClick={closeClick} />
+        <div className='overhang' onClick={ closeClick } />
         <div className='modal'>
-        <div className='loginModal'>
+        <div className='content-wrapper'>
         <div className="login">
         <h3 className='h3-title'>Log in</h3>
         <form className="login-form"

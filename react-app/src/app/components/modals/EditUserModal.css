@@ -1,11 +1,4 @@
-.addUserModal {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.add-user {
+.edit-user {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -22,7 +15,7 @@
     text-transform: uppercase;
 }
 
-.add-user-form {
+.edit-user-form {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

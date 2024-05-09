@@ -1,6 +1,6 @@
 import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../../generated/midi-api';
 import { deleteMidi, fetchMidiAndData, fetchPublicMidis, fetchUserMidis, parseMidi } from '../../actions/midiActions';
-import { closePublicMidis, closeUserMidis } from '../../actions/displayActions';
+import { closePublicMidis, closeUserMidis, displayEditMidiModal } from '../../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
 import LoadSvg from '../../../assets/music-stream-player-svgrepo-com.svg';
@@ -27,12 +27,13 @@ interface MidisDispatchProps {
     deleteMidi: (deleteMidiRequest: DeleteMidiRequest) => void;
     closePublicMidis: () => void;
     closeUserMidis: () => void;
+    showEditMidiModal: () => void;
     parseMidi: (request: string) => void;
 } 
 interface MidisProps extends MidisDispatchProps, MidisStateProps, MidisLocalProps {}
 
 const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fetchPublicMidis, fetchMidiAndData, deleteMidi, 
-    privateFiles, closeUserMidis, closePublicMidis, parseMidi, doFetchMidis }) => {
+    privateFiles, closeUserMidis, closePublicMidis, parseMidi, doFetchMidis, showEditMidiModal }) => {
     const [selectedMidiId, setSelectedMidiId] = useState<string>("");
     const midis = privateFiles === true ? 
     userMidis !== null && userMidis.midis !== undefined ? userMidis.midis : [] :
@@ -64,7 +65,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
 
     const handleEditBoxClick = (event: any, midiId: string): void => {
         event.preventDefault();
-        console.log("Edit click! " + midiId);
+        showEditMidiModal();
     }
 
     const handleLoadBoxClick = (event: any): void => {
@@ -104,8 +105,8 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
     return (<>
     <div className='overhang' onClick={ handleCloseClick } />
     <div className='modal'>
-    <div className='midi-list'>
-    <div className="content">
+    <div className='content-wrapper'>
+    <div className="midi-list">
         <h1 className='heading'> { privateFiles === true ? "User midis" : "Public midis" } </h1>
         <div className='list-wrapper'>
             <ul className='ul-list'> { midis.map((midi: Midi, index: number) => (
@@ -134,7 +135,6 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
                 </li>) ) }
             </ul>
         </div>
-        <div className='list-close-button' onClick={(event) => handleCloseClick(event)}><span>X</span></div>
     </div>
     </div>
     </div>
@@ -154,6 +154,7 @@ const mapStateToProps = (state: RootState): MidisStateProps => ({
     deleteMidi: bindActionCreators(deleteMidi, dispatch),
     closePublicMidis: bindActionCreators(closePublicMidis, dispatch),
     closeUserMidis: bindActionCreators(closeUserMidis, dispatch),
+    showEditMidiModal: bindActionCreators(displayEditMidiModal, dispatch),
     parseMidi: bindActionCreators(parseMidi, dispatch),
   });
 

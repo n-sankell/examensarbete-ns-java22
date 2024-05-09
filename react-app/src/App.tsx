@@ -1,6 +1,6 @@
 import { fetchPublicMidis, fetchUserMidis } from './app/actions/midiActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
-import { Midi, Midis, MidiWithData } from './generated/midi-api';
+import { Midis, MidiWithData } from './generated/midi-api';
 import CreateMidiModal from './app/components/modals/CreateMidiModal';
 import CreateUserModal from './app/components/modals/CreateUserModal';
 import MidiList from './app/components/modals/MidiList';
@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import MidiVisualizer from './app/components/visualizer/MidiVisualizer';
 import EditUserModal from './app/components/modals/EditUserModal';
 import './App.css';
+import EditMidiModal from './app/components/modals/EditMidiModal';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;
@@ -28,11 +29,12 @@ interface StateProps {
   showEditUserModal: boolean;
   showUserMidis: boolean;
   showPublicMidis: boolean;
+  showEditMidiModal: boolean;
   doFetch: boolean
 }
 interface AppProps extends StateProps, DispatchProps {}
 
-const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, 
+const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, showEditMidiModal, 
   showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis, showEditUserModal }) => {
 
   useEffect((): void => {
@@ -56,6 +58,7 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
         <main className="main">
           <MidiVisualizer />
           { showCreateMidiModal ? <CreateMidiModal /> : "" }
+          { showEditMidiModal ? <EditMidiModal /> : "" }
           { showLoginModal ? <LoginModal /> : "" }
           { showCreateUserModal ? <CreateUserModal /> : "" }
           { showEditUserModal ? <EditUserModal /> : "" }
@@ -76,6 +79,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   showCreateUserModal: state.display.showCreateUserModal,
   showEditUserModal: state.display.showEditUserModal,
   showCreateMidiModal: state.display.showCreateMidiModal,
+  showEditMidiModal: state.display.showEditMidiModal,
   showPublicMidis: state.display.showPublicMidis,
   showUserMidis: state.display.showUserMidis,
   doFetch: state.midi.doFetchMidis,
