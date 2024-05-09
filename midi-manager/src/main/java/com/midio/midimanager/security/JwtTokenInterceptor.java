@@ -31,9 +31,11 @@ public class JwtTokenInterceptor extends OncePerRequestFilter {
         @NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
         throws ServletException, IOException {
 
+        var prefix = JwtConstants.TOKEN_PREFIX;
+
         var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith(JwtConstants.TOKEN_PREFIX)) {
-            var token = authorizationHeader.substring(7);
+        if (authorizationHeader != null && authorizationHeader.startsWith(prefix)) {
+            var token = authorizationHeader.substring(prefix.length());
             if (jwtTokenProvider.validateToken(token)) {
                 var claims = jwtTokenProvider.extractClaims(token);
                 var subject = claims.getSubject();

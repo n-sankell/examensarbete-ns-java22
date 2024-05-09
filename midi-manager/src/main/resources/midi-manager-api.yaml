@@ -68,7 +68,7 @@ paths:
       tags:
         - Midi
 
-  /midis/midi/{id}:
+  /midis/file/{id}:
     post:
       parameters:
         - name: id
@@ -162,82 +162,6 @@ paths:
       tags:
         - Midi
 
-  /midis/meta/{id}:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      summary: Edit midi metadata
-      description: "Edit the metadata for a midi entry."
-      operationId: editMidiMeta
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MidiEditMetaRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MidiWithData'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-        - Midi
-
-  /midis/binary/{id}:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      summary: Edit midi binary data
-      description: "Edit the binary data for a midi."
-      operationId: editMidiBinary
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MidiEditBinaryRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MidiWithData'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      tags:
-        - Midi
-
 components:
   schemas:
 
@@ -280,7 +204,12 @@ components:
           $ref: '#/components/schemas/MidiEditMetaRequest'
         binaryData:
           $ref: '#/components/schemas/MidiEditBinaryRequest'
-      required:
+      oneOf:
+      - required:
+        - metadata
+      - required:
+        - binaryData
+      - required:
         - metadata
         - binaryData
 
@@ -292,7 +221,7 @@ components:
           description: "MIDI file in binary format (Base64)"
           minLength: 1
       required:
-        - filename
+        - midiFile
 
     MidiEditMetaRequest:
       type: object
@@ -380,6 +309,9 @@ components:
           $ref: '#/components/schemas/Midi'
         binary:
           $ref: '#/components/schemas/BinaryData'
+      required:
+        - meta
+        - binary
 
     Midis:
       type: object
@@ -388,6 +320,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Midi'
+      required:
+        - midis
 
     ValidationException:
       type: object

@@ -105,13 +105,15 @@ public class MidiControllerTest {
         var createResponse = mockApi.createMidi(token, createRequestDto);
         var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
-        var editRequest = new MidiEditMetaRequestDto()
-            .filename("t");
+        var editRequest = new MidiEditRequestDto()
+            .metadata(new MidiEditMetaRequestDto()
+                .filename("t")
+            );
 
         var response =
             assertThrows(
                 ValidationException.class,
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
+                () -> mockApi.editMidi(midiId, token, editRequest)
             );
 
         assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
@@ -124,13 +126,15 @@ public class MidiControllerTest {
         var createResponse = mockApi.createMidi(token, createRequestDto);
         var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
-        var editRequest = new MidiEditBinaryRequestDto()
-            .midiFile(Base64Midi.INVALID);
+        var editRequest = new MidiEditRequestDto()
+            .binaryData(new MidiEditBinaryRequestDto()
+                .midiFile(Base64Midi.INVALID)
+            );
 
         var response =
             assertThrows(
                 ValidationException.class,
-                () -> mockApi.editMidiBinary(midiId, token, editRequest)
+                () -> mockApi.editMidi(midiId, token, editRequest)
             );
 
         assertEquals(UNPROCESSABLE_ENTITY, response.getStatusCode());
@@ -238,21 +242,25 @@ public class MidiControllerTest {
         var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
         // Edit the midi binary by midiId
-        var editRequest = new MidiEditBinaryRequestDto().midiFile(Base64Midi.GYMNOPEDIE);
+        var editRequest = new MidiEditRequestDto().binaryData(
+            new MidiEditBinaryRequestDto().midiFile(Base64Midi.GYMNOPEDIE)
+        );
 
         if (status == HttpStatus.OK) {
             var editResponse = assertDoesNotThrow(
-                () -> mockApi.editMidiBinary(midiId, token, editRequest)
+                () -> mockApi.editMidi(midiId, token, editRequest)
             );
 
             // When status is OK assert that changes hav been made otherwise the midi should be unchanged
+            assertNotNull(editResponse.getBody());
             assertEquals(status, editResponse.getStatusCode());
-            assertEquals("Hirokazu Tanaka", requireNonNull(editResponse.getBody()).getMeta().getArtist());
+            assertEquals("Hirokazu Tanaka", editResponse.getBody().getMeta().getArtist());
             assertEquals(Base64Midi.GYMNOPEDIE, editResponse.getBody().getBinary().getMidiFile());
         } else {
             var secondResponse = mockApi.getMidiById(midiId, validToken);
-            assertEquals(createResponse.getBody().getMeta(), requireNonNull(secondResponse.getBody()).getMeta());
-            assertEquals(Base64Midi.TETRIS, requireNonNull(secondResponse.getBody()).getBinary().getMidiFile());
+            assertNotNull(secondResponse.getBody());
+            assertEquals(createResponse.getBody().getMeta(), secondResponse.getBody().getMeta());
+            assertEquals(Base64Midi.TETRIS, secondResponse.getBody().getBinary().getMidiFile());
         }
     }
 
@@ -266,15 +274,17 @@ public class MidiControllerTest {
         var midiId = requireNonNull(createResponse.getBody()).getMeta().getMidiId();
 
         // Edit the midi metadata by midiId
-        var editRequest = new MidiEditMetaRequestDto()
-            .artist("Satie")
-            .title("Gymnopedie No 1")
-            .filename("gymnopedie-no1.mid")
-            .isPrivate(false);
+        var editRequest = new MidiEditRequestDto()
+            .metadata(new MidiEditMetaRequestDto()
+                .artist("Satie")
+                .title("Gymnopedie No 1")
+                .filename("gymnopedie-no1.mid")
+                .isPrivate(false)
+            );
 
         if (status == HttpStatus.OK) {
             var editResponse = assertDoesNotThrow(
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
+                () -> mockApi.editMidi(midiId, token, editRequest)
             );
 
             // When status is OK assert that changes hav been made otherwise the midi should be unchanged
@@ -286,7 +296,7 @@ public class MidiControllerTest {
         } else {
             var editResponse = assertThrows(
                 HttpClientErrorException.class,
-                () -> mockApi.editMidiMeta(midiId, token, editRequest)
+                () -> mockApi.editMidi(midiId, token, editRequest)
             );
             assertEquals(status, editResponse.getStatusCode());
             var secondResponse = mockApi.getMidiById(midiId, validToken);

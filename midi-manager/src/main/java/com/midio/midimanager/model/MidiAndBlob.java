@@ -1,4 +1,6 @@
 package com.midio.midimanager.model;
 
-public record MidiAndBlob(Midi metaData, Blob blob) {
+import java.util.Optional;
+
+public record MidiAndBlob(Optional<Midi> metaData, Optional<Blob> blob) {
 }
