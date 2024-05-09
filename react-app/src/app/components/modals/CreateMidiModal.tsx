@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import "./CreateMidiModal.css";
+import "./Modal.css";
 
 interface DispatchProps {
     createMidi: (createMidiRequest: CreateMidiRequest) => void;

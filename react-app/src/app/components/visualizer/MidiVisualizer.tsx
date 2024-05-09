@@ -18,6 +18,7 @@ import { debounce } from '../../util/Debouncer';
 import { NoteData } from '../../types/NoteData';
 import { KeyData } from '../../types/KeyData';
 import './MidiVisualizer.css';
+import { noteOffsetPosition, noteWidth } from '../../helpers/NotesPositionHelper';
 
 interface VisualizerStateProps {
     parsedMidi: MidiWrapper;
@@ -176,7 +177,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             .attr('height', 200);
 
         const createKeyboard = (initialX: number): void => {
-            keyData = keys.map((key: Key) => {
+            keyData = keys.filter((filter: Key ) => filter.name !== 'ghostnote' ).map((key: Key) => {
                 let isPlaying: boolean = false;
                 const xPosition = key.isNatural ? 25 : 25;
                 const pianoKey = keyboardContainer.append('rect')
@@ -184,7 +185,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     .attr('width', key.isNatural ? 50 : 25)
                     .attr('fill', isPlaying ? key.isNatural ? 'red' : 'orange' : key.isNatural ? 'ghostwhite' : 'darkslategray')
                     .attr('y', key.isNatural ? 0 : 0 + 70)
-                    .attr('x', key.index * xPosition - 350)
+                    .attr('x', key.isNatural ? key.index * xPosition - 350 : key.index * xPosition - 350 + 12)
                     .attr('ry', "4")
                     .attr('stroke', "darkslategray")
                     .on('mouseenter', function () {
@@ -225,7 +226,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         mouseDown = false;
                     }) as d3.Selection<SVGRectElement, Key, HTMLElement, any>;
 
-                if (key.name === "ghostnote") {
+                if (key.isNatural) {
                     pianoKey.lower();
                 }
                 
@@ -250,10 +251,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             }
             noteData = notes.map((note: NoteJSON) => {
                 const dur = note.duration === 0 ? 0.1 : note.duration;
-                const xPos = indexes.indexOf(note.midi) * 25;
+                const xOffset = noteOffsetPosition(note.name);
+                const width = noteWidth(note.name);
+                const xPos = indexes.indexOf(note.midi) * 25 + xOffset;
+                console.log(xOffset);
+                console.log(width);
                 const rect = scrollContainer.append('rect')
                     .attr('height', dur * 350)
-                    .attr('width', note.name.startsWith('B') || note.name.startsWith('E') ? 50 : 25)
+                    .attr('width', width)
                     .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                     .attr('y', note.ticks / 2)
                     .attr('x', xPos)

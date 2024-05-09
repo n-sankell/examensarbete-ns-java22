@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import "./LoginModal.css";
+import "./Modal.css";
 
 interface StateProps {
     displayError: boolean;

@@ -3,14 +3,13 @@ import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { Midi, Midis, MidiWithData } from './generated/midi-api';
 import CreateMidiModal from './app/components/modals/CreateMidiModal';
 import CreateUserModal from './app/components/modals/CreateUserModal';
-import MidiList from './app/components/MidiList';
+import MidiList from './app/components/modals/MidiList';
 import LoginModal from './app/components/modals/LoginModal';
-import Header from './app/components/Header';
+import Header from './app/components/header/Header';
 import { RootState } from './app/store';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import './App.css';
-import Piano from './app/components/Piano/Piano';
 import MidiVisualizer from './app/components/visualizer/MidiVisualizer';
 
 interface DispatchProps {

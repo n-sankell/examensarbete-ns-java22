@@ -1,15 +1,15 @@
-import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../actions/displayActions";
+import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
-import PlaySvg from '../../assets/play-player-music-svgrepo-com.svg'
-import PauseSvg from '../../assets/pause-circle-svgrepo-com.svg'
-import { Midis } from "../../generated/midi-api";
-import { User } from "../../generated/user-api";
-import { logout } from "../actions/userActions";
+import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
+import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg'
+import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg'
+import { Midis } from "../../../generated/midi-api";
+import { User } from "../../../generated/user-api";
+import { logout } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
-import { MidiWrapper } from "../types/MidiWrapper";
+import { RootState } from "../../store";
+import { MidiWrapper } from "../../types/MidiWrapper";
 import "./Header.css";
 
 interface StateProps {

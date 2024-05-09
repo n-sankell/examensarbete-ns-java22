@@ -1,15 +1,16 @@
-import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../generated/midi-api';
-import { deleteMidi, fetchMidiAndData, fetchPublicMidis, fetchUserMidis, parseMidi } from '../actions/midiActions';
-import { closePublicMidis, closeUserMidis } from '../actions/displayActions';
+import { DeleteMidiRequest, GetMidiRequest, Midi, MidiWithData, Midis } from '../../../generated/midi-api';
+import { deleteMidi, fetchMidiAndData, fetchPublicMidis, fetchUserMidis, parseMidi } from '../../actions/midiActions';
+import { closePublicMidis, closeUserMidis } from '../../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
-import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
-import LoadSvg from '../../assets/music-stream-player-svgrepo-com.svg';
-import DeleteSvg from '../../assets/delete-2-svgrepo-com.svg';
-import EditSvg from '../../assets/edit-svgrepo-com.svg';
+import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
+import LoadSvg from '../../../assets/music-stream-player-svgrepo-com.svg';
+import DeleteSvg from '../../../assets/delete-2-svgrepo-com.svg';
+import EditSvg from '../../../assets/edit-svgrepo-com.svg';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { RootState } from '../store';
+import { RootState } from '../../store';
 import "./MidiList.css";
+import "./Modal.css";
 
 interface MidisLocalProps {
     privateFiles: boolean;
