@@ -52,6 +52,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
     
     return (<>
         <div className='overhang' onClick={closeClick} />
+        <div className='modal'>
         <div className='addUserModal'>
         <div className="add-user">
         <h3 className='h3-title'>Create account</h3>
@@ -88,6 +89,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
             />
             <input className="submit-button" type="submit" value="Create account" />
         </form>
+        </div>
         </div>
         </div>
     </>);

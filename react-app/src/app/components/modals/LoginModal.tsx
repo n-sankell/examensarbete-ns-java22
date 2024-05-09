@@ -54,6 +54,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
     
     return (<>
         <div className='overhang' onClick={closeClick} />
+        <div className='modal'>
         <div className='loginModal'>
         <div className="login">
         <h3 className='h3-title'>Log in</h3>
@@ -82,6 +83,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
         </form>
         </div>
         { displayError === true ? <span>Login failed</span> : "" }
+        </div>
         </div>
     </>);
 }

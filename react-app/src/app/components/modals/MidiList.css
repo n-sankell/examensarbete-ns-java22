@@ -1,7 +1,8 @@
 .midi-list {
-  position: fixed;
-  top: 5%;
-  left: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .load-symbol {

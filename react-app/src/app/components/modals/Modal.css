@@ -3,12 +3,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 0px;
-    padding: 20px;
     height: 100%;
     width: 100%;
     background-color: rgb(161, 161, 161);
     opacity: 60%;
+	padding-bottom: 10%;
 }
 
 .modal {
@@ -16,6 +15,4 @@
     display: flex;
     align-items: center;
     justify-content: center;
-	height: 100%;
-    width: 100%;
 }

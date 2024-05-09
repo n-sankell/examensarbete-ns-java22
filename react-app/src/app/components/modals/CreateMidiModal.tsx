@@ -93,6 +93,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
     
     return (<>
         <div className='overhang' onClick={closeClick} />
+        <div className='modal'>
         <div className='addMidiModal'>
         <div className="add-midi">
         <h3 className='h3-title'>Add new midi file</h3>
@@ -144,6 +145,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
             </> : "" }
             <input className="add-button" type="submit" value="Create midi" />
         </form>
+        </div>
         </div>
         </div>
     </>);
