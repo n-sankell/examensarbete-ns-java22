@@ -1,8 +1,8 @@
-import { UserAction, UserState, LOGOUT_USER, LOGIN_USER_FAILURE, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE } from '../actions/userActionTypes';
+import { UserAction, UserState, LOGOUT_USER, LOGIN_USER_FAILURE, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_FAILURE, EDIT_USER_SUCCESS, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE } from '../actions/userActionTypes';
 
 const initialState: UserState = {
   user: null,
-  token: "",
+  token: '',
   loggedIn: false,
   loading: false,
   error: null,
@@ -54,6 +54,58 @@ const userReducer = (state = initialState, action: UserAction): UserState => {
         error: action.payload,
         displayLoginError: true,
       };
+    case EDIT_USER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        displayUserCreateError: false,
+      };
+    case EDIT_USER_SUCCESS:
+      return {
+        ...state,
+        user: action.payload.user,
+        loading: false,
+        error: null,
+        displayUserCreateError: false,
+      };
+    case EDIT_USER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case EDIT_PASSWORD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case EDIT_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case EDIT_PASSWORD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_USER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_USER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_USER_SUCCESS:
     case LOGOUT_USER:
       return {
         ...state,

@@ -1,8 +1,9 @@
 import { closeCreateMidiModal, closeCreateUserModal, closeEditUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayEditUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
-import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg'
-import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg'
+import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
+import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg';
+import LogoSvg from '../../../assets/midio-logo.svg';
 import { Midis } from "../../../generated/midi-api";
 import { User } from "../../../generated/user-api";
 import { logout } from "../../actions/userActions";
@@ -136,6 +137,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
                     : "" }
                 </ul>
             </div>
+            <div className='logo-wrapper'>{ LogoSvg }</div>
         </div>
 
         <div className="control-panel"> { parsedMidi.midi !== null ? 
