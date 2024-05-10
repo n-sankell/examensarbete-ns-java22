@@ -18,12 +18,15 @@ interface StateProps {
 interface EditMidiModalProps extends StateProps, DispatchProps {}
 
 const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiModal, activeMidi } ) => {
-    const [title, setTitle] = useState<string>("");
-    const [artist, setArtist] = useState<string>("");
-    const [isPrivate, setIsPrivate] = useState<boolean>(true);
-    const [fileLoaded, setFileLoaded] = useState<boolean>(false);
-    const [fileString, setFileString] = useState<string>("");
-    const [fileName, setFileName] = useState<string>("");
+
+    if (activeMidi !== null) {
+    
+    const [title, setTitle] = useState<string | undefined>(activeMidi.meta.title);
+    const [artist, setArtist] = useState<string | undefined>(activeMidi.meta.artist);
+    const [isPrivate, setIsPrivate] = useState<boolean | undefined>(activeMidi.meta.isPrivate);
+    const [fileName, setFileName] = useState<string>(activeMidi.meta.filename);
+    const [fileString, setFileString] = useState<string>(activeMidi.binary.midiFile);
+    const [newFileLoaded, setNewFileLoaded] = useState<boolean>(false);
 
     const closeClick = (): void => {
         closeEditMidiModal();
@@ -51,7 +54,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
           const fileString = reader.result == null ? "" : reader.result as string;
           const base64String = fileString.split(",")[1];
           setFileString(base64String);
-          setFileLoaded(true);
+          setNewFileLoaded(true);
         };
 
         reader.readAsDataURL(file);
@@ -63,19 +66,23 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
+
+        const metaData = containsMetaChange() ? {
+            isPrivate: isPrivate, 
+            filename: fileName, 
+            artist: artist, 
+            title: title
+        } : undefined;
+
+        const binaryData = containsBinaryChange() ? {
+            midiFile: fileString
+        } : undefined;
         
         const requestObject: EditMidiRequest = { 
             id: activeMidi === null ? "" : activeMidi.meta.midiId,
             midiEditRequest: { 
-                metadata: {
-                    isPrivate: isPrivate, 
-                    filename: fileName, 
-                    artist: artist === "" ? undefined : artist, 
-                    title: title === "" ? undefined : title,
-                 }, 
-                binaryData: {
-                    midiFile: fileString
-                }
+                metadata: metaData, 
+                binaryData: binaryData
             }
         };
         editMidi(requestObject)
@@ -89,7 +96,15 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         setIsPrivate(true);
         setFileString("");
         setFileName("");
-        setFileLoaded(false);
+        setNewFileLoaded(false);
+    }
+
+    const containsMetaChange = (): boolean => {
+        return true;
+    }
+
+    const containsBinaryChange = (): boolean => {
+        return true;
     }
     
     useEffect((): void => {
@@ -101,26 +116,18 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='content-wrapper'>
         <div className="edit-midi">
             <div className="info-container">
-                <span className='title'>File info</span>
-                { activeMidi !== null ? <>
+            <div className='title-container'><span className='title'>File info - edit file</span></div>
+                <>
+                <div className="file-info">
                     <span>Filename: { activeMidi.meta.filename }</span>
                     { activeMidi.meta.artist !== null ? <span>Artist: { activeMidi.meta.artist } </span> : "" }
                     { activeMidi.meta.title !== null ? <span>Title: { activeMidi.meta.title } </span> : "" }
-                    </> : ""
-                }
+                    </div>
+                    </>
             </div>
         
         <form className="edit-midi-form"
             onSubmit={ handleSubmit } >
-            <input 
-                onChange={ handleFileInputChange } 
-                placeholder="Choose a file..." 
-                className="input-add"
-                type="file"
-                accept=".mid"
-                required={ true }
-            />
-            { fileLoaded ? <>
             <input
                 onChange={ handleTitleChange } 
                 placeholder="Title..." 
@@ -155,13 +162,25 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 ></input>
                 <label htmlFor="checkbox-id" className="box-label">Private</label>
             </div>
-            </> : "" }
+            <input 
+                onChange={ handleFileInputChange } 
+                placeholder="Choose a file..." 
+                className="input-add"
+                type="file"
+                accept=".mid"
+                required={ false }
+            />
             <input className="edit-button" type="submit" value="Save" />
         </form>
         </div>
         </div>
         </div>
     </>);
+
+    } else {
+        console.error("Midi was not loaded properly");
+        return (<><div><span>No file found</span></div></>);
+    }
 }
 const mapStateToProps = (state: RootState): StateProps => ({
     activeMidi: state.midi.activeMidi,

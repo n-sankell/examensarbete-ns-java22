@@ -72,7 +72,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
         closeModal();
     }
 
-    const handleEditBoxClick = (event: any, midiId: string): void => {
+    const handleEditBoxClick = (event: any): void => {
         event.preventDefault();
         showEditMidiModal();
     }
@@ -141,7 +141,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
 
                         </div> 
                         <div className='edit-box'>
-                            <img src={ EditSvg } className='edit-symbol' onClick={ (e) => handleEditBoxClick(e, midi.midiId) }></img>
+                            <img src={ EditSvg } className='edit-symbol' onClick={ (e) => handleEditBoxClick(e) }></img>
                         </div> </> : "" } 
                         </div>
                         { promptDelete === true ? 

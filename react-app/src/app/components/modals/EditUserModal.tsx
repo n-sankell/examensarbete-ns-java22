@@ -64,7 +64,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, 
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="edit-user">
-        <h3 className='h3-title'>Edit profile</h3>
+        <h3 className='title'>Edit profile</h3>
         <form className="edit-user-form"
             onSubmit={ handleDetailsSubmit } >
             <input
