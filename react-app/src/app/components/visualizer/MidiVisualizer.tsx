@@ -124,7 +124,8 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             duration: note.duration,
                             note: note.name,
                             velocity: note.velocity || 0.8
-                        }))).start(0, transportPosition);
+                        })))
+                        .start(0, transportPosition);
                     });
                 }
             });
@@ -252,8 +253,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const xOffset = noteOffsetPosition(note.name);
                 const width = noteWidth(note.name);
                 const xPos = indexes.indexOf(note.midi) * 25 + xOffset;
-                console.log(xOffset);
-                console.log(width);
                 const rect = scrollContainer.append('rect')
                     .attr('height', dur * 350)
                     .attr('width', width)

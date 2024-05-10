@@ -1,6 +1,5 @@
 export const noteOffsetPosition = (note: string) => {
     const trimmedName: string = note.length === 3 ? note.substring(0,2) : note.substring(0,1);
-    console.log(trimmedName);
     switch (trimmedName) {
         case 'A': return 12;
         case 'B': return 12;
@@ -15,7 +14,6 @@ export const noteOffsetPosition = (note: string) => {
 
 export const noteWidth = (note: string) => {
     const trimmedName: string = note.length === 3 ? note.substring(0,2) : note.substring(0,1);
-    console.log(trimmedName);
     switch (trimmedName) {
         case 'A': return 25;
         case 'B': return 38;

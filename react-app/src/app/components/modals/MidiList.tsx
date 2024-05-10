@@ -107,7 +107,7 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
     <div className='modal'>
     <div className='content-wrapper'>
     <div className="midi-list">
-        <div className='title-container'><text className='title'> { privateFiles === true ? "Your personal midi files" : "Public midis" } </text></div>
+        <div className='title-container'><span className='title'> { privateFiles === true ? "Your personal midi files" : "Public midis" } </span></div>
         <div className='list-wrapper'>
             <ul className='ul-list'> { midis.map((midi: Midi, index: number) => (
                 <li key={ index } className='list-item'>
