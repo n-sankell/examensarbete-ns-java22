@@ -143,7 +143,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 <label htmlFor="checkbox-id" className="box-label">Private</label>
             </div>
             </> : "" }
-            <input className="add-button" type="submit" value="Create midi" />
+            <input className="add-button" type="submit" value="Create midi"/>
         </form>
         </div>
         </div>

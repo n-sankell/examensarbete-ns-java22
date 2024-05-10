@@ -20,9 +20,11 @@ interface StateProps {
 interface EditUserModalProps extends StateProps, DispatchProps {}
 
 const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, closeEditUserModal, user, displayUserCreateError } ) => {
-    const [username, setUsername] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
+    if (user !== null) {
+    const [username, setUsername] = useState<string>(user.username);
+    const [email, setEmail] = useState<string>(user.email);
+    const [oldPassword, setOldPassword] = useState<string>("");
+    const [newPassword, setNewPassword] = useState<string>("");
 
     const closeClick = (): void => {
         closeEditUserModal();
@@ -36,24 +38,34 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, 
 
     const handleDetailsSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        const requestObject: EditUserDetailsRequest = { 
-            editUserRequest: { 
-                username: username, 
-                email: email
-            }
-        };
-        editUser(requestObject); 
+        if (containsUserInfoChange()) {
+            const requestObject: EditUserDetailsRequest = {
+                editUserRequest: {
+                    username: username,
+                    email: email
+                }
+            };
+            editUser(requestObject); 
+        } else {
+            //TODO add som message here
+        }
     }
 
     const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
         const requestObject: EditUserPasswordRequest = { 
-            editPasswordRequest: { 
-                currentPassword: password, 
-                newPassword: ""
+            editPasswordRequest: {
+                currentPassword: oldPassword, 
+                newPassword: newPassword
             }
         };
         editPassword(requestObject); 
+    }
+
+    const containsUserInfoChange = (): boolean => {
+        const isEqual = username === user.username
+            && email === user.email;
+        return !isEqual;
     }
     
     useEffect((): void => {
@@ -86,12 +98,16 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, 
                 minLength={ 6 }
                 required={ true } 
             />
-            <input className="submit-button" type="submit" value="Save" />
+            <input className="edit-user-submit" type="submit" value="Save" disabled={ !containsUserInfoChange() }/>
         </form>
         </div>
         </div>
         </div>
     </>);
+    } else {
+        console.error("User was not loaded properly");
+        return (<><div><span>No file found</span></div></>);
+    }
 }
 
 const mapStateToProps = (state: RootState): StateProps => ({

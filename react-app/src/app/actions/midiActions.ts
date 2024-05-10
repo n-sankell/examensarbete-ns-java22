@@ -1,6 +1,6 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store';
-import { Configuration, CreateMidiRequest, DeleteMidiRequest, EditMidiRequest, GetMidiRequest, MidiApi, MidiEditRequest, MidiWithData } from '../../generated/midi-api';
+import { Configuration, CreateMidiRequest, DeleteMidiRequest, EditMidiRequest, GetMidiRequest, MidiApi } from '../../generated/midi-api';
 import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_USER_MIDIS_FAILURE,
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_REQUEST,
     FETCH_MIDI_DATA_SUCCESS, FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE,
