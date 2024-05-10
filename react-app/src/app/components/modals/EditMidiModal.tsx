@@ -100,11 +100,16 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     }
 
     const containsMetaChange = (): boolean => {
-        return true;
+        const isEqual = fileName === activeMidi.meta.filename
+            && title === activeMidi.meta.title
+            && artist === activeMidi.meta.artist
+            && isPrivate === activeMidi.meta.isPrivate;
+
+        return !isEqual;
     }
 
     const containsBinaryChange = (): boolean => {
-        return true;
+        return fileString === activeMidi.binary.midiFile;
     }
     
     useEffect((): void => {
