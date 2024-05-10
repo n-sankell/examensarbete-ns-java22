@@ -74,7 +74,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             title: title
         } : undefined;
 
-        const binaryData = containsBinaryChange() ? {
+        const binaryData = newFileLoaded === true && containsBinaryChange() ? {
             midiFile: fileString
         } : undefined;
         
