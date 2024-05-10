@@ -1,7 +1,7 @@
-import { CreateUserRequest, UserCreateRequest } from "../../../generated/user-api";
+import { EditUserDetailsRequest, EditUserPasswordRequest, User } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateUserModal, closeEditUserModal } from "../../actions/displayActions";
-import { createUser } from "../../actions/userActions";
+import { closeEditUserModal } from "../../actions/displayActions";
+import { editPassword, editUser } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
@@ -9,15 +9,17 @@ import "./CreateUserModal.css";
 import "./Modal.css";
 
 interface DispatchProps {
-    createUser: (userCreateRequest: UserCreateRequest) => void;
+    editUser: (editUserRequest: EditUserDetailsRequest) => void;
+    editPassword: (editPasswordRequest: EditUserPasswordRequest) => void;
     closeEditUserModal: () => void;
 }
 interface StateProps {
     displayUserCreateError: boolean;
+    user: User | null;
 }
 interface EditUserModalProps extends StateProps, DispatchProps {}
 
-const EditUserModal: React.FC<EditUserModalProps> = ( { createUser, closeEditUserModal, displayUserCreateError } ) => {
+const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, closeEditUserModal, user, displayUserCreateError } ) => {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -32,16 +34,26 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { createUser, closeEditUse
         setEmail(emailEvent.target.value);
     }
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    const handleDetailsSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        const requestObject: CreateUserRequest = { 
-            userCreateRequest: { 
+        const requestObject: EditUserDetailsRequest = { 
+            editUserRequest: { 
                 username: username, 
-                email: email, 
-                password: password
+                email: email
             }
         };
-        createUser(requestObject.userCreateRequest); 
+        editUser(requestObject); 
+    }
+
+    const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+        event.preventDefault();
+        const requestObject: EditUserPasswordRequest = { 
+            editPasswordRequest: { 
+                currentPassword: password, 
+                newPassword: ""
+            }
+        };
+        editPassword(requestObject); 
     }
     
     useEffect((): void => {
@@ -54,7 +66,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { createUser, closeEditUse
         <div className="edit-user">
         <h3 className='h3-title'>Edit profile</h3>
         <form className="edit-user-form"
-            onSubmit={ handleSubmit } >
+            onSubmit={ handleDetailsSubmit } >
             <input
                 onChange={ handleUsernameChange } 
                 placeholder="username..." 
@@ -84,10 +96,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { createUser, closeEditUse
 
 const mapStateToProps = (state: RootState): StateProps => ({
     displayUserCreateError: state.user.displayUserCreateError,
+    user: state.user.user,
 });
   
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
-    createUser: bindActionCreators(createUser, dispatch),
+    editUser: bindActionCreators(editUser, dispatch),
+    editPassword: bindActionCreators(editPassword, dispatch),
     closeEditUserModal: bindActionCreators(closeEditUserModal, dispatch),
 });
   
