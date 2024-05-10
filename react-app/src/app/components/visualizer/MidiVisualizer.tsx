@@ -79,7 +79,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
           
                         rect.attr('y', yPosition).attr('x', initialX);
                     
-                        if (yPosition < -200 && yPosition > -200 - note.duration * 350) {
+                        if (yPosition < -200 && yPosition > -200 - note.duration * 500) {
                             activeNotes.push(note.name);
                         }
                     }
@@ -254,7 +254,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const width = noteWidth(note.name);
                 const xPos = indexes.indexOf(note.midi) * 25 + xOffset;
                 const rect = scrollContainer.append('rect')
-                    .attr('height', dur * 350)
+                    .attr('height', dur * 500)
                     .attr('width', width)
                     .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                     .attr('y', note.ticks / 2)

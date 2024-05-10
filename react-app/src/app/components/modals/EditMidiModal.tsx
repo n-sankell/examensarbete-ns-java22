@@ -101,7 +101,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='content-wrapper'>
         <div className="edit-midi">
             <div className="info-container">
-                <h3 className='h3-title'>FIle info</h3>
+                <span className='title'>File info</span>
                 { activeMidi !== null ? <>
                     <span>Filename: { activeMidi.meta.filename }</span>
                     { activeMidi.meta.artist !== null ? <span>Artist: { activeMidi.meta.artist } </span> : "" }

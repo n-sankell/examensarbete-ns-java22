@@ -26,12 +26,10 @@
 .select-wing {
   border: 1px solid darkslategray;
   border-radius: 5px 5px 5px 5px;
-  padding: 1px;
-  margin-right: 10px;
   background-color: whitesmoke;
   display: block;
   position: absolute;
-  top: 18px;
+  top: 20px;
   left: 18px;
   height: 52px;
   width: 170px;
@@ -41,12 +39,10 @@
 .user-select-wing {
   border: 1px solid darkslategray;
   border-radius: 5px 5px 5px 5px;
-  padding: 1px;
-  margin-right: 10px;
   background-color: whitesmoke;
   display: block;
   position: absolute;
-  top: 18px;
+  top: 20px;
   left: 18px;
   height: 52px;
   width: 170px;
@@ -76,7 +72,7 @@
     top: 45px;
     width: 90%;
     height: 4%;
-    background-color: whitesmoke;
+    background-color: lightgray;
   }
 
   .title {
@@ -141,6 +137,7 @@
   }
 
   .user-midis-wrapper {
+    border: 1px solid darkslategray;
     border-radius: 5px;
     display: flex;
     align-items: center;
@@ -182,6 +179,31 @@
     overflow: hidden;
   }
 
+  .delete-prompt {
+    width: 208px;
+    height: 83px;
+    left: 0px;
+    top: 4px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: whitesmoke;
+    border: 1px solid darkslategrey;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  .prompt-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    flex-direction: row;
+  }
+  .prompt-button {
+    margin: 10px;
+  }
+
   .midi-text-field {
     display: flex;
     flex-direction: row;
@@ -189,8 +211,8 @@
     align-items: center;
   }
 
-  .midi:hover {
-    color: dimgray;
+  .midis-wrapper:hover {
+    background-color: lightgray;
     cursor: pointer;
   }
   .load-symbol:hover {
