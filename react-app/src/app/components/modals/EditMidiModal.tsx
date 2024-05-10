@@ -115,6 +115,9 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     
     useEffect((): void => {
     }, []);
+
+    useEffect((): void => {
+    }, [newFileLoaded]);
     
     return (<>
         <div className='overhang' onClick={ closeClick } />
@@ -136,7 +139,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             <input
                 onChange={ handleTitleChange } 
                 placeholder="Title..." 
-                className="input-add"
+                className="input-edit"
                 value={ title }
                 maxLength={ 200 }
                 required={ false }
@@ -144,14 +147,14 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             <input
                 onChange={ handleArtistChange } 
                 placeholder="Artist..." 
-                className="input-add"
+                className="input-edit"
                 value={ artist }
                 maxLength={ 200 }
                 required={ false }
             />
             <input
                 onChange={ handleFileNameChange }
-                className="input-add"
+                className="input-edit"
                 value={ fileName }
                 maxLength={ 100 }
                 required={ true } 
@@ -160,21 +163,25 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 <input
                     id ="checkbox-id"
                     onChange={ handlePrivateChange }
-                    className="input-box"
+                    className="input-edit-box"
                     type="checkbox"
                     checked={ isPrivate }
                     required={ false }
                 ></input>
-                <label htmlFor="checkbox-id" className="box-label">Private</label>
+                <label htmlFor="checkbox-id" className="box-edit-label">Private</label>
             </div>
             <input 
+                id="input-edit-file"
                 onChange={ handleFileInputChange } 
                 placeholder="Choose a file..." 
-                className="input-add"
+                className="input-edit-file"
                 type="file"
                 accept=".mid"
                 required={ false }
             />
+            <label htmlFor="input-edit-file" className="edit-file-input-label">
+                { newFileLoaded === false ? "Choose a file" : fileName }
+            </label>
             <input className="edit-button" type="submit" value="Save" disabled={ !containsMetaChange() && !containsBinaryChange() }/>
         </form>
         </div>

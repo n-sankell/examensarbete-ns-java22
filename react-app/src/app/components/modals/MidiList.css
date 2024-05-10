@@ -86,6 +86,10 @@
     color: darkslategray;
     font-weight: regular;
     margin-top: 3px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
   .list-wrapper {

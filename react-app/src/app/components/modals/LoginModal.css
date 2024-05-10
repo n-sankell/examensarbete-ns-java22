@@ -5,17 +5,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    right: 0px;
     width: 100%;
     height: 100%;
     padding-left: 40%;
     padding-right: 40%;
+    margin-top: 45px;
+    padding-top: 30px;
     background: rgb(134, 160, 169);
-}
-
-.h3-title {
-    color: whitesmoke;
-    text-transform: uppercase;
 }
 
 .login-form {

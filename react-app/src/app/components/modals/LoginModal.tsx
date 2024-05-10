@@ -61,8 +61,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="login">
+        <div className='title-container'><span className='title'>Log in</span></div>
         { displayError === true ? <div className="failed-login"><span>Login failed</span></div> : "" }
-        <h3 className='h3-title'>Log in</h3>
         <form className="login-form"
             onSubmit={ handleSubmit } >
             <input
