@@ -1,4 +1,4 @@
-import { UserAction, UserState, LOGOUT_USER, LOGIN_USER_FAILURE, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_FAILURE, EDIT_USER_SUCCESS, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE } from '../actions/userActionTypes';
+import { UserAction, UserState, LOGOUT_USER, LOGIN_USER_FAILURE, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_FAILURE, EDIT_USER_SUCCESS, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE, HIDE_USER_ERRORS } from '../actions/userActionTypes';
 
 const initialState: UserState = {
   user: null,
@@ -117,6 +117,13 @@ const userReducer = (state = initialState, action: UserAction): UserState => {
         displayLoginError: false,
         displayUserCreateError: false,
       };
+    case HIDE_USER_ERRORS:
+      return {
+        ...state,
+        error: null,
+        displayLoginError: false,
+        displayUserCreateError: false,
+      }
     default:
       return state;
   }

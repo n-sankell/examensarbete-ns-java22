@@ -2,6 +2,7 @@ import { Midis } from '../../generated/midi-api';
 import { DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, User, UserCreateRequest, UserLoginRequest } from '../../generated/user-api';
 
 export const LOGOUT_USER = 'LOGOUT_USER';
+export const HIDE_USER_ERRORS = 'HIDE_USER_ERRORS';
 export const LOGIN_USER_REQUEST = 'LOGIN_USER_REQUEST';
 export const LOGIN_USER_SUCCESS = 'LOGIN_USER_SUCCESS';
 export const LOGIN_USER_FAILURE = 'LOGIN_USER_FAILURE';
@@ -103,6 +104,10 @@ interface LogoutUserAction {
   type: typeof LOGOUT_USER;
 }
 
+interface HideUserErrors {
+  type: typeof HIDE_USER_ERRORS;
+}
+
 export type UserAction = 
   | LogoutUserAction
   | LoginUserRequestAction
@@ -119,7 +124,8 @@ export type UserAction =
   | EditPasswordFailureAction
   | DeleteUserRequestAction
   | DeleteUserSuccessAction
-  | DeleteUserFailureAction;
+  | DeleteUserFailureAction
+  | HideUserErrors;
 
 export interface UserState {
   loggedIn: boolean;

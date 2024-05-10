@@ -5,7 +5,7 @@ import { editPassword, editUser } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
-import "./CreateUserModal.css";
+import "./EditUserModal.css";
 import "./Modal.css";
 
 interface DispatchProps {
@@ -86,7 +86,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { editUser, editPassword, 
                 minLength={ 6 }
                 required={ true } 
             />
-            <input className="submit-button" type="submit" value="Create account" />
+            <input className="submit-button" type="submit" value="Save" />
         </form>
         </div>
         </div>
@@ -104,5 +104,5 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): Disp
     editPassword: bindActionCreators(editPassword, dispatch),
     closeEditUserModal: bindActionCreators(closeEditUserModal, dispatch),
 });
-  
+
 export default connect(mapStateToProps, mapDispatchToProps)(EditUserModal);

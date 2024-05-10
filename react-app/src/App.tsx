@@ -57,13 +57,14 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
       <div className='main-wrapper'>
         <main className="main">
           <MidiVisualizer />
-          { showCreateMidiModal ? <CreateMidiModal /> : "" }
-          { showEditMidiModal ? <EditMidiModal /> : "" }
-          { showLoginModal ? <LoginModal /> : "" }
-          { showCreateUserModal ? <CreateUserModal /> : "" }
-          { showEditUserModal ? <EditUserModal /> : "" }
           { showUserMidis ? <MidiList privateFiles={ true } /> : "" }
           { showPublicMidis ? <MidiList privateFiles={ false } /> : "" }
+          { showLoginModal ? <LoginModal /> : "" }
+          { showCreateMidiModal ? <CreateMidiModal /> : "" }
+          { showEditMidiModal ? <EditMidiModal /> : "" }
+          { showEditUserModal ? <EditUserModal /> : "" }
+          { showCreateUserModal ? <CreateUserModal /> : "" }
+
         </main>
       </div>
     </div>

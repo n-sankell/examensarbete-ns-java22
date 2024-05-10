@@ -1,7 +1,7 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store';
 import { DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, UserApi, UserCreateRequest, UserLoginRequest } from '../../generated/user-api';
-import { UserAction, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE, LOGOUT_USER, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, EDIT_USER_FAILURE, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE } from './userActionTypes';
+import { UserAction, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE, LOGOUT_USER, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, EDIT_USER_FAILURE, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE, HIDE_USER_ERRORS } from './userActionTypes';
 import { DELETE_MIDI_SUCCESS } from './midiActionTypes';
 
 export const login = (request: UserLoginRequest): ThunkAction<void, RootState, null, UserAction> => async (dispatch) => {
@@ -67,4 +67,8 @@ export const deleteUser = (request: DeleteUserRequest): ThunkAction<void, RootSt
 
 export const logout = (): ThunkAction<void, RootState, null, UserAction> => (dispatch) => {
     dispatch({ type: LOGOUT_USER });
+}
+
+export const hideUserErrors = (): ThunkAction<void, RootState, null, UserAction> => (dispatch) => {
+    dispatch({ type: HIDE_USER_ERRORS });
 }

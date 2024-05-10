@@ -1,7 +1,7 @@
 import { LoginRequest, UserLoginRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import { closeLoginModal } from "../../actions/displayActions";
-import { login } from "../../actions/userActions";
+import { hideUserErrors, login } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
@@ -15,20 +15,24 @@ interface StateProps {
 interface DispatchProps {
     login: (loginRequest: UserLoginRequest) => void;
     closeLoginModal: () => void;
+    hideUserErrors: () => void;
 }
 interface LoginModalProps extends StateProps, DispatchProps {}
 
-const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn, hideUserErrors }) => {
     const [identifier, setIdentifier] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const closeClick = (): void => {
         closeLoginModal();
+        hideUserErrors();
     }
     const handleIdentifierChange = (identifierEvent: any) => {
+        hideUserErrors();
         setIdentifier(identifierEvent.target.value);
     }
     const handlePasswordChange = (passwordEvent: any) => {
+        hideUserErrors();
         setPassword(passwordEvent.target.value);
     }
 
@@ -38,7 +42,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
             userLoginRequest: { 
                 userIdentifier: identifier, 
                 password: password
-            } 
+            }
         };
         login(requestObject.userLoginRequest);
     }
@@ -57,32 +61,34 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="login">
+        { displayError === true ? <div className="failed-login"><span>Login failed</span></div> : "" }
         <h3 className='h3-title'>Log in</h3>
         <form className="login-form"
-            onSubmit={handleSubmit} >
+            onSubmit={ handleSubmit } >
             <input
-                onChange={handleIdentifierChange} 
+                onChange={ handleIdentifierChange } 
                 placeholder="username/email..." 
-                className="input-text"
-                value={identifier}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                className="input-login-text"
+                value={ identifier }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input 
-                onChange={handlePasswordChange} 
+                onChange={ handlePasswordChange } 
                 placeholder="password..." 
-                className="input-text"
+                className="input-login-text"
                 type="password"
-                value={password}
-                maxLength={40}
-                minLength={10}
-                required={true} 
+                value={ password }
+                maxLength={ 40 }
+                minLength={ 10 }
+                required={ true } 
             />
-            <input className="submit-button" type="submit" value="Login" />
+            <input className="submit-login-button" type="submit" value="Login" />
+            
         </form>
+        
         </div>
-        { displayError === true ? <span>Login failed</span> : "" }
         </div>
         </div>
     </>);
@@ -96,6 +102,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
     login: bindActionCreators(login, dispatch),
     closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
+    hideUserErrors: bindActionCreators(hideUserErrors, dispatch),
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginModal);

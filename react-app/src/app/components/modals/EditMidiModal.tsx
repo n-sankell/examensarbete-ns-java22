@@ -80,8 +80,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         };
         editMidi(requestObject)
         resetValues();
-        //TODO: add option to add more?
-        closeCreateMidiModal();
+        closeEditMidiModal();
     }
 
     const resetValues = (): void => {
@@ -101,7 +100,16 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="edit-midi">
-        <h3 className='h3-title'>Edit midi file</h3>
+            <div className="info-container">
+                <h3 className='h3-title'>FIle info</h3>
+                { activeMidi !== null ? <>
+                    <span>Filename: { activeMidi.meta.filename }</span>
+                    { activeMidi.meta.artist !== null ? <span>Artist: { activeMidi.meta.artist } </span> : "" }
+                    { activeMidi.meta.title !== null ? <span>Title: { activeMidi.meta.title } </span> : "" }
+                    </> : ""
+                }
+            </div>
+        
         <form className="edit-midi-form"
             onSubmit={ handleSubmit } >
             <input 

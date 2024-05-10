@@ -3,7 +3,7 @@ import { deleteMidi, fetchMidiAndData, fetchPublicMidis, fetchUserMidis, parseMi
 import { closePublicMidis, closeUserMidis, displayEditMidiModal } from '../../actions/displayActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
-import LoadSvg from '../../../assets/music-stream-player-svgrepo-com.svg';
+import LoadSvg from '../../../assets/play-player-music-svgrepo-com.svg';
 import DeleteSvg from '../../../assets/delete-2-svgrepo-com.svg';
 import EditSvg from '../../../assets/edit-svgrepo-com.svg';
 import { useEffect, useState } from 'react';
@@ -107,23 +107,10 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
     <div className='modal'>
     <div className='content-wrapper'>
     <div className="midi-list">
-        <h1 className='heading'> { privateFiles === true ? "User midis" : "Public midis" } </h1>
+        <div className='title-container'><text className='title'> { privateFiles === true ? "Your personal midi files" : "Public midis" } </text></div>
         <div className='list-wrapper'>
             <ul className='ul-list'> { midis.map((midi: Midi, index: number) => (
                 <li key={ index } className='list-item'>
-                    { midi.midiId === selectedMidiId ? <> 
-                    <div className={ midi.userMidi === false || privateFiles === true ? 'select-wing' : 'user-select-wing'}>
-                        <div className='load-box'>
-                            <img src={LoadSvg} className='load-symbol' onClick={ (e) => handleLoadBoxClick(e) } />
-                        </div>
-                        { midi.userMidi === true ? <>
-                        <div className='delete-box'>
-                            <img src={DeleteSvg} className='delete-symbol' onClick={ (e) => handleDeleteBoxClick(e, midi) } />
-                        </div> 
-                        <div className='edit-box'>
-                            <img src={EditSvg} className='edit-symbol' onClick={ (e) => handleEditBoxClick(e, midi.midiId) }></img>
-                        </div> </> : "" } </div> </> : "" }
-                        { midi.userMidi === false || privateFiles === true ? "" : <img src={UserSvg} className='user-symbol'/> }
                     <div className= {  midi.userMidi === false || privateFiles === true ?  'midis-wrapper' : 'user-midis-wrapper' }>
                         <div className='midi' onClick={ (e) => handleMidiClick(e, midi) }>
                             <span className='midi-text-field'>{ midi.filename }</span>
@@ -131,7 +118,19 @@ const MidiList: React.FC<MidisProps> = ({ publicMidis, userMidis, activeMidi, fe
                             { midi.artist === null ? "" : <span className='midi-text-field'>{ midi.artist }</span> }
                         </div>
                     </div>
-                    
+                    { midi.userMidi === false || privateFiles === true ? "" : <img src={ UserSvg } className='user-symbol'/> }
+                    { midi.midiId === selectedMidiId ? <> 
+                    <div className={ midi.userMidi === false || privateFiles === true ? 'select-wing' : 'user-select-wing'}>
+                        <div className='load-box'>
+                            <img src={ LoadSvg } className='load-symbol' onClick={ (e) => handleLoadBoxClick(e) } />
+                        </div>
+                        { midi.userMidi === true ? <>
+                        <div className='delete-box'>
+                            <img src={ DeleteSvg } className='delete-symbol' onClick={ (e) => handleDeleteBoxClick(e, midi) } />
+                        </div> 
+                        <div className='edit-box'>
+                            <img src={ EditSvg } className='edit-symbol' onClick={ (e) => handleEditBoxClick(e, midi.midiId) }></img>
+                        </div> </> : "" } </div> </> : "" }
                 </li>) ) }
             </ul>
         </div>

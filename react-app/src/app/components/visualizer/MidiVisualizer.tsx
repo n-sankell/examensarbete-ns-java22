@@ -116,7 +116,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         synthsRef.current.push(new Tone.PolySynth().toDestination());
                         const synth = synthsRef.current[index];
                         part = new Tone.Part((time, event) => {
-                            time = transportPosition === 0 ? time + 0.5 : time;
+                            time = transportPosition === 0 ? time + 0.5 : time + 0.5;
                             const { note, velocity, duration } = event;
                             synth.triggerAttackRelease(note, duration, time, velocity);
                         }, track.notes.map((note: NoteJSON) => ({
@@ -135,7 +135,6 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         Tone.Transport.pause();
 
         transportPosition = Tone.Transport.seconds;
-
         Tone.Transport.clear(0);
 
         while (synthsRef.current.length) {
