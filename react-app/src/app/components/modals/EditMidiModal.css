@@ -41,6 +41,15 @@
     background-color: rgb(214, 129, 1);
 }
 
+.edit-button:disabled{
+    background-color: lightgray;
+}
+
+.edit-button:hover:disabled{
+    background-color: lightgray;
+}
+
+
 .checkbox-wrapper {
     display: flex;
     flex-direction: row;

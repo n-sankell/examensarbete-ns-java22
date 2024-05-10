@@ -109,7 +109,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     }
 
     const containsBinaryChange = (): boolean => {
-        return fileString === activeMidi.binary.midiFile;
+        const isEqual = fileString === activeMidi.binary.midiFile;
+        return !isEqual;
     }
     
     useEffect((): void => {
@@ -120,15 +121,14 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="edit-midi">
+        <div className='title-container'><span className='title'>File info - edit file</span></div>
             <div className="info-container">
-            <div className='title-container'><span className='title'>File info - edit file</span></div>
-                <>
                 <div className="file-info">
-                    <span>Filename: { activeMidi.meta.filename }</span>
-                    { activeMidi.meta.artist !== null ? <span>Artist: { activeMidi.meta.artist } </span> : "" }
-                    { activeMidi.meta.title !== null ? <span>Title: { activeMidi.meta.title } </span> : "" }
-                    </div>
-                    </>
+                    <div><span>Filename: </span><span>{ activeMidi.meta.filename }</span></div>
+                    { activeMidi.meta.artist !== null ? <div><span>Artist: </span><span>{ activeMidi.meta.artist }</span></div> : "" }
+                    { activeMidi.meta.title !== null ? <div><span>Title: </span><span>{ activeMidi.meta.title } </span></div> : "" }
+                </div>
+                    
             </div>
         
         <form className="edit-midi-form"
@@ -175,7 +175,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 accept=".mid"
                 required={ false }
             />
-            <input className="edit-button" type="submit" value="Save" />
+            <input className="edit-button" type="submit" value="Save" disabled={ !containsMetaChange() && !containsBinaryChange() }/>
         </form>
         </div>
         </div>
