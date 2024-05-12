@@ -17,6 +17,37 @@
     color: darkslategray;
 }
 
+.info-container {
+    margin-top: 50px;
+    border-radius: 20px;
+    border: 1px solid darkslategray;
+    background-color: whitesmoke;
+    padding: 10px;
+    width: 90%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.info-row {
+    margin: 3px;
+    width: 150%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px dashed darkslategray;
+}
+
 .edit-midi-form {
     display: flex;
     flex-direction: column;

@@ -127,9 +127,28 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='title-container'><span className='title'>File info - edit file</span></div>
             <div className="info-container">
                 <div className="file-info">
-                    <div><span>Filename: </span><span>{ activeMidi.meta.filename }</span></div>
-                    { activeMidi.meta.artist !== null ? <div><span>Artist: </span><span>{ activeMidi.meta.artist }</span></div> : "" }
-                    { activeMidi.meta.title !== null ? <div><span>Title: </span><span>{ activeMidi.meta.title } </span></div> : "" }
+                    <div className="info-row">
+                        <span className="left-span">Filename: </span>
+                        <span className="right-span">{ activeMidi.meta.filename }</span>
+                    </div>
+                    { activeMidi.meta.artist !== null ? 
+                    <div className="info-row">
+                        <span className="left-span">Artist: </span>
+                        <span className="right-span">{ activeMidi.meta.artist }</span>
+                    </div> : "" }
+                    { activeMidi.meta.title !== null ? 
+                    <div className="info-row">
+                        <span className="left-span">Title: </span>
+                        <span className="right-span">{ activeMidi.meta.title } </span>
+                    </div> : "" }
+                    <div className="info-row">
+                        <span className="left-span">Created: </span>
+                        <span className="right-span">{ activeMidi.meta.dateCreated }</span>
+                    </div>
+                    <div className="info-row">
+                        <span className="left-span">Last edited: </span>
+                        <span className="right-span">{ activeMidi.meta.dateEdited }</span>
+                    </div>
                 </div>
                     
             </div>

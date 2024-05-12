@@ -20,8 +20,8 @@ interface DispatchProps {
 interface LoginModalProps extends StateProps, DispatchProps {}
 
 const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn, hideUserErrors }) => {
-    const [identifier, setIdentifier] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
+    const [identifier, setIdentifier] = useState<string | undefined>(undefined);
+    const [password, setPassword] = useState<string | undefined>(undefined);
 
     const closeClick = (): void => {
         closeLoginModal();
@@ -35,16 +35,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
         hideUserErrors();
         setPassword(passwordEvent.target.value);
     }
+    const resetInpiut = () => {
+        setPassword(undefined);
+        setIdentifier(undefined);
+    }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
         const requestObject: LoginRequest = { 
             userLoginRequest: { 
-                userIdentifier: identifier, 
-                password: password
+                userIdentifier: identifier === undefined ? "" : identifier, 
+                password: password === undefined ? "" : password
             }
         };
         login(requestObject.userLoginRequest);
+    }
+
+    const isDisabled = (): boolean => {
+        return identifier === undefined || identifier === "" || password === undefined || password === "";
     }
 
     useEffect((): void => {
@@ -84,7 +92,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
                 minLength={ 10 }
                 required={ true } 
             />
-            <input className="submit-login-button" type="submit" value="Login" />
+            <input className="submit-login-button" type="submit" value="Login" disabled={ isDisabled() }/>
             
         </form>
         

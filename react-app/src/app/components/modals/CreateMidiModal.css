@@ -74,3 +74,31 @@
 .input-add:hover {
     background-color: ghostwhite;
 }
+
+#input-add-file {
+    display: none;
+}
+
+.edit-file-input-label:hover {
+    background-color: lightgray;
+}
+
+.add-file-input-label {
+    border-radius: 3px;
+    background-color: whitesmoke;
+    border: 1px solid darkslategray;
+    height: 100%;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    margin-bottom: 8%;
+    font-size: 14px;
+    text-align: center;
+    color: darkslategrey;
+    width: 90%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+

@@ -18,12 +18,13 @@ interface StateProps {
 interface CreateUserModalProps extends StateProps, DispatchProps {}
 
 const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError } ) => {
-    const [username, setUsername] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
+    const [username, setUsername] = useState<string | undefined>(undefined);
+    const [email, setEmail] = useState<string  | undefined>(undefined);
+    const [password, setPassword] = useState<string | undefined>(undefined);
 
     const closeClick = (): void => {
         closeCreateUserModal();
+        resetValues();
     }
     const handleUsernameChange = (usernameEvent: any) => {
         setUsername(usernameEvent.target.value);
@@ -34,60 +35,69 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
     const handlePasswordChange = (passwordEvent: any) => {
         setPassword(passwordEvent.target.value);
     }
+    const resetValues = () => {
+        setUsername(undefined);
+        setEmail(undefined);
+        setPassword(undefined);
+    }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
         const requestObject: CreateUserRequest = { 
             userCreateRequest: { 
-                username: username, 
-                email: email, 
-                password: password
+                username: username === undefined ? "" : username, 
+                email: email === undefined ? "" : email, 
+                password: password === undefined ? "" : password
             }
         };
         createUser(requestObject.userCreateRequest); 
+    }
+
+    const isDisabled = (): boolean => {
+        return username === undefined || username === "" || email === undefined || email === "" || password === undefined || password === "";
     }
     
     useEffect((): void => {
     }, []);
     
     return (<>
-        <div className='overhang' onClick={closeClick} />
+        <div className='overhang' onClick={ closeClick } />
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="add-user">
-        <h3 className='h3-title'>Create account</h3>
+        <div className='title-container'><span className='title'>Create an account</span></div>
         <form className="add-user-form"
-            onSubmit={handleSubmit} >
+            onSubmit={ handleSubmit } >
             <input
-                onChange={handleUsernameChange} 
+                onChange={ handleUsernameChange } 
                 placeholder="username..." 
-                className="input-text"
-                value={username}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                className="input-create-text"
+                value={ username }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input 
-                onChange={handleEmailChange} 
+                onChange={ handleEmailChange } 
                 placeholder="email..." 
-                className="input-text"
+                className="input-create-text"
                 type="email"
-                value={email}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                value={ email }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input 
-                onChange={handlePasswordChange} 
+                onChange={ handlePasswordChange } 
                 placeholder="password..." 
-                className="input-text"
+                className="input-create-text"
                 type="password"
-                value={password}
-                maxLength={40}
-                minLength={10}
-                required={true} 
+                value={ password }
+                maxLength={ 40 }
+                minLength={ 10 }
+                required={ true } 
             />
-            <input className="submit-button" type="submit" value="Create account" />
+            <input className="submit-new-user-button" type="submit" value="Create account" disabled={ isDisabled() }/>
         </form>
         </div>
         </div>

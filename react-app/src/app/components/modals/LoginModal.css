@@ -52,6 +52,16 @@
     background-color: darkgrey;
 }
 
+.submit-login-button:disabled{
+    border: 1px solid darkgray;
+    background-color: lightgray;
+    color: darkgray;
+}
+
+.submit-login-button:hover:disabled{
+    background-color: lightgray;
+}
+
 .input-login-text {
     border-radius: 3px;
     background-color: whitesmoke;
