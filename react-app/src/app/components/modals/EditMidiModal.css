@@ -6,7 +6,7 @@
     justify-content: center;
     flex-direction: column;
     width: 450px;
-    height: 600px;
+    height: 100%;
     margin: 10%;
     padding-bottom: 7%;
     padding: 10%;
@@ -18,7 +18,7 @@
 }
 
 .info-container {
-    margin-top: 50px;
+    margin-top: 25px;
     border-radius: 20px;
     border: 1px solid darkslategray;
     background-color: whitesmoke;
@@ -53,7 +53,18 @@
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
-    padding: 20%;
+}
+
+.edit-meta-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.edit-binary-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .edit-button {
@@ -88,11 +99,13 @@
     background-color: lightgray;
 }
 
-.checkbox-wrapper {
+.checkbox-edit-wrapper {
     display: flex;
     flex-direction: row;
     height: 100%;
-    background-color:chocolate;
+    align-items: center;
+    justify-content: center;
+    background-color: lightgray;
 }
 
 .input-edit-box {
@@ -105,10 +118,8 @@
 
 .box-edit-label {
     height: 100%;
-    padding-top: 5%;
-    padding-bottom: 5%;
-    margin-bottom: 8%;
-    color: rgb(250, 250, 250);
+    margin-left: 15px;
+    color: darkslategray;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -154,4 +165,13 @@
 
 #input-edit-file {
     display: none;
+}
+
+.show-file-edit-fields {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 10px;
+    width: 100%;
+    background-color: green;
+    padding: 10px 0px 10px 0px;
 }

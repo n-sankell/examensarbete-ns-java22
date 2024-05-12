@@ -27,6 +27,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     const [fileName, setFileName] = useState<string>(activeMidi.meta.filename);
     const [fileString, setFileString] = useState<string>(activeMidi.binary.midiFile);
     const [newFileLoaded, setNewFileLoaded] = useState<boolean>(false);
+    const [showEditForm, setShowEditForm] = useState<boolean>(true);
+    const [showFileForm, setShowFileForm] = useState<boolean>(true);
 
     const closeClick = (): void => {
         closeEditMidiModal();
@@ -112,12 +114,30 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         const isEqual = fileString === activeMidi.binary.midiFile;
         return !isEqual;
     }
+
+    const handleShowFileInput = (event: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+        event.preventDefault();
+        if (showFileForm === true) {
+            setShowFileForm(false);
+        } else {
+            setShowFileForm(true);
+        }
+    }
+
+    const handleShowEditInput = (event: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+        event.preventDefault();
+        if (showEditForm === true) {
+            setShowEditForm(false);
+        } else {
+            setShowEditForm(true);
+        }
+    }
     
     useEffect((): void => {
     }, []);
 
     useEffect((): void => {
-    }, [newFileLoaded]);
+    }, [newFileLoaded, showEditForm, showFileForm]);
     
     return (<>
         <div className='overhang' onClick={ closeClick } />
@@ -149,12 +169,16 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                         <span className="left-span">Last edited: </span>
                         <span className="right-span">{ activeMidi.meta.dateEdited }</span>
                     </div>
-                </div>
-                    
+                </div>                    
             </div>
+            <div></div>
+        <div className="show-file-edit-fields" onClick={ (event)=> handleShowEditInput(event) }><span>Edit metadata</span></div>
         
         <form className="edit-midi-form"
             onSubmit={ handleSubmit } >
+            { showEditForm === true ? <>
+            <div className="edit-meta-container">
+
             <input
                 onChange={ handleTitleChange } 
                 placeholder="Title..." 
@@ -178,17 +202,27 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 maxLength={ 100 }
                 required={ true } 
             /> 
-            <div className="checkbox-wrapper">
-                <input
-                    id ="checkbox-id"
+            <div className="checkbox-edit-wrapper">
+            <label className="switch">
+                <input 
+                    id="slider-checkbox"
                     onChange={ handlePrivateChange }
-                    className="input-edit-box"
-                    type="checkbox"
+                    className="hidden-checkbox"
+                    type="checkbox" 
                     checked={ isPrivate }
                     required={ false }
-                ></input>
-                <label htmlFor="checkbox-id" className="box-edit-label">Private</label>
+                />
+                <span className="slider"></span>
+                </label>
+                <label htmlFor="slider-checkbox" className="box-edit-label">Private</label>
             </div>
+            </div>
+            </> : "" }
+
+            <div className="show-file-edit-fields" onClick={ (event)=> handleShowFileInput(event) }><span>Change midi file</span></div>
+
+            { showFileForm === true ? <>
+            <div className="edit-binary-container">
             <input 
                 id="input-edit-file"
                 onChange={ handleFileInputChange } 
@@ -201,8 +235,16 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             <label htmlFor="input-edit-file" className="edit-file-input-label">
                 { newFileLoaded === false ? "Choose a file" : fileName }
             </label>
-            <input className="edit-button" type="submit" value="Save" disabled={ !containsMetaChange() && !containsBinaryChange() }/>
+            </div>
+            </>
+            : "" }
+            { showFileForm === true || showEditForm === true ? 
+            <input className="edit-button" type="submit" value="Save" 
+            disabled={ !containsMetaChange() && !containsBinaryChange() }/>
+            : "" }
+            
         </form>
+        
         </div>
         </div>
         </div>
