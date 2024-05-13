@@ -18,18 +18,27 @@ code {
 
 ::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
 }
-
-::-webkit-scrollbar-track {
+body ::-webkit-scrollbar-track {
   display: none;
 }
- 
+body ::-webkit-scrollbar-corner {
+  display: none;
+}
 ::-webkit-scrollbar-thumb {
   background: darkgray; 
   border-radius: 10px;
   border: 1px solid darkslategray;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: gray; 
+}
+::-webkit-scrollbar-track{
+  display: block;
+  background-color: lightgray;
+}
+::-webkit-scrollbar-corner {
+  display: block;
+  background-color: lightgray;
 }
