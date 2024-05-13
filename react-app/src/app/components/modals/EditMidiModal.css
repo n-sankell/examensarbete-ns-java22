@@ -168,6 +168,7 @@
 }
 
 .edit-file-input-label {
+    overflow: hidden;
     margin-left: 15px;
     border-radius: 3px;
     background-color: whitesmoke;

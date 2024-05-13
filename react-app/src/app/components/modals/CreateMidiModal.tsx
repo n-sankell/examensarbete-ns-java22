@@ -24,6 +24,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
     const [fileLoaded, setFileLoaded] = useState<boolean>(false);
     const [fileString, setFileString] = useState<string>("");
     const [fileName, setFileName] = useState<string>("");
+    const [loadedFileName, setLoadedFileName] = useState<string>("");
 
     const closeClick = (): void => {
         closeCreateMidiModal();
@@ -55,6 +56,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         };
 
         reader.readAsDataURL(file);
+        setLoadedFileName(file.name === undefined ? "" : file.name);
         setFileName(file.name === undefined ? "" : file.name);
     }
     const handleFileNameChange = (filenameEvent: any): void => {
@@ -96,7 +98,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         <div className='modal'>
         <div className='content-wrapper'>
         <div className="add-midi">
-        <h3 className='h3-title'>Add new midi file</h3>
+        <div className='title-container'><span className='title'>Upload new file</span></div>
         <form className="add-midi-form"
             onSubmit={ handleSubmit } >
             <input 
@@ -109,9 +111,18 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 required={ true }
             />
             <label htmlFor="input-add-file" className="add-file-input-label">
-                { fileLoaded === true && fileName !== undefined ? fileName : "Choose a file" }
+                { fileLoaded === true && loadedFileName !== undefined ? loadedFileName : "Choose a file" }
             </label>
             { fileLoaded ? <>
+                <div className="divider">
+                <div className="divider-left"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+                <div className="divider-file-middle">
+                    <span className="divider-text">File info</span>
+                </div>
+                <div className="divider-right"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+            </div>
+            <div className="input-row">
+            <div className="extra-space"></div>
             <input
                 onChange={ handleTitleChange } 
                 placeholder="Title..." 
@@ -128,6 +139,8 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 maxLength={ 200 }
                 required={ false }
             />
+            </div>
+            <div className="input-row">
             <input
                 onChange={ handleFileNameChange }
                 className="input-add"
@@ -136,6 +149,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 required={ true } 
             /> 
             <div className="checkbox-wrapper">
+            <label className="switch">
                 <input
                     id ="checkbox-id"
                     onChange={ handlePrivateChange }
@@ -143,8 +157,11 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                     type="checkbox"
                     checked={ isPrivate }
                     required={ false }
-                ></input>
+                />
+                <span className="slider"></span>
+                </label>
                 <label htmlFor="checkbox-id" className="box-label">Private</label>
+            </div>
             </div>
             </> : "" }
             <input className="add-button" type="submit" value="Create midi" disabled={ fileName === undefined || fileName === "" } />
