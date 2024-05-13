@@ -77,7 +77,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
                 onChange={ handleIdentifierChange } 
                 placeholder="username/email..." 
                 className="input-login-text"
-                value={ identifier }
+                value={ identifier === undefined ? "" : identifier }
                 maxLength={ 20 }
                 minLength={ 6 }
                 required={ true } 
@@ -87,7 +87,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
                 placeholder="password..." 
                 className="input-login-text"
                 type="password"
-                value={ password }
+                value={ password === undefined ? "" : password }
                 maxLength={ 40 }
                 minLength={ 10 }
                 required={ true } 

@@ -257,7 +257,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                     .attr('height', dur * 500)
                     .attr('width', width)
                     .attr('fill', note.name.length === 3 ? 'orange' : 'red')
-                    .attr('y', note.ticks / 2)
+                    .attr('y', note.ticks / 1.5)
                     .attr('x', xPos)
                     .attr('ry', "4")
                     .attr('stroke', "darkslategray")

@@ -1,10 +1,11 @@
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import { closeCreateMidiModal, closeEditMidiModal } from "../../actions/displayActions";
+import { closeEditMidiModal } from "../../actions/displayActions";
 import { EditMidiRequest, MidiWithData } from "../../../generated/midi-api";
 import { editMidi } from "../../actions/midiActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
+import downArrowSvg from "../../../assets/down-arrow-svgrepo-com.svg";
 import "./EditMidiModal.css";
 import "./Modal.css";
 
@@ -27,8 +28,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     const [fileName, setFileName] = useState<string>(activeMidi.meta.filename);
     const [fileString, setFileString] = useState<string>(activeMidi.binary.midiFile);
     const [newFileLoaded, setNewFileLoaded] = useState<boolean>(false);
-    const [showEditForm, setShowEditForm] = useState<boolean>(true);
-    const [showFileForm, setShowFileForm] = useState<boolean>(true);
+    const [showEditForm, setShowEditForm] = useState<boolean>(false);
+    const [showFileForm, setShowFileForm] = useState<boolean>(false);
 
     const closeClick = (): void => {
         closeEditMidiModal();
@@ -143,20 +144,20 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         <div className='overhang' onClick={ closeClick } />
         <div className='modal'>
         <div className='content-wrapper'>
-        <div className="edit-midi">
-        <div className='title-container'><span className='title'>File info - edit file</span></div>
+        <div className={`edit-midi`}>
+        <div className='title-container'><span className='title'>File info - Edit file</span></div>
             <div className="info-container">
                 <div className="file-info">
                     <div className="info-row">
                         <span className="left-span">Filename: </span>
                         <span className="right-span">{ activeMidi.meta.filename }</span>
                     </div>
-                    { activeMidi.meta.artist !== null ? 
+                    { activeMidi.meta.artist !== undefined ? 
                     <div className="info-row">
                         <span className="left-span">Artist: </span>
                         <span className="right-span">{ activeMidi.meta.artist }</span>
                     </div> : "" }
-                    { activeMidi.meta.title !== null ? 
+                    { activeMidi.meta.title !== undefined ? 
                     <div className="info-row">
                         <span className="left-span">Title: </span>
                         <span className="right-span">{ activeMidi.meta.title } </span>
@@ -169,16 +170,27 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                         <span className="left-span">Last edited: </span>
                         <span className="right-span">{ activeMidi.meta.dateEdited }</span>
                     </div>
+                    <div className="info-row">
+                        <span className="left-span">Public file: </span>
+                        <span className="right-span">{ activeMidi.meta.isPrivate === undefined || activeMidi.meta.isPrivate === true ? "No" : "Yes"}</span>
+                    </div>
                 </div>                    
             </div>
-            <div></div>
-        <div className="show-file-edit-fields" onClick={ (event)=> handleShowEditInput(event) }><span>Edit metadata</span></div>
-        
+
         <form className="edit-midi-form"
             onSubmit={ handleSubmit } >
-            { showEditForm === true ? <>
-            <div className="edit-meta-container">
-
+            <div className="show-file-edit-fields" onClick={ (event)=> handleShowEditInput(event) }>
+                <div className="divider">
+                    <div className="divider-left"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+                    <div className="divider-middle">
+                        <img className={`expand-arrow ${showEditForm ? 'expand-arrow-expanded' : ''}`} src={ downArrowSvg }></img>
+                        <span className="divider-text">Edit info</span>
+                    </div>
+                    <div className="divider-right"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+                </div>
+            </div>
+            <div className={`edit-meta-container ${showEditForm ? 'edit-meta-container-expanded' : ''}`}>
+            <div className="input-row">
             <input
                 onChange={ handleTitleChange } 
                 placeholder="Title..." 
@@ -195,6 +207,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 maxLength={ 200 }
                 required={ false }
             />
+            </div>
+            <div className="input-row">
             <input
                 onChange={ handleFileNameChange }
                 className="input-edit"
@@ -203,6 +217,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 required={ true } 
             /> 
             <div className="checkbox-edit-wrapper">
+            <div>
             <label className="switch">
                 <input 
                     id="slider-checkbox"
@@ -217,12 +232,25 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 <label htmlFor="slider-checkbox" className="box-edit-label">Private</label>
             </div>
             </div>
-            </> : "" }
+            </div>
+            </div>
+            { showFileForm === false && showEditForm === true ? 
+            <input className="edit-button" type="submit" value="Save" 
+            disabled={ !containsMetaChange() && !containsBinaryChange() }/>
+            : "" }
 
-            <div className="show-file-edit-fields" onClick={ (event)=> handleShowFileInput(event) }><span>Change midi file</span></div>
+            <div className="show-file-edit-fields" onClick={ (event)=> handleShowFileInput(event) }>
+            <div className="divider">
+                <div className="divider-left"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+                <div className="divider-file-middle">
+                    <img className={`expand-arrow ${showFileForm ? 'expand-arrow-expanded' : ''}`} src={ downArrowSvg }></img>
+                    <span className="divider-text">Change midi file</span>
+                </div>
+                <div className="divider-right"><div className="divider-line"></div><div className="divider-bottom"></div></div>
+            </div>
+            </div>
 
-            { showFileForm === true ? <>
-            <div className="edit-binary-container">
+            <div className={`edit-binary-container ${ showFileForm ? 'edit-binary-container-expanded' : ''}`}>
             <input 
                 id="input-edit-file"
                 onChange={ handleFileInputChange } 
@@ -236,9 +264,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 { newFileLoaded === false ? "Choose a file" : fileName }
             </label>
             </div>
-            </>
-            : "" }
-            { showFileForm === true || showEditForm === true ? 
+
+            { showFileForm === true ? 
             <input className="edit-button" type="submit" value="Save" 
             disabled={ !containsMetaChange() && !containsBinaryChange() }/>
             : "" }

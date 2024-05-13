@@ -55,7 +55,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         };
 
         reader.readAsDataURL(file);
-        setFileName(file.name == null ? "" : file.name);
+        setFileName(file.name === undefined ? "" : file.name);
     }
     const handleFileNameChange = (filenameEvent: any): void => {
         setFileName(filenameEvent.target.value);
@@ -67,7 +67,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         const requestObject: CreateMidiRequest = { 
             midiCreateRequest: { 
                 isPrivate: isPrivate, 
-                filename: fileName, 
+                filename: fileName,
                 artist: artist === "" ? undefined : artist, 
                 title: title === "" ? undefined : title,
                 midiFile: fileString
@@ -109,7 +109,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 required={ true }
             />
             <label htmlFor="input-add-file" className="add-file-input-label">
-                { fileLoaded === false ? "Choose a file" : fileName }
+                { fileLoaded === true && fileName !== undefined ? fileName : "Choose a file" }
             </label>
             { fileLoaded ? <>
             <input
@@ -131,7 +131,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
             <input
                 onChange={ handleFileNameChange }
                 className="input-add"
-                value={ fileName }
+                value={ fileName !== undefined ? fileName : "" }
                 maxLength={ 100 }
                 required={ true } 
             /> 
@@ -147,7 +147,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
                 <label htmlFor="checkbox-id" className="box-label">Private</label>
             </div>
             </> : "" }
-            <input className="add-button" type="submit" value="Create midi" disabled={ fileName !== null &&  fileLoaded === true } />
+            <input className="add-button" type="submit" value="Create midi" disabled={ fileName === undefined || fileName === "" } />
         </form>
         </div>
         </div>
