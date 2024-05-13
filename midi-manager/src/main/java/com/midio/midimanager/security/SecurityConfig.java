@@ -35,16 +35,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 
                 .requestMatchers(HttpMethod.GET, "/midis/public").permitAll()
-                .requestMatchers(HttpMethod.GET, "/midis/midi/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/midis/file/{id}").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/midis/user/*").authenticated()
+                .requestMatchers(HttpMethod.GET, "/midis/user").authenticated()
                 .requestMatchers(HttpMethod.POST, "/midis/create").authenticated()
 
-                .requestMatchers(HttpMethod.POST, "/midis/midi/*").authenticated()
-                .requestMatchers(HttpMethod.POST, "/midis/meta/*").authenticated()
-                .requestMatchers(HttpMethod.POST, "/midis/binary/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/midis/file/{id}").authenticated()
 
-                .requestMatchers(HttpMethod.DELETE, "/midis/midi/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/midis/file/{id}").authenticated()
 
                 .anyRequest().authenticated())
 

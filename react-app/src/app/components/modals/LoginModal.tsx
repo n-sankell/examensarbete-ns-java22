@@ -1,11 +1,12 @@
 import { LoginRequest, UserLoginRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import { closeLoginModal } from "../../actions/displayActions";
-import { login } from "../../actions/userActions";
+import { hideUserErrors, login } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import "./LoginModal.css";
+import "./Modal.css";
 
 interface StateProps {
     displayError: boolean;
@@ -14,32 +15,44 @@ interface StateProps {
 interface DispatchProps {
     login: (loginRequest: UserLoginRequest) => void;
     closeLoginModal: () => void;
+    hideUserErrors: () => void;
 }
 interface LoginModalProps extends StateProps, DispatchProps {}
 
-const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn }) => {
-    const [identifier, setIdentifier] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
+const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, displayError, loggedIn, hideUserErrors }) => {
+    const [identifier, setIdentifier] = useState<string | undefined>(undefined);
+    const [password, setPassword] = useState<string | undefined>(undefined);
 
     const closeClick = (): void => {
         closeLoginModal();
+        hideUserErrors();
     }
     const handleIdentifierChange = (identifierEvent: any) => {
+        hideUserErrors();
         setIdentifier(identifierEvent.target.value);
     }
     const handlePasswordChange = (passwordEvent: any) => {
+        hideUserErrors();
         setPassword(passwordEvent.target.value);
+    }
+    const resetInpiut = () => {
+        setPassword(undefined);
+        setIdentifier(undefined);
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
         const requestObject: LoginRequest = { 
             userLoginRequest: { 
-                userIdentifier: identifier, 
-                password: password
-            } 
+                userIdentifier: identifier === undefined ? "" : identifier, 
+                password: password === undefined ? "" : password
+            }
         };
         login(requestObject.userLoginRequest);
+    }
+
+    const isDisabled = (): boolean => {
+        return identifier === undefined || identifier === "" || password === undefined || password === "";
     }
 
     useEffect((): void => {
@@ -52,35 +65,39 @@ const LoginModal: React.FC<LoginModalProps> = ({ login, closeLoginModal, display
     }, [loggedIn]);
     
     return (<>
-        <div className='overhang' onClick={closeClick} />
-        <div className='loginModal'>
+        <div className='overhang' onClick={ closeClick } />
+        <div className='modal'>
+        <div className='content-wrapper'>
         <div className="login">
-        <h3 className='h3-title'>Log in</h3>
+        <div className='title-container'><span className='title'>Log in</span></div>
+        { displayError === true ? <div className="failed-login"><span>Login failed</span></div> : "" }
         <form className="login-form"
-            onSubmit={handleSubmit} >
+            onSubmit={ handleSubmit } >
             <input
-                onChange={handleIdentifierChange} 
+                onChange={ handleIdentifierChange } 
                 placeholder="username/email..." 
-                className="input-text"
-                value={identifier}
-                maxLength={20}
-                minLength={6}
-                required={true} 
+                className="input-login-text"
+                value={ identifier === undefined ? "" : identifier }
+                maxLength={ 20 }
+                minLength={ 6 }
+                required={ true } 
             />
             <input 
-                onChange={handlePasswordChange} 
+                onChange={ handlePasswordChange } 
                 placeholder="password..." 
-                className="input-text"
+                className="input-login-text"
                 type="password"
-                value={password}
-                maxLength={40}
-                minLength={10}
-                required={true} 
+                value={ password === undefined ? "" : password }
+                maxLength={ 40 }
+                minLength={ 10 }
+                required={ true } 
             />
-            <input className="submit-button" type="submit" value="Login" />
+            <input className="submit-login-button" type="submit" value="Login" disabled={ isDisabled() }/>
+            
         </form>
+        
         </div>
-        { displayError === true ? <span>Login failed</span> : "" }
+        </div>
         </div>
     </>);
 }
@@ -93,6 +110,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
     login: bindActionCreators(login, dispatch),
     closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
+    hideUserErrors: bindActionCreators(hideUserErrors, dispatch),
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginModal);

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MidiService {
@@ -51,8 +52,8 @@ public class MidiService {
             var blob = blobService.getBlobById(blobRef)
                 .orElseThrow(NotFoundException::new);
             return new MidiAndBlob(
-                midiMeta,
-                blob
+                Optional.of(midiMeta),
+                Optional.of(blob)
             );
         }
         logger.warn("Warning: User {} tried to access a file without permission", currentUser.userId());
@@ -61,15 +62,18 @@ public class MidiService {
 
     @Transactional
     public MidiAndBlob createMidi(MidiAndBlob midiAndBlob, CurrentUser currentUser) {
-        MidiValidator.validate(midiAndBlob.blob().midiData());
+        var metaData = midiAndBlob.metaData().orElseThrow();
+        var binaryData = midiAndBlob.blob().orElseThrow();
 
-        midiMetaRepository.saveMidiMeta(midiAndBlob.metaData());
-        blobService.saveBlob(midiAndBlob.blob());
+        MidiValidator.validate(binaryData.midiData());
+
+        midiMetaRepository.saveMidiMeta(metaData);
+        blobService.saveBlob(binaryData);
 
         logger.info("User {} created a new {} midi-file.",
-            currentUser.userId(), midiAndBlob.metaData().isPrivate() ? "private" : "public");
+            currentUser.userId(), metaData.isPrivate() ? "private" : "public");
 
-        return getMidiAndBlobById(midiAndBlob.metaData().midiId(), currentUser);
+        return getMidiAndBlobById(metaData.midiId(), currentUser);
     }
 
     @Transactional
@@ -83,15 +87,14 @@ public class MidiService {
             blobService.getBlobById(blobRef)
                 .orElseThrow(NotFoundException::new);
 
-            if (midiAndBlob.blob() != null) {
-                MidiValidator.validate(midiAndBlob.blob().midiData());
-                var editData = new Blob(blobRef, midiAndBlob.blob().midiData());
+            midiAndBlob.blob().ifPresent(blob -> {
+                MidiValidator.validate(blob.midiData());
+                var editData = new Blob(blobRef, blob.midiData());
 
                 blobService.updateBlob(editData);
-            }
-            if (midiAndBlob.metaData() != null) {
-                midiMetaRepository.editMidiMeta(midiAndBlob.metaData());
-            }
+            });
+            midiAndBlob.metaData().ifPresent(midiMetaRepository::editMidiMeta);
+
             return getMidiAndBlobById(midiId, currentUser);
         } else {
             logger.warn("Warning: User {} tried to edit a file without permission", currentUser.userId());

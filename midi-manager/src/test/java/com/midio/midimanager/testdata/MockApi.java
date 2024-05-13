@@ -8,8 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.midio.midimanager.security.JwtConstants;
 import generatedapi.model.MidiCreateRequestDto;
-import generatedapi.model.MidiEditBinaryRequestDto;
-import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import generatedapi.model.MidiWithDataDto;
 import generatedapi.model.MidisDto;
@@ -39,7 +37,7 @@ public class MockApi {
     public ResponseEntity<MidiWithDataDto> getMidiById(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
-                    .get("/midis/midi/" + midiId)
+                    .get("/midis/file/" + midiId)
                     .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();
@@ -91,49 +89,7 @@ public class MockApi {
         UUID midiId, String token, MidiEditRequestDto requestBody) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
-                    .post("/midis/midi/" + midiId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
-            )
-            .andReturn();
-
-        throwIfError(result.getResponse());
-
-        var status = HttpStatus.valueOf(result.getResponse().getStatus());
-        var content = status == HttpStatus.OK ?
-            objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
-            null;
-        return ResponseEntity.status(status).body(content);
-    }
-
-    public ResponseEntity<MidiWithDataDto> editMidiMeta(
-        UUID midiId, String token, MidiEditMetaRequestDto requestBody) throws Exception {
-        var result = mockMvc.perform(
-                MockMvcRequestBuilders
-                    .post("/midis/meta/" + midiId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestBody))
-                    .accept(MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
-            )
-            .andReturn();
-
-        throwIfError(result.getResponse());
-
-        var status = HttpStatus.valueOf(result.getResponse().getStatus());
-        var content = status == HttpStatus.OK ?
-            objectMapper.readValue(result.getResponse().getContentAsString(), MidiWithDataDto.class) :
-            null;
-        return ResponseEntity.status(status).body(content);
-    }
-
-    public ResponseEntity<MidiWithDataDto> editMidiBinary(
-        UUID midiId, String token, MidiEditBinaryRequestDto requestBody) throws Exception {
-        var result = mockMvc.perform(
-                MockMvcRequestBuilders
-                    .post("/midis/binary/" + midiId)
+                    .post("/midis/file/" + midiId)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestBody))
                     .accept(MediaType.APPLICATION_JSON)
@@ -173,7 +129,7 @@ public class MockApi {
     public ResponseEntity<String> deleteMidi(UUID midiId, String token) throws Exception {
         var result = mockMvc.perform(
                 MockMvcRequestBuilders
-                    .delete("/midis/midi/" + midiId)
+                    .delete("/midis/file/" + midiId)
                     .header(HttpHeaders.AUTHORIZATION, JwtConstants.TOKEN_PREFIX + token)
             )
             .andReturn();

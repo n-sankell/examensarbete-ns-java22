@@ -1,10 +1,6 @@
-.loginModal {
-    position: fixed;
-    top: 30%;
-    left: 39%;
-}
-
 .login {
+    border: 1px solid darkslategray;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,57 +9,67 @@
     height: 100%;
     padding-left: 40%;
     padding-right: 40%;
-    background-color: rgb(84, 82, 151);
-}
-
-.overhang {
-    position: fixed;
-    top: 0px;
-    padding: 20px;
-    height: 100%;
-    width: 100%;
-    background-color: rgb(161, 161, 161);
-    opacity: 60%;
-}
-
-.h3-title {
-    color: rgb(250, 250, 250);
-    text-transform: uppercase;
+    background: rgb(134, 160, 169);
 }
 
 .login-form {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    align-items: center;
     padding: 20%;
 }
 
-.submit-button {
+.failed-login {
+    display: flex;
+    position: absolute;
+    top: 158px;
+    font-size: small;
+    color: whitesmoke;
+    background-color: red;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px darkslategray;
+}
+
+.submit-login-button {
+    border: 1px solid darkslategray;
+    border-radius: 5px;
     margin-top: 15%;
-    background-color: rgb(237, 143, 1);
-    border: none;
+    background-color: whitesmoke;
     height: 100%;
     padding-top: 7%;
     padding-bottom: 7%;
-    width: 100%;
+    width: 60%;
     align-self: center;
-    color: rgb(250, 250, 250);
+    color: darkslategray;
     text-transform: uppercase;
 }
 
-.submit-button:hover{
-    background-color: rgb(214, 129, 1);
+.submit-login-button:hover{
+    background-color: darkgrey;
 }
 
-.input-text {
-    background-color: gainsboro;
-    border: none;
+.submit-login-button:disabled{
+    border: 1px solid darkgray;
+    background-color: lightgray;
+    color: darkgray;
+}
+
+.submit-login-button:hover:disabled{
+    background-color: lightgray;
+}
+
+.input-login-text {
+    border-radius: 3px;
+    background-color: whitesmoke;
+    border: 1px solid darkslategray;
     height: 100%;
     padding-top: 5%;
     padding-bottom: 5%;
     margin-bottom: 8%;
 }
 
-.input-text:hover {
-    background-color: ghostwhite;
+.input-login-text:hover {
+    background-color: lightgray;
 }

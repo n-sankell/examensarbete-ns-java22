@@ -1,15 +1,16 @@
-import { closeCreateMidiModal, closeCreateUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../actions/displayActions";
+import { closeCreateMidiModal, closeCreateUserModal, closeEditUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayEditUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
-import UserSvg from '../../assets/user-alt-1-svgrepo-com.svg';
-import PlaySvg from '../../assets/play-player-music-svgrepo-com.svg'
-import PauseSvg from '../../assets/pause-circle-svgrepo-com.svg'
-import { Midis } from "../../generated/midi-api";
-import { User } from "../../generated/user-api";
-import { logout } from "../actions/userActions";
+import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
+import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
+import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg';
+import LogoPng from '../../../assets/midio-logo.png';
+import { Midis } from "../../../generated/midi-api";
+import { User } from "../../../generated/user-api";
+import { logout } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { RootState } from "../store";
-import { MidiWrapper } from "../types/MidiWrapper";
+import { RootState } from "../../store";
+import { MidiWrapper } from "../../types/MidiWrapper";
 import "./Header.css";
 
 interface StateProps {
@@ -22,11 +23,13 @@ interface StateProps {
 interface DispatchProps {
     displayLoginModal: () => void;
     displayCreateUserModal: () => void;
+    displayEditUserModal: () => void;
     displayCreateMidiModal: () => void;
     displayUserMidis: () => void;
     displayPublicMidis: () => void;
     closeCreateMidiModal: () => void;
     closeCreateUserModal: () => void;
+    closeEditUserModal: () => void;
     closeUserMidis: () => void;
     closePublicMidis: () => void;
     closeLoginModal: () => void;
@@ -35,8 +38,8 @@ interface DispatchProps {
 interface HeaderProps extends StateProps, DispatchProps {}
 
 const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, midiIsPlaying, 
-    displayLoginModal, displayCreateUserModal, displayCreateMidiModal, displayUserMidis, displayPublicMidis, 
-    closeLoginModal, closeCreateUserModal, closeCreateMidiModal, closeUserMidis, closePublicMidis }) => {
+    displayLoginModal, displayCreateUserModal, displayEditUserModal, displayCreateMidiModal, displayUserMidis, displayPublicMidis, 
+    closeLoginModal, closeCreateUserModal, closeCreateMidiModal, closeUserMidis, closePublicMidis, closeEditUserModal }) => {
 
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
@@ -73,7 +76,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
     const userAccountClick = () => {
         closeAllModals();
         setMenuOpen(false);
-        console.log("User: " + user?.username);
+        displayEditUserModal();
     };
     const closeAllModals = (): void => {
         closeLoginModal();
@@ -81,6 +84,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
         closeCreateMidiModal();
         closePublicMidis();
         closeUserMidis();
+        closeEditUserModal();
     }
 
     useEffect((): void => {
@@ -133,6 +137,9 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
                     : "" }
                 </ul>
             </div>
+            <div className='logo-wrapper'>
+                <img className='logo' src={ LogoPng } width='15%' height='15%'></img>
+            </div>
         </div>
 
         <div className="control-panel"> { parsedMidi.midi !== null ? 
@@ -165,10 +172,12 @@ const mapStateToProps = (state: RootState): StateProps => ({
     displayLoginModal: bindActionCreators(displayLoginModal, dispatch),
     closeLoginModal: bindActionCreators(closeLoginModal, dispatch),
     displayCreateUserModal: bindActionCreators(displayCreateUserModal, dispatch),
+    displayEditUserModal: bindActionCreators(displayEditUserModal, dispatch),
     displayCreateMidiModal: bindActionCreators(displayCreateMidiModal, dispatch),
     displayUserMidis: bindActionCreators(displayUserMidis, dispatch),
     displayPublicMidis: bindActionCreators(displayPublicMidis, dispatch),
     closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+    closeEditUserModal: bindActionCreators(closeEditUserModal, dispatch),
     closeCreateMidiModal: bindActionCreators(closeCreateMidiModal, dispatch),
     closeUserMidis: bindActionCreators(closeUserMidis, dispatch),
     closePublicMidis: bindActionCreators(closePublicMidis, dispatch),

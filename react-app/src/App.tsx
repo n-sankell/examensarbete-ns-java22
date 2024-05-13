@@ -1,17 +1,18 @@
 import { fetchPublicMidis, fetchUserMidis } from './app/actions/midiActions';
 import { ThunkDispatch, bindActionCreators } from '@reduxjs/toolkit';
-import { Midi, Midis, MidiWithData } from './generated/midi-api';
+import { Midis, MidiWithData } from './generated/midi-api';
 import CreateMidiModal from './app/components/modals/CreateMidiModal';
 import CreateUserModal from './app/components/modals/CreateUserModal';
-import MidiList from './app/components/MidiList';
+import MidiList from './app/components/modals/MidiList';
 import LoginModal from './app/components/modals/LoginModal';
-import Header from './app/components/Header';
+import Header from './app/components/header/Header';
 import { RootState } from './app/store';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
-import './App.css';
-import Piano from './app/components/Piano/Piano';
 import MidiVisualizer from './app/components/visualizer/MidiVisualizer';
+import EditUserModal from './app/components/modals/EditUserModal';
+import './App.css';
+import EditMidiModal from './app/components/modals/EditMidiModal';
 
 interface DispatchProps {
   fetchPublicMidis: () => void;
@@ -25,24 +26,23 @@ interface StateProps {
   showLoginModal: boolean;
   showCreateUserModal: boolean;
   showCreateMidiModal: boolean;
+  showEditUserModal: boolean;
   showUserMidis: boolean;
   showPublicMidis: boolean;
+  showEditMidiModal: boolean;
   doFetch: boolean
 }
 interface AppProps extends StateProps, DispatchProps {}
 
-const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, 
-  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis }) => {
+const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, userMidis, publicMidis, doFetch, showEditMidiModal, 
+  showLoginModal, showCreateUserModal, showCreateMidiModal, activeMidi, showUserMidis, showPublicMidis, showEditUserModal }) => {
 
   useEffect((): void => {
     fetchPublicMidis();
   }, []);
 
   useEffect((): void => {
-  }, [publicMidis]);
-
-  useEffect((): void => {
-  }, [activeMidi]);
+  }, [publicMidis, activeMidi, userMidis]);
 
   useEffect(() => {
     if (loggedIn === true) {
@@ -51,20 +51,20 @@ const App: React.FC<AppProps> = ({ fetchPublicMidis, fetchUserMidis, loggedIn, u
     fetchPublicMidis();
   }, [loggedIn, doFetch]);
 
-  useEffect(() => {
-  }, [userMidis]);
-
   return (
     <div className="App">
       <Header />
       <div className='main-wrapper'>
         <main className="main">
           <MidiVisualizer />
-          { showCreateMidiModal ? <CreateMidiModal /> : "" }
-          { showLoginModal ? <LoginModal /> : "" }
-          { showCreateUserModal ? <CreateUserModal /> : "" }
           { showUserMidis ? <MidiList privateFiles={ true } /> : "" }
           { showPublicMidis ? <MidiList privateFiles={ false } /> : "" }
+          { showLoginModal ? <LoginModal /> : "" }
+          { showCreateMidiModal ? <CreateMidiModal /> : "" }
+          { showEditMidiModal ? <EditMidiModal /> : "" }
+          { showEditUserModal ? <EditUserModal /> : "" }
+          { showCreateUserModal ? <CreateUserModal /> : "" }
+
         </main>
       </div>
     </div>
@@ -78,7 +78,9 @@ const mapStateToProps = (state: RootState): StateProps => ({
   activeMidi: state.midi.activeMidi,
   showLoginModal: state.display.showLoginModal,
   showCreateUserModal: state.display.showCreateUserModal,
+  showEditUserModal: state.display.showEditUserModal,
   showCreateMidiModal: state.display.showCreateMidiModal,
+  showEditMidiModal: state.display.showEditMidiModal,
   showPublicMidis: state.display.showPublicMidis,
   showUserMidis: state.display.showUserMidis,
   doFetch: state.midi.doFetchMidis,

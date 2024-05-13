@@ -1,11 +1,11 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store';
-import { Configuration, CreateMidiRequest, DeleteMidiRequest, GetMidiRequest, MidiApi, MidiWithData } from '../../generated/midi-api';
+import { Configuration, CreateMidiRequest, DeleteMidiRequest, EditMidiRequest, GetMidiRequest, MidiApi } from '../../generated/midi-api';
 import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_USER_MIDIS_FAILURE,
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_REQUEST,
     FETCH_MIDI_DATA_SUCCESS, FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE,
     CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, CREATE_MIDI_FAILURE, PARSE_MIDI_REQUEST, PARSE_MIDI_SUCCESS,
-    PARSE_MIDI_FAILURE } from './midiActionTypes'
+    PARSE_MIDI_FAILURE, EDIT_MIDI_REQUEST, EDIT_MIDI_SUCCESS, EDIT_MIDI_FAILURE } from './midiActionTypes'
 import { base64ToArrayBuffer } from '../util/MidiParser';
 import { Midi, MidiJSON } from '@tonejs/midi';
 import { MidiWrapper } from '../types/MidiWrapper';
@@ -56,6 +56,18 @@ export const createMidi = (request: CreateMidiRequest): ThunkAction<void, RootSt
     } catch (error) {
       dispatch({ type: CREATE_MIDI_FAILURE, payload: error as string });
     }
+};
+
+export const editMidi = (request: EditMidiRequest): ThunkAction<void, RootState, null, MidiAction> => async (dispatch, getState) => {
+  dispatch({ type: EDIT_MIDI_REQUEST, payload: { request } });
+  try {
+    const token = getState().user.token;
+    const midiApi = new MidiApi(new Configuration({ accessToken: token })); 
+    const response = await midiApi.editMidi(request);
+    dispatch({ type: EDIT_MIDI_SUCCESS, payload: response });
+  } catch (error) {
+    dispatch({ type: EDIT_MIDI_FAILURE, payload: error as string });
+  }
 };
 
 export const deleteMidi = (request: DeleteMidiRequest): ThunkAction<void, RootState, null, MidiAction> => async (dispatch, getState) => {

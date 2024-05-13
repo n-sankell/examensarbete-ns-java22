@@ -19,13 +19,14 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 public class MidiConverter {
 
     public static MidiWithDataDto convert(MidiAndBlob midiAndBlob) {
         return new MidiWithDataDto()
-            .meta(convert(midiAndBlob.metaData()))
-            .binary(convert(midiAndBlob.blob()));
+            .meta(convert(midiAndBlob.metaData().orElseThrow()))
+            .binary(convert(midiAndBlob.blob().orElseThrow()));
     }
 
     public static MidisDto convert(List<Midi> midis) {
@@ -68,23 +69,22 @@ public class MidiConverter {
         var midiId = MidiId.newMidiId();
         var blobId = BlobId.newBlobId();
         // isPrivate defaults to true if null value is passed
-        var isPrivate = createData.getIsPrivate() == null || createData.getIsPrivate();
         return new MidiAndBlob(
-            new Midi(
+            Optional.of(new Midi(
                 midiId,
                 blobId,
                 userId,
-                isPrivate,
+                createData.getIsPrivate(),
                 createData.getFilename(),
                 createData.getArtist(),
                 createData.getTitle(),
                 ZonedDateTime.now(),
                 ZonedDateTime.now()
-            ),
-            new Blob(
+            )),
+            Optional.of(new Blob(
                 blobId,
                 MidiConverter.convert(createData.getMidiFile()))
-        );
+        ));
     }
 
     public static MidiAndBlob buildEditData(MidiEditRequestDto editData, MidiId midiId) {
@@ -94,39 +94,28 @@ public class MidiConverter {
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditMetaRequestDto editData, MidiId midiId) {
-        return new MidiAndBlob(
-            buildMetaData(editData, midiId),
-            null
+    public static Optional<Midi> buildMetaData(MidiEditMetaRequestDto editData, MidiId midiId) {
+        return editData == null ? Optional.empty() : Optional.of(
+            new Midi(
+                midiId,
+                null,
+                null,
+                editData.getIsPrivate() == null || editData.getIsPrivate(),
+                editData.getFilename(),
+                editData.getArtist(),
+                editData.getTitle(),
+            null,
+                ZonedDateTime.now()
+            )
         );
     }
 
-    public static MidiAndBlob buildEditData(MidiEditBinaryRequestDto editData, MidiId ignored) {
-        return new MidiAndBlob(
-            null,
-            buildBlobData(editData)
-        );
-    }
-
-    public static Midi buildMetaData(MidiEditMetaRequestDto editData, MidiId midiId) {
-        var isPrivate = editData.getIsPrivate() == null || editData.getIsPrivate();
-        return new Midi(
-            midiId,
-            null,
-            null,
-            isPrivate,
-            editData.getFilename(),
-            editData.getArtist(),
-            editData.getTitle(),
-            null,
-            ZonedDateTime.now()
-        );
-    }
-
-    public static Blob buildBlobData(MidiEditBinaryRequestDto editData) {
-        return new Blob(
-            null,
-            MidiConverter.convert(editData.getMidiFile())
+    public static Optional<Blob> buildBlobData(MidiEditBinaryRequestDto editData) {
+        return editData == null ? Optional.empty() : Optional.of(
+            new Blob(
+                null,
+                MidiConverter.convert(editData.getMidiFile())
+            )
         );
     }
 

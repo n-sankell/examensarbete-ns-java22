@@ -8,8 +8,6 @@ import com.midio.midimanager.util.RequestValidator;
 import generatedapi.MidisApi;
 import generatedapi.model.MidiCreateRequestDto;
 import generatedapi.model.MidiDto;
-import generatedapi.model.MidiEditBinaryRequestDto;
-import generatedapi.model.MidiEditMetaRequestDto;
 import generatedapi.model.MidiEditRequestDto;
 import generatedapi.model.MidiMessageResponseDto;
 import generatedapi.model.MidiWithDataDto;
@@ -62,7 +60,7 @@ public class MidiController implements MidisApi {
         var midiAndBlob = midiService.getMidiAndBlobById(midiId(id), currentUser);
         var apiMidi = convert(midiAndBlob);
 
-        if (currentUser.isAuthenticated() && midiAndBlob.metaData().userRef().equals(currentUser.userId())) {
+        if (currentUser.isAuthenticated() && midiAndBlob.metaData().orElseThrow().userRef().equals(currentUser.userId())) {
             apiMidi.getMeta().userMidi(true);
         }
         return ok(apiMidi);
@@ -91,25 +89,6 @@ public class MidiController implements MidisApi {
         validator.validateRequest(editDataDto);
         var editData = buildEditData(editDataDto, midiId);
         var updatedMidi = convert(midiService.updateMidi(midiId, editData, getCurrentUser()));
-        updatedMidi.getMeta().userMidi(true);
-        return ok(updatedMidi);
-    }
-
-    @Override
-    public ResponseEntity<MidiWithDataDto> editMidiBinary(UUID id, MidiEditBinaryRequestDto editDataDto) {
-        validator.validateRequest(editDataDto);
-        var editData = buildEditData(editDataDto, null);
-        var updatedMidi = convert(midiService.updateMidi(midiId(id), editData, getCurrentUser()));
-        updatedMidi.getMeta().userMidi(true);
-        return ok(updatedMidi);
-    }
-
-    @Override
-    public ResponseEntity<MidiWithDataDto> editMidiMeta(UUID id, MidiEditMetaRequestDto editDataDto) {
-        var midiId = midiId(id);
-        validator.validateRequest(editDataDto);
-        var editData = buildEditData(editDataDto, midiId);
-        var updatedMidi = convert(midiService.updateMidi(midiId(id), editData, getCurrentUser()));
         updatedMidi.getMeta().userMidi(true);
         return ok(updatedMidi);
     }

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import "./CreateMidiModal.css";
+import "./Modal.css";
 
 interface DispatchProps {
     createMidi: (createMidiRequest: CreateMidiRequest) => void;
@@ -54,7 +55,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         };
 
         reader.readAsDataURL(file);
-        setFileName(file.name == null ? "" : file.name);
+        setFileName(file.name === undefined ? "" : file.name);
     }
     const handleFileNameChange = (filenameEvent: any): void => {
         setFileName(filenameEvent.target.value);
@@ -66,7 +67,7 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
         const requestObject: CreateMidiRequest = { 
             midiCreateRequest: { 
                 isPrivate: isPrivate, 
-                filename: fileName, 
+                filename: fileName,
                 artist: artist === "" ? undefined : artist, 
                 title: title === "" ? undefined : title,
                 midiFile: fileString
@@ -91,58 +92,64 @@ const CreateMidiModal: React.FC<CreateMidiModalProps> = ( { createMidi, closeCre
     }, []);
     
     return (<>
-        <div className='overhang' onClick={closeClick} />
-        <div className='addMidiModal'>
+        <div className='overhang' onClick={ closeClick } />
+        <div className='modal'>
+        <div className='content-wrapper'>
         <div className="add-midi">
         <h3 className='h3-title'>Add new midi file</h3>
         <form className="add-midi-form"
-            onSubmit={handleSubmit} >
+            onSubmit={ handleSubmit } >
             <input 
-                onChange={handleFileInputChange} 
+                onChange={ handleFileInputChange } 
                 placeholder="Choose a file..." 
-                className="input-add"
+                className="input-add-file"
+                id="input-add-file"
                 type="file"
                 accept=".mid"
-                required={true}
+                required={ true }
             />
+            <label htmlFor="input-add-file" className="add-file-input-label">
+                { fileLoaded === true && fileName !== undefined ? fileName : "Choose a file" }
+            </label>
             { fileLoaded ? <>
             <input
-                onChange={handleTitleChange} 
+                onChange={ handleTitleChange } 
                 placeholder="Title..." 
                 className="input-add"
-                value={title}
-                maxLength={200}
-                required={false}
+                value={ title }
+                maxLength={ 200 }
+                required={ false }
             />
             <input
-                onChange={handleArtistChange} 
+                onChange={ handleArtistChange } 
                 placeholder="Artist..." 
                 className="input-add"
-                value={artist}
-                maxLength={200}
-                required={false}
+                value={ artist }
+                maxLength={ 200 }
+                required={ false }
             />
             <input
-                onChange={handleFileNameChange}
+                onChange={ handleFileNameChange }
                 className="input-add"
-                value={fileName}
-                maxLength={100}
-                required={true} 
+                value={ fileName !== undefined ? fileName : "" }
+                maxLength={ 100 }
+                required={ true } 
             /> 
             <div className="checkbox-wrapper">
                 <input
                     id ="checkbox-id"
-                    onChange={handlePrivateChange}
+                    onChange={ handlePrivateChange }
                     className="input-box"
                     type="checkbox"
-                    checked={isPrivate}
-                    required={false}
+                    checked={ isPrivate }
+                    required={ false }
                 ></input>
                 <label htmlFor="checkbox-id" className="box-label">Private</label>
             </div>
             </> : "" }
-            <input className="add-button" type="submit" value="Create midi" />
+            <input className="add-button" type="submit" value="Create midi" disabled={ fileName === undefined || fileName === "" } />
         </form>
+        </div>
         </div>
         </div>
     </>);

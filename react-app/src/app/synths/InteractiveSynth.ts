@@ -14,7 +14,7 @@ export const playNote = (note: string) => {
           sustain: 0.3,
           release: 1,
       },
-  }).toDestination();;
+  }).toDestination();
     activeNotes[note].triggerAttack(note);
   }
 };

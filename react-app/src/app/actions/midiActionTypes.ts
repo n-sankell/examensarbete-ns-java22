@@ -1,5 +1,5 @@
 import { Midi } from "@tonejs/midi";
-import { CreateMidiRequest, DeleteMidiRequest, GetMidiRequest, MidiWithData, Midis } from "../../generated/midi-api";
+import { CreateMidiRequest, DeleteMidiRequest, EditMidiRequest, GetMidiRequest, MidiWithData, Midis } from "../../generated/midi-api";
 import { MidiWrapper } from "../types/MidiWrapper";
 
 export const FETCH_USER_MIDIS_REQUEST = 'FETCH_USER_MIDIS_REQUEST';
@@ -14,6 +14,9 @@ export const FETCH_MIDI_DATA_FAILURE = 'FETCH_MIDI_DATA_FAILURE';
 export const CREATE_MIDI_REQUEST = 'CREATE_MIDI_REQUEST';
 export const CREATE_MIDI_SUCCESS = 'CREATE_MIDI_SUCCESS';
 export const CREATE_MIDI_FAILURE = 'CREATE_MIDI_FAILURE';
+export const EDIT_MIDI_REQUEST = 'EDIT_MIDI_REQUEST';
+export const EDIT_MIDI_SUCCESS = 'EDIT_MIDI_SUCCESS';
+export const EDIT_MIDI_FAILURE = 'EDIT_MIDI_FAILURE';
 export const DELETE_MIDI_REQUEST = 'DELETE_MIDI_REQUEST';
 export const DELETE_MIDI_SUCCESS = 'DELETE_MIDI_SUCCESS';
 export const DELETE_MIDI_FAILURE = 'DELETE_MIDI_FAILURE';
@@ -78,6 +81,21 @@ interface CreateMidiFailureAction {
     payload: string;
 }
 
+interface EditMidiRequestAction {
+    type: typeof EDIT_MIDI_REQUEST;
+    payload: {
+        request: EditMidiRequest
+      }
+}
+interface EditMidiSuccessAction {
+    type: typeof EDIT_MIDI_SUCCESS;
+    payload: MidiWithData;
+} 
+interface EditMidiFailureAction {
+    type: typeof EDIT_MIDI_FAILURE;
+    payload: string;
+}
+
 interface DeleteMidiRequestAction {
     type: typeof DELETE_MIDI_REQUEST;
     payload: {
@@ -135,6 +153,9 @@ export type MidiAction =
     | CreateMidiRequestAction
     | CreateMidiSuccessAction
     | CreateMidiFailureAction
+    | EditMidiRequestAction
+    | EditMidiSuccessAction
+    | EditMidiFailureAction
     | DeleteMidiRequestAction
     | DeleteMidiSuccessAction
     | DeleteMidiFailureAction
