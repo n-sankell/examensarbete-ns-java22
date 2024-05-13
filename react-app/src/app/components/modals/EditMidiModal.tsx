@@ -30,6 +30,9 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     const [newFileLoaded, setNewFileLoaded] = useState<boolean>(false);
     const [showEditForm, setShowEditForm] = useState<boolean>(false);
     const [showFileForm, setShowFileForm] = useState<boolean>(false);
+    const [useNewFilename, setUseNewFilename] = useState<boolean>(false);
+    const [newFileName, setNewFilename] = useState<string>("");
+    const oldFileName: string = activeMidi.meta.filename;
 
     const closeClick = (): void => {
         closeEditMidiModal();
@@ -61,7 +64,10 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         };
 
         reader.readAsDataURL(file);
-        setFileName(file.name == null ? "" : file.name);
+        setNewFilename(file.name == null ? "" : file.name);
+        if (useNewFilename === true) {
+            setFileName(file.name == null ? "" : file.name);
+        }
     }
     const handleFileNameChange = (filenameEvent: any): void => {
         setFileName(filenameEvent.target.value);
@@ -133,12 +139,24 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             setShowEditForm(true);
         }
     }
+
+    const handleUseNewFilename = (event: any): void => {
+        if (useNewFilename) {
+            setUseNewFilename(false);
+            setFileName(oldFileName);
+        } else {
+            setUseNewFilename(true);
+            if (newFileLoaded === true) {
+                setFileName(newFileName);
+            }
+        }
+    }
     
     useEffect((): void => {
     }, []);
 
     useEffect((): void => {
-    }, [newFileLoaded, showEditForm, showFileForm]);
+    }, [newFileLoaded, showEditForm, showFileForm, useNewFilename]);
     
     return (<>
         <div className='overhang' onClick={ closeClick } />
@@ -179,6 +197,10 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
 
         <form className="edit-midi-form"
             onSubmit={ handleSubmit } >
+                { showFileForm === true || showEditForm === true ? 
+                <input className="edit-button" type="submit" value="Save" 
+            disabled={ !containsMetaChange() && !containsBinaryChange() }/>
+            : "" }
             <div className="show-file-edit-fields" onClick={ (event)=> handleShowEditInput(event) }>
                 <div className="divider">
                     <div className="divider-left"><div className="divider-line"></div><div className="divider-bottom"></div></div>
@@ -234,10 +256,6 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             </div>
             </div>
             </div>
-            { showFileForm === false && showEditForm === true ? 
-            <input className="edit-button" type="submit" value="Save" 
-            disabled={ !containsMetaChange() && !containsBinaryChange() }/>
-            : "" }
 
             <div className="show-file-edit-fields" onClick={ (event)=> handleShowFileInput(event) }>
             <div className="divider">
@@ -251,6 +269,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
             </div>
 
             <div className={`edit-binary-container ${ showFileForm ? 'edit-binary-container-expanded' : ''}`}>
+            <div className="input-row">
             <input 
                 id="input-edit-file"
                 onChange={ handleFileInputChange } 
@@ -261,14 +280,24 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 required={ false }
             />
             <label htmlFor="input-edit-file" className="edit-file-input-label">
-                { newFileLoaded === false ? "Choose a file" : fileName }
+                { newFileLoaded === false ? "Choose a file" : newFileName }
             </label>
+            <div className="checkbox-edit-wrapper">
+            <label className="switch">
+                <input 
+                    id="slider-file-checkbox"
+                    onChange={ handleUseNewFilename }
+                    className="hidden-checkbox"
+                    type="checkbox" 
+                    checked={ useNewFilename }
+                    required={ false }
+                />
+                <span className="slider"></span>
+                </label>
+                <label htmlFor="slider-file-checkbox" className="box-edit-label">Use new filename</label>
+                </div>
+            </div>    
             </div>
-
-            { showFileForm === true ? 
-            <input className="edit-button" type="submit" value="Save" 
-            disabled={ !containsMetaChange() && !containsBinaryChange() }/>
-            : "" }
             
         </form>
         
