@@ -46,9 +46,13 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
         closeEditUserModal();
     }
     const handleUsernameChange = (event: any) => {
+        hideUserErrors();
+        hideUserMessage();
         setUsername(event.target.value);
     }
     const handleEmailChange = (event: any) => {
+        hideUserErrors();
+        hideUserMessage();
         setEmail(event.target.value);
     }
     const handleNewPasswordChange = (event: any) => {
@@ -102,18 +106,14 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
         deleteUser(requestObject);
     }
 
-    const handleDelete = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-        event.preventDefault();
-        const requestObject: DeleteUserRequest = { 
-            password: password
-        };
-        deleteUser(requestObject);
-    }
-
     const handleShowEditInput = (event: any): void => {
         event.preventDefault();
         if (showUserEdit === true) {
             setShowUserEdit(false);
+            hideUserErrors();
+            hideUserMessage();
+            setEmail(user.email);
+            setUsername(user.username);
         } else {
             setShowUserEdit(true);
         }
@@ -232,6 +232,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
                 required={ true } 
             />
             <input className="edit-user-submit" type="submit" value="Save" disabled={ !containsUserInfoChange() }/>
+            { displayUpdateUserError === true ? <span className="failure-message edit-user-failure">{error}</span> : "" }
+            { displayUpdateUserSuccess === true ? <span className="success-message edit-user-success">User info updated!</span> : "" }
         </form>
         </div>
 
@@ -272,7 +274,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
             <input className="edit-user-submit" type="submit" value="Update" disabled={ !passwordValid() }/>
             { showPasswordEdit && newPassword === oldPassword && newPassword.length > 0 ? <span className="failure-message password-change-failure">New password cannot be the same as the old</span> : "" }
             { displayUpdatePasswordSuccess === true ? <span className="success-message password-change-success">Password updated!</span> : "" }
-            { displayUpdateUserError === true ? <span className="failure-message password-change-failure">{error}</span> : "" }
             { displayUpdatePasswordError === true ? <span className="failure-message password-change-failure">{error}</span> : "" }
         </form>
         </div>

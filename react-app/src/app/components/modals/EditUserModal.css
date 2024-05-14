@@ -141,3 +141,15 @@
     top: -85px;
     margin-bottom: -85px;
 }
+
+.edit-user-success {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
+
+.edit-user-failure {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
