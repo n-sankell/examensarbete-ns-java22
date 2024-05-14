@@ -14,13 +14,14 @@ interface DispatchProps {
 }
 interface StateProps {
     displayUserCreateError: boolean;
+    loggedIn: boolean;
 }
 interface CreateUserModalProps extends StateProps, DispatchProps {}
 
-const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError } ) => {
-    const [username, setUsername] = useState<string | undefined>(undefined);
-    const [email, setEmail] = useState<string  | undefined>(undefined);
-    const [password, setPassword] = useState<string | undefined>(undefined);
+const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError, loggedIn } ) => {
+    const [username, setUsername] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string >("");
 
     const closeClick = (): void => {
         closeCreateUserModal();
@@ -36,29 +37,35 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
         setPassword(passwordEvent.target.value);
     }
     const resetValues = () => {
-        setUsername(undefined);
-        setEmail(undefined);
-        setPassword(undefined);
+        setUsername("");
+        setEmail("");
+        setPassword("");
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
         const requestObject: CreateUserRequest = { 
             userCreateRequest: { 
-                username: username === undefined ? "" : username, 
-                email: email === undefined ? "" : email, 
-                password: password === undefined ? "" : password
+                username: username, 
+                email: email, 
+                password: password
             }
         };
         createUser(requestObject.userCreateRequest); 
     }
 
     const isDisabled = (): boolean => {
-        return username === undefined || username === "" || email === undefined || email === "" || password === undefined || password === "";
+        return username === "" || email === "" || password === "";
     }
     
     useEffect((): void => {
     }, []);
+
+    useEffect((): void => {
+        if (loggedIn) {
+            closeCreateUserModal();
+        }
+    }, [loggedIn]);
     
     return (<>
         <div className='overhang' onClick={ closeClick } />
@@ -106,7 +113,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
 }
 
 const mapStateToProps = (state: RootState): StateProps => ({
-    displayUserCreateError: state.user.displayUserCreateError,
+    displayUserCreateError: state.user.displayCreateUserError,
+    loggedIn: state.user.loggedIn,
 });
   
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
