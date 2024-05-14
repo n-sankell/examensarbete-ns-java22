@@ -26,18 +26,21 @@ interface StateProps {
     displayUpdateUserError: boolean;
     displayUpdatePasswordSuccess: boolean;
     displayUpdatePasswordError: boolean;
+    displayDeleteUserError: boolean;
 }
 interface EditUserModalProps extends StateProps, DispatchProps {}
 
-const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuccess, editUser, editPassword, closeEditUserModal, user, deleteUser, userMidis, hideUserMessage, displayUpdateUserSuccess, displayUpdateUserError, hideUserErrors, error, displayUpdatePasswordError } ) => {
+const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, displayUpdatePasswordSuccess, editUser, editPassword, closeEditUserModal, user, deleteUser, userMidis, hideUserMessage, displayUpdateUserSuccess, displayUpdateUserError, hideUserErrors, error, displayUpdatePasswordError } ) => {
     if (user !== null) {
     const [username, setUsername] = useState<string>(user.username);
     const [email, setEmail] = useState<string>(user.email);
+    const [password, setPassword] = useState<string>("");
     const [oldPassword, setOldPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [showUserEdit, setShowUserEdit] = useState<boolean>(false);
     const [showPasswordEdit, setShowPasswordEdit] = useState<boolean>(false);
     const [showDeleteUser, setShowDeleteUser] = useState<boolean>(false);
+    const [promptDelete, setPromptDelete] = useState<boolean>(false);
 
     const closeClick = (): void => {
         closeEditUserModal();
@@ -57,6 +60,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
         hideUserMessage();
         hideUserErrors();
         setOldPassword(event.target.value);
+    }
+    const handlePasswordChange = (event: any) => {
+        hideUserMessage();
+        hideUserErrors();
+        setPassword(event.target.value);
     }
 
     const handleDetailsSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -85,6 +93,23 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
         editPassword(requestObject); 
     }
 
+    const handleDeleteSubmit = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+        event.preventDefault();
+        setPromptDelete(false);
+        const requestObject: DeleteUserRequest = { 
+            password: password
+        };
+        deleteUser(requestObject);
+    }
+
+    const handleDelete = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+        event.preventDefault();
+        const requestObject: DeleteUserRequest = { 
+            password: password
+        };
+        deleteUser(requestObject);
+    }
+
     const handleShowEditInput = (event: any): void => {
         event.preventDefault();
         if (showUserEdit === true) {
@@ -109,6 +134,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
         event.preventDefault();
         if (showDeleteUser === true) {
             setShowDeleteUser(false);
+            hideUserErrors();
+            hideUserMessage();
+            setPassword("");
         } else {
             setShowDeleteUser(true);
         }
@@ -128,11 +156,14 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
     }, []);
 
     useEffect((): void => {
-        if (displaySuccessMessage === true) {
+        if (displayUpdatePasswordSuccess === true) {
             setNewPassword("");
             setOldPassword("");
         }
-    }, [displaySuccessMessage]);
+        if (displayDeleteUserError) {
+            setPassword("");
+        }
+    }, [displayUpdatePasswordSuccess, displayDeleteUserError]);
     
     return (<>
         <div className='overhang' onClick={ closeClick } />
@@ -239,10 +270,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
                 required={ true } 
             />
             <input className="edit-user-submit" type="submit" value="Update" disabled={ !passwordValid() }/>
-            { showPasswordEdit && newPassword === oldPassword && newPassword.length > 0 ? <span className="failure-message">New password cannot be the same as the old</span> : "" }
-            { displaySuccessMessage === true ? <span className="success-message">Password updated!</span> : "" }
-            { displayUpdateUserError === true ? <span className="failure-message">{error}</span> : "" }
-            { displayUpdatePasswordError === true ? <span className="failure-message">{error}</span> : "" }
+            { showPasswordEdit && newPassword === oldPassword && newPassword.length > 0 ? <span className="failure-message password-change-failure">New password cannot be the same as the old</span> : "" }
+            { displayUpdatePasswordSuccess === true ? <span className="success-message password-change-success">Password updated!</span> : "" }
+            { displayUpdateUserError === true ? <span className="failure-message password-change-failure">{error}</span> : "" }
+            { displayUpdatePasswordError === true ? <span className="failure-message password-change-failure">{error}</span> : "" }
         </form>
         </div>
 
@@ -255,6 +286,32 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayUpdatePasswordSuc
                 </div>
                 <div className="divider-right"><div className="divider-line"></div><div className="divider-bottom"></div></div>
             </div>
+        </div>
+
+        <div className={`edit-user-container ${showDeleteUser ? 'edit-user-container-expanded' : ''}`}>
+        <form className="edit-user-form"
+            onSubmit={ (e) => { e.preventDefault(); setPromptDelete(true); } } >
+            <input
+                onChange={ handlePasswordChange } 
+                placeholder="password..." 
+                className="input-text"
+                type="password"
+                value={ password }
+                maxLength={ 40 }
+                minLength={ 1 }
+                required={ true } 
+            />
+            <input className="edit-user-submit" type="submit" value="Delete" disabled={ password === "" }/>
+            { displayDeleteUserError === true ? <span className="failure-message delete-user-failure">{ error }</span> : "" }
+            { promptDelete === true ? 
+                <div className='delete-prompt delete-user-prompt'>
+                    <span>Delete this account?</span>
+                    <div className='prompt-buttons'>
+                        <button className='prompt-button' onClick={ (e) => handleDeleteSubmit(e) }>Yes</button>
+                        <button className='prompt-button' onClick={ () => { setPromptDelete(false); setPassword(""); } }>No</button>
+                    </div>
+                </div> : "" } 
+        </form>
         </div>
 
         </div>
@@ -275,6 +332,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
     displayUpdateUserError: state.user.displayUpdateUserError,
     displayUpdatePasswordError: state.user.displayUpdatePasswordError,
     displayUpdatePasswordSuccess: state.user.displayUpdatePasswordSuccess,
+    displayDeleteUserError: state.user.displayDeleteUserError,
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({

@@ -124,12 +124,15 @@ const userReducer = (state = initialState, action: UserAction): UserState => {
         ...state,
         loading: true,
         error: null,
+        displayDeleteUserSuccess: false,
+        displayDeleteUserError: false,
       };
     case DELETE_USER_FAILURE:
       return {
         ...state,
         loading: false,
         error: action.payload,
+        displayDeleteUserError: true,
       };
     case DELETE_USER_SUCCESS:
       return {
