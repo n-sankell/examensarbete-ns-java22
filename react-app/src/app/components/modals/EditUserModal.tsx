@@ -81,8 +81,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
                 }
             };
             editUser(requestObject); 
-        } else {
-            //TODO add som message here
         }
     }
 

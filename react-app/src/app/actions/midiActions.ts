@@ -5,7 +5,7 @@ import { MidiAction, FETCH_USER_MIDIS_REQUEST, FETCH_USER_MIDIS_SUCCESS, FETCH_U
     FETCH_PUBLIC_MIDIS_REQUEST, FETCH_PUBLIC_MIDIS_SUCCESS, FETCH_PUBLIC_MIDIS_FAILURE, FETCH_MIDI_DATA_REQUEST,
     FETCH_MIDI_DATA_SUCCESS, FETCH_MIDI_DATA_FAILURE, DELETE_MIDI_REQUEST, DELETE_MIDI_SUCCESS, DELETE_MIDI_FAILURE,
     CREATE_MIDI_REQUEST, CREATE_MIDI_SUCCESS, CREATE_MIDI_FAILURE, PARSE_MIDI_REQUEST, PARSE_MIDI_SUCCESS,
-    PARSE_MIDI_FAILURE, EDIT_MIDI_REQUEST, EDIT_MIDI_SUCCESS, EDIT_MIDI_FAILURE } from './midiActionTypes'
+    PARSE_MIDI_FAILURE, EDIT_MIDI_REQUEST, EDIT_MIDI_SUCCESS, EDIT_MIDI_FAILURE, HIDE_MIDI_MESSAGE, HIDE_MIDI_ERRORS} from './midiActionTypes'
 import { base64ToArrayBuffer } from '../util/MidiParser';
 import { Midi, MidiJSON } from '@tonejs/midi';
 import { MidiWrapper } from '../types/MidiWrapper';
@@ -104,6 +104,13 @@ export const parseMidi = (request: string): ThunkAction<void, RootState, null, M
     dispatch({ type: PARSE_MIDI_FAILURE, payload: "Failed to read midi file" });
   }
 };
+
+export const hideMidiMessage = (): ThunkAction<void, RootState, null, MidiAction> => (dispatch) => {
+  dispatch({ type: HIDE_MIDI_MESSAGE });
+}
+export const hideMidiErrors = (): ThunkAction<void, RootState, null, MidiAction> => (dispatch) => {
+  dispatch({ type: HIDE_MIDI_ERRORS });
+}
 
 const packageMidiError = async (error: unknown): Promise<string> => {
   let message: string = "Unknown error";

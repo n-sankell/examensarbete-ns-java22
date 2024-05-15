@@ -26,6 +26,8 @@ export const PARSE_MIDI_FAILURE = 'PARSE_MIDI_FAILURE';
 export const READ_MIDI_REQUEST = 'READ_MIDI_REQUEST';
 export const READ_MIDI_SUCCESS = 'READ_MIDI_SUCCESS';
 export const READ_MIDI_FAILURE = 'READ_MIDI_FAILURE';
+export const HIDE_MIDI_ERRORS = 'HIDE_MIDI_ERRORS';
+export const HIDE_MIDI_MESSAGE = 'HIDE_MIDI_MESSAGE';
 
 interface FetchUserMidisRequestAction {
     type: typeof FETCH_USER_MIDIS_REQUEST;
@@ -140,6 +142,13 @@ interface ReadMidiFailureAction {
     payload: string;
 }
 
+interface HideMidiErrors {
+    type: typeof HIDE_MIDI_ERRORS;
+}
+interface HideMidiMessage {
+    type: typeof HIDE_MIDI_MESSAGE;
+}
+
 export type MidiAction =
     | FetchUserMidisRequestAction
     | FetchUserMidisSuccessAction
@@ -164,7 +173,9 @@ export type MidiAction =
     | ParseMidiFailureAction
     | ReadMidiRequestAction
     | ReadMidiSuccessAction
-    | ReadMidiFailureAction;
+    | ReadMidiFailureAction
+    | HideMidiErrors
+    | HideMidiMessage;
 
 export interface MidiState {
     doFetchMidis: boolean;
@@ -175,7 +186,11 @@ export interface MidiState {
     error: string | null;
     displayPublicMidiFetchError: boolean;
     displayPrivateMidiFetchError: boolean;
+    displayMidiDataFetchError: boolean;
     displayCreateMidiError: boolean;
+    displayCreateMidiSuccess: boolean;
     displayDeleteMidiError: boolean;
+    displayEditMidiError: boolean;
+    displayEditMidiSuccess: boolean;
     parsedMidi: MidiWrapper;
 }

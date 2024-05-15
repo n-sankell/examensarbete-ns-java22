@@ -71,7 +71,7 @@
 .edit-binary-container {
     max-height: 0px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
     overflow: hidden;
     animation-delay: 0.3s;
@@ -87,11 +87,11 @@
 .input-row {
     height: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: baseline;
 }
 .checkbox-edit-wrapper {
-    width: 100%;
+    width: 44%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -174,7 +174,7 @@
     background-color: whitesmoke;
     border: 1px solid darkslategray;
     height: 25px;
-    width: 260px;
+    width: 130px;
     font-size: 14px;
     text-align: center;
     color: darkslategrey;
@@ -199,6 +199,8 @@
 .show-file-edit-fields {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
     margin-top: 15px;
     margin-bottom: 15px;
     height: 20px;
@@ -288,4 +290,25 @@
 
 .expand-arrow-expanded {
     transform: scaleY(-1);
+}
+
+.edit-midi-failure {
+    bottom: 40px;
+    height: 45px;
+    width: 190px;
+    margin-bottom: -47px;
+}
+
+.edit-midi-success {
+    bottom: 40px;
+    height: 45px;
+    width: 190px;
+    margin-bottom: -47px;
+}
+
+.edit-midi-success {
+    bottom: 40px;
+    height: 45px;
+    width: 190px;
+    margin-bottom: -47px;
 }

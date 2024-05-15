@@ -13,6 +13,7 @@
 .add-midi-form {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-evenly;
     padding-top: 20px;
     padding-bottom: 20px;
@@ -23,7 +24,6 @@
     border-radius: 5px;
     margin-top: 15%;
     background-color: whitesmoke;
-    height: 100%;
     width: 120px;
     height: 50px;
     align-self: center;
@@ -37,6 +37,7 @@
 
 .add-button:hover{
     background-color: darkgrey;
+    cursor: pointer;
 }
 
 .add-button:disabled{
@@ -89,8 +90,9 @@
     display: none;
 }
 
-.edit-file-input-label:hover {
+.add-file-input-label:hover {
     background-color: lightgray;
+    cursor: pointer;
 }
 
 .add-file-input-label {
@@ -111,4 +113,9 @@
     user-select: none;
 }
 
-
+.create-midi-failure {
+    width: 160px;
+    bottom: 50px;
+    height: 50px;
+    margin-bottom: -51px;
+}
