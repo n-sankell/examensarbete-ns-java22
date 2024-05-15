@@ -1,7 +1,7 @@
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import { closeEditMidiModal } from "../../actions/displayActions";
 import { EditMidiRequest, MidiWithData } from "../../../generated/midi-api";
-import { editMidi } from "../../actions/midiActions";
+import { editMidi, hideMidiErrors, hideMidiMessage } from "../../actions/midiActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
@@ -12,13 +12,18 @@ import "./Modal.css";
 interface DispatchProps {
     editMidi: (editMidiRequest: EditMidiRequest) => void;
     closeEditMidiModal: () => void;
+    hideMidiErrors: () => void;
+    hideMidiMessage: () => void;
 }
 interface StateProps {
     activeMidi: MidiWithData | null;
+    displayEditMidiSuccess: boolean;
+    displayEditMidiError: boolean;
+    error: string | null;
 }
 interface EditMidiModalProps extends StateProps, DispatchProps {}
 
-const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiModal, activeMidi } ) => {
+const EditMidiModal: React.FC<EditMidiModalProps> = ( { error, editMidi, closeEditMidiModal, activeMidi, hideMidiErrors, hideMidiMessage, displayEditMidiError, displayEditMidiSuccess } ) => {
 
     if (activeMidi !== null) {
     
@@ -32,19 +37,35 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     const [showFileForm, setShowFileForm] = useState<boolean>(false);
     const [useNewFilename, setUseNewFilename] = useState<boolean>(false);
     const [newFileName, setNewFilename] = useState<string>("");
-    const oldFileName: string = activeMidi.meta.filename;
+    let oldFileName: string = activeMidi.meta.filename;
 
-    const closeClick = (): void => {
+    const closeModal = (): void => {
         closeEditMidiModal();
+        hideMidiErrors();
+        hideMidiMessage();
         resetValues();
     }
     const handleTitleChange = (titleEvent: any): void => {
-        setTitle(titleEvent.target.value);
+        hideMidiErrors();
+        hideMidiMessage();
+        if (titleEvent.target.value === "") {
+            setTitle(undefined);
+        } else {
+            setTitle(titleEvent.target.value);
+        }
     }
     const handleArtistChange = (artistEvent: any): void => {
-        setArtist(artistEvent.target.value);
+        hideMidiErrors();
+        hideMidiMessage();
+        if (artistEvent.target.value === "") {
+            setArtist(undefined);
+        } else {
+            setArtist(artistEvent.target.value);
+        }
     }
     const handlePrivateChange = (privateEvent: any): void => {
+        hideMidiErrors();
+        hideMidiMessage();
         if (isPrivate) {
             setIsPrivate(false);
         } else {
@@ -52,6 +73,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         }
     }
     const handleFileInputChange = (fileEvent: any): void => {
+        hideMidiErrors();
+        hideMidiMessage();
         const file = fileEvent.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -70,6 +93,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         }
     }
     const handleFileNameChange = (filenameEvent: any): void => {
+        hideMidiErrors();
+        hideMidiMessage();
         setFileName(filenameEvent.target.value);
     }
 
@@ -79,8 +104,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         const metaData = containsMetaChange() ? {
             isPrivate: isPrivate, 
             filename: fileName, 
-            artist: artist, 
-            title: title
+            artist: artist === "" ? undefined : artist, 
+            title: title === "" ? undefined : title
         } : undefined;
 
         const binaryData = newFileLoaded === true && containsBinaryChange() ? {
@@ -94,9 +119,7 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 binaryData: binaryData
             }
         };
-        editMidi(requestObject)
-        resetValues();
-        closeEditMidiModal();
+        editMidi(requestObject);
     }
 
     const resetValues = (): void => {
@@ -105,6 +128,15 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
         setIsPrivate(true);
         setFileString("");
         setFileName("");
+        setNewFileLoaded(false);
+    }
+    const resetValuesToBase = (): void => {
+        setTitle(activeMidi.meta.title);
+        setArtist(activeMidi.meta.artist);
+        setIsPrivate(activeMidi.meta.isPrivate);
+        setFileString(activeMidi.binary.midiFile);
+        setFileName(activeMidi.meta.filename);
+        oldFileName = activeMidi.binary.midiFile;
         setNewFileLoaded(false);
     }
 
@@ -141,6 +173,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     }
 
     const handleUseNewFilename = (event: any): void => {
+        hideMidiErrors();
+        hideMidiMessage();
         if (useNewFilename) {
             setUseNewFilename(false);
             setFileName(oldFileName);
@@ -156,10 +190,13 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
     }, []);
 
     useEffect((): void => {
-    }, [newFileLoaded, showEditForm, showFileForm, useNewFilename]);
+        if (displayEditMidiSuccess === true) {
+            resetValuesToBase();
+        }
+    }, [displayEditMidiError, displayEditMidiSuccess, activeMidi]);
     
     return (<>
-        <div className='overhang' onClick={ closeClick } />
+        <div className='overhang' onClick={ closeModal } />
         <div className='modal'>
         <div className='content-wrapper'>
         <div className={`edit-midi`}>
@@ -201,6 +238,8 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
                 <input className="edit-button" type="submit" value="Save" 
             disabled={ !containsMetaChange() && !containsBinaryChange() }/>
             : "" }
+            { displayEditMidiSuccess === true ? <span className="success-message edit-midi-success">Changes saved!</span> : "" }
+            { displayEditMidiError === true ?  <span className="failure-message edit-midi-failure">{error}</span> : "" }
             <div className="show-file-edit-fields" onClick={ (event)=> handleShowEditInput(event) }>
                 <div className="divider">
                     <div className="divider-left"><div className="divider-line"></div><div className="divider-bottom"></div></div>
@@ -313,11 +352,16 @@ const EditMidiModal: React.FC<EditMidiModalProps> = ( { editMidi, closeEditMidiM
 }
 const mapStateToProps = (state: RootState): StateProps => ({
     activeMidi: state.midi.activeMidi,
+    displayEditMidiError: state.midi.displayEditMidiError,
+    displayEditMidiSuccess: state.midi.displayEditMidiSuccess,
+    error: state.midi.error,
 });
   
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
     editMidi: bindActionCreators(editMidi, dispatch),
     closeEditMidiModal: bindActionCreators(closeEditMidiModal, dispatch),
+    hideMidiErrors: bindActionCreators(hideMidiErrors, dispatch),
+    hideMidiMessage: bindActionCreators(hideMidiMessage, dispatch),
 });
   
 export default connect(mapStateToProps, mapDispatchToProps)(EditMidiModal);

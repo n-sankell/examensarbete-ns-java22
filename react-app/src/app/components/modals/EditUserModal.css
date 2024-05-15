@@ -1,45 +1,71 @@
 .edit-user {
+    border: 1px solid darkslategray;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    height: 100%;
+    max-height: 1000px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 45px;
+    background: rgb(134, 160, 169);
+    padding-bottom: 15px;
+}
+
+.edit-user-container {
+    max-height: 0px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%;
-    padding-left: 40%;
-    padding-right: 40%;
-    background-color: rgb(84, 82, 151);
+    overflow: hidden;
+    animation-delay: 0.3s;
+    transition: max-height 0.3s ease-in-out;
 }
 
-.title {
-    color: rgb(250, 250, 250);
+.edit-user-container-expanded {
+    transition: max-height 0.3s ease-in-out;
+    max-height: 1000px;
 }
 
 .edit-user-form {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    padding: 20%;
 }
 
 .edit-user-submit {
-    margin-top: 15%;
-    background-color: rgb(237, 143, 1);
-    border: none;
-    height: 100%;
-    padding-top: 7%;
-    padding-bottom: 7%;
-    width: 100%;
+    margin-top: 10px;
+    border: 1px solid darkslategray;
+    border-radius: 5px;
+    background-color: whitesmoke;
+    height: 40px;
+    width: 120px;
     align-self: center;
-    color: rgb(250, 250, 250);
+    color: darkslategray;
     text-transform: uppercase;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .edit-user-submit:disabled{
+    border: 1px solid darkgray;
     background-color: lightgray;
+    color: darkgray;
 }
 
 .edit-user-submit:hover{
-    background-color: rgb(214, 129, 1);
+    background-color: darkgrey;
 }
 
 .edit-user-submit:hover:disabled{
@@ -47,14 +73,83 @@
 }
 
 .input-text {
-    background-color: gainsboro;
-    border: none;
+    border-radius: 3px;
+    background-color: whitesmoke;
+    border: 1px solid darkslategray;
     height: 100%;
-    padding-top: 5%;
-    padding-bottom: 5%;
-    margin-bottom: 8%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 8px;
+    color: darkslategray;
 }
 
 .input-text:hover {
-    background-color: ghostwhite;
+    background-color: lightgray;
+}
+.failure-message {
+    position: relative;
+    display: block;
+    border-radius: 5px;
+    border: 1px solid darkslategray;
+    text-align: center;
+    text-justify: center;
+    font-display: bold;
+    background-color: red;
+    color: whitesmoke;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.success-message {
+    position: relative;
+    display: block;
+    border-radius: 5px;
+    border: 1px solid darkslategray;
+    text-align: center;
+    text-justify: center;
+    font-display: bold;
+    position: relative;
+    background-color: green;
+    color: whitesmoke;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.password-change-success {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
+
+.password-change-failure {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
+
+.delete-user-failure {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
+
+.delete-user-prompt {
+    position: relative;
+    top: -85px;
+    margin-bottom: -85px;
+}
+
+.edit-user-success {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
+}
+
+.edit-user-failure {
+    bottom: 40px;
+    height: 38px;
+    margin-bottom: -40px;
 }

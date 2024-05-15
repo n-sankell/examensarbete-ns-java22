@@ -3,6 +3,7 @@ import { DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, Use
 
 export const LOGOUT_USER = 'LOGOUT_USER';
 export const HIDE_USER_ERRORS = 'HIDE_USER_ERRORS';
+export const HIDE_USER_MESSAGE = 'HIDE_USER_MESSAGE';
 export const LOGIN_USER_REQUEST = 'LOGIN_USER_REQUEST';
 export const LOGIN_USER_SUCCESS = 'LOGIN_USER_SUCCESS';
 export const LOGIN_USER_FAILURE = 'LOGIN_USER_FAILURE';
@@ -107,6 +108,9 @@ interface LogoutUserAction {
 interface HideUserErrors {
   type: typeof HIDE_USER_ERRORS;
 }
+interface HideUserMessage {
+  type: typeof HIDE_USER_MESSAGE;
+}
 
 export type UserAction = 
   | LogoutUserAction
@@ -125,7 +129,8 @@ export type UserAction =
   | DeleteUserRequestAction
   | DeleteUserSuccessAction
   | DeleteUserFailureAction
-  | HideUserErrors;
+  | HideUserErrors
+  | HideUserMessage;
 
 export interface UserState {
   loggedIn: boolean;
@@ -135,5 +140,12 @@ export interface UserState {
   error: string | null;
   userMidis: Midis | null;
   displayLoginError: boolean;
-  displayUserCreateError: boolean;
+  displayCreateUserError: boolean;
+  displayCreateUserSuccess: boolean;
+  displayUpdateUserError: boolean;
+  displayUpdateUserSuccess: boolean;
+  displayDeleteUserError: boolean;
+  displayDeleteUserSuccess: boolean;
+  displayUpdatePasswordSuccess: boolean;
+  displayUpdatePasswordError: boolean;
 }

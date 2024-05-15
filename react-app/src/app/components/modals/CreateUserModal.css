@@ -5,19 +5,20 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 200px;
     height: 100%;
     padding-left: 40%;
     padding-right: 40%;
-    margin-top: 45px;
     background: rgb(134, 160, 169);
 }
 
 .add-user-form {
+    width: 200px;
+    margin-top: 40px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    padding: 20%;
+    
 }
 
 .submit-new-user-button {
@@ -28,6 +29,7 @@
     height: 100%;
     padding-top: 7%;
     padding-bottom: 7%;
+    margin-bottom: 40px;
     width: 80%;
     align-self: center;
     color: darkslategray;
@@ -65,4 +67,12 @@
 
 .input-create-text:hover {
     background-color: lightgray;
+}
+
+.create-user-failure {
+    display: block;
+    bottom: 85px;
+    height: 45px;
+    margin-bottom: -46px;
+    margin-top: -1px;
 }
