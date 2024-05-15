@@ -89,7 +89,6 @@
 .failure-message {
     position: relative;
     display: block;
-    bottom: 50px;
     border-radius: 5px;
     border: 1px solid darkslategray;
     text-align: center;
@@ -120,8 +119,9 @@
 }
 
 .password-change-success {
-    bottom: 10px;
+    bottom: 40px;
     height: 38px;
+    margin-bottom: -40px;
 }
 
 .password-change-failure {

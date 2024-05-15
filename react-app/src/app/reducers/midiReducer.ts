@@ -51,6 +51,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
     	case CREATE_MIDI_FAILURE:
     	case DELETE_MIDI_FAILURE:
 		case EDIT_MIDI_FAILURE:
+			console.log(action.payload);
         	return {
             	...state,
         	    doFetchMidis: false,

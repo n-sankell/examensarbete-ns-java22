@@ -1,8 +1,8 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store';
-import { Configuration, DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, UserApi, UserCreateRequest, UserLoginRequest } from '../../generated/user-api';
+import { Configuration, DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, ErrorResponse, ErrorResponseFromJSON, UserApi, UserCreateRequest, UserLoginRequest, ValidationError, ValidationException, ValidationExceptionFromJSON, instanceOfErrorResponse, instanceOfValidationException } from '../../generated/user-api';
 import { UserAction, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE, LOGOUT_USER, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, EDIT_USER_FAILURE, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE, HIDE_USER_ERRORS, HIDE_USER_MESSAGE } from './userActionTypes';
-import { ResponseError } from '../../generated/midi-api';
+import { ResponseError } from '../../generated/user-api';
 
 export const login = (request: UserLoginRequest): ThunkAction<void, RootState, null, UserAction> => async (dispatch) => {
     dispatch({ type: LOGIN_USER_REQUEST, payload: { request } });
@@ -14,7 +14,7 @@ export const login = (request: UserLoginRequest): ThunkAction<void, RootState, n
         const user = await response.value();
         dispatch({ type: LOGIN_USER_SUCCESS, payload: { user, token } });
     } catch (error) {
-        const message: string = error instanceof ResponseError ? error.message : "Login failed";
+        const message: string = await packageUserError(error, LOGIN_USER_FAILURE);
         dispatch({ type: LOGIN_USER_FAILURE, payload: message });
     }
 };
@@ -29,7 +29,7 @@ export const createUser = (request: UserCreateRequest): ThunkAction<void, RootSt
         const user = await response.value();
         dispatch({ type: CREATE_USER_SUCCESS, payload: { user, token } });
     } catch (error) {
-        const message: string = error instanceof ResponseError ? error.message : "User could not be created";
+        const message: string = await packageUserError(error, CREATE_USER_FAILURE);
         dispatch({ type: CREATE_USER_FAILURE, payload: message });
     }
 };
@@ -42,7 +42,7 @@ export const editUser = (request: EditUserDetailsRequest): ThunkAction<void, Roo
         const response = await userApi.editUserDetails(request);
         dispatch({ type: EDIT_USER_SUCCESS, payload: { user: response } });
     } catch (error) {
-        const message: string = error instanceof ResponseError ? error.message : "User could not be updated";
+        const message: string = await packageUserError(error, EDIT_USER_FAILURE);
         dispatch({ type: EDIT_USER_FAILURE, payload: message });
     }
 };
@@ -55,7 +55,7 @@ export const editPassword = (request: EditUserPasswordRequest): ThunkAction<void
         await userApi.editUserPassword(request);
         dispatch({ type: EDIT_PASSWORD_SUCCESS });
     } catch (error) {
-        const message: string = error instanceof ResponseError ? error.message : "Password could not be updated";
+        const message: string = await packageUserError(error, EDIT_PASSWORD_FAILURE);
         dispatch({ type: EDIT_PASSWORD_FAILURE, payload: message });
     }
 };
@@ -68,7 +68,7 @@ export const deleteUser = (request: DeleteUserRequest): ThunkAction<void, RootSt
         await userApi.deleteUser({ deleteUserRequest: request });
         dispatch({ type: DELETE_USER_SUCCESS });
     } catch (error) {
-        const message: string = error instanceof ResponseError ? error.message : "User could not be deleted";
+        const message: string = await packageUserError(error, DELETE_USER_FAILURE);
         dispatch({ type: DELETE_USER_FAILURE, payload: message });
     }
 };
@@ -83,3 +83,25 @@ export const hideUserErrors = (): ThunkAction<void, RootState, null, UserAction>
 export const hideUserMessage = (): ThunkAction<void, RootState, null, UserAction> => (dispatch) => {
     dispatch({ type: HIDE_USER_MESSAGE });
 }
+
+const packageUserError = async (error: unknown, type: string): Promise<string> => {
+    let message: string = "Unknown error";
+    if (error instanceof ResponseError) {
+      const json = await error.response.json();
+      if (instanceOfValidationException(json)) {
+        const ve: ValidationException = ValidationExceptionFromJSON(json);
+        const firstError: ValidationError = ve.errors[0];
+        message = firstError.error + " - " + firstError.field;
+      } else if (instanceOfErrorResponse(json)) {
+        const re: ErrorResponse = ErrorResponseFromJSON(json);
+        if (type === LOGIN_USER_FAILURE && error.response.status === 403) {
+            message = "Login failed";
+        } else if (type === EDIT_PASSWORD_FAILURE || type === DELETE_USER_FAILURE  && error.response.status === 403) {
+            message = "Password did not match";
+        } else {
+            message = re.errorMessage;
+        }
+      }
+    }
+    return message;
+  }

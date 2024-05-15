@@ -1,7 +1,7 @@
 import { CreateUserRequest, UserCreateRequest } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import { closeCreateUserModal } from "../../actions/displayActions";
-import { createUser } from "../../actions/userActions";
+import { createUser, hideUserErrors, hideUserMessage } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
@@ -11,14 +11,17 @@ import "./Modal.css";
 interface DispatchProps {
     createUser: (userCreateRequest: UserCreateRequest) => void;
     closeCreateUserModal: () => void;
+    hideUserMessage: () => void;
+    hideUserErrors: () => void;
 }
 interface StateProps {
+    error: string | null;
     displayUserCreateError: boolean;
     loggedIn: boolean;
 }
 interface CreateUserModalProps extends StateProps, DispatchProps {}
 
-const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError, loggedIn } ) => {
+const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCreateUserModal, displayUserCreateError, loggedIn, error, hideUserErrors, hideUserMessage } ) => {
     const [username, setUsername] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string >("");
@@ -28,15 +31,23 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
         resetValues();
     }
     const handleUsernameChange = (usernameEvent: any) => {
+        hideUserErrors();
+        hideUserMessage();
         setUsername(usernameEvent.target.value);
     }
     const handleEmailChange = (emailEvent: any) => {
+        hideUserErrors();
+        hideUserMessage();
         setEmail(emailEvent.target.value);
     }
     const handlePasswordChange = (passwordEvent: any) => {
+        hideUserErrors();
+        hideUserMessage();
         setPassword(passwordEvent.target.value);
     }
     const resetValues = () => {
+        hideUserErrors();
+        hideUserMessage();
         setUsername("");
         setEmail("");
         setPassword("");
@@ -64,6 +75,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
     useEffect((): void => {
         if (loggedIn) {
             closeCreateUserModal();
+            hideUserErrors();
+            hideUserMessage();
         }
     }, [loggedIn]);
     
@@ -105,6 +118,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
                 required={ true } 
             />
             <input className="submit-new-user-button" type="submit" value="Create account" disabled={ isDisabled() }/>
+            { displayUserCreateError === true ? <span className="failure-message create-user-failure">{ error }</span> : "" } 
         </form>
         </div>
         </div>
@@ -115,11 +129,14 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ( { createUser, closeCre
 const mapStateToProps = (state: RootState): StateProps => ({
     displayUserCreateError: state.user.displayCreateUserError,
     loggedIn: state.user.loggedIn,
+    error: state.user.error,
 });
   
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
     createUser: bindActionCreators(createUser, dispatch),
     closeCreateUserModal: bindActionCreators(closeCreateUserModal, dispatch),
+    hideUserErrors: bindActionCreators(hideUserErrors, dispatch),
+    hideUserMessage: bindActionCreators(hideUserMessage, dispatch),
 });
   
 export default connect(mapStateToProps, mapDispatchToProps)(CreateUserModal);
