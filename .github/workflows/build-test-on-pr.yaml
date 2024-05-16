@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   
 jobs:
-  build-test-check-coverage:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
