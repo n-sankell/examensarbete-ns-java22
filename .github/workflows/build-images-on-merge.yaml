@@ -26,20 +26,20 @@ jobs:
       - name: Build and push midi-manager Docker image
         if: github.event_name == 'push' && contains(github.event.head_commit.modified, 'midi-manager/')
         run: |
-          cd path/to/backend1
+          cd midi-manager
           docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/midi-manager:latest .
           docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/midi-manager:latest
 
       - name: Build and push user-service Docker image
         if: github.event_name == 'push' && contains(github.event.head_commit.modified, 'user-service/')
         run: |
-          cd path/to/backend2
+          cd user-service
           docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest .
           docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest
 
       - name: Build and push react-app Docker image
         if: github.event_name == 'push' && contains(github.event.head_commit.modified, 'react-app/')
         run: |
-          cd path/to/reactapp
+          cd react-app
           docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest .
           docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest
