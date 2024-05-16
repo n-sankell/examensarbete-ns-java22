@@ -6,14 +6,14 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./user-service
-    image: ex-user-service:1.0
+    image: e-user-service:1.0
 
   midi-manager:
     container_name: midi-manager
     build:
       dockerfile: Dockerfile
       context: ./midi-manager
-    image: ex-midi-manager:1.0
+    image: e-midi-manager:1.0
 
   react-app:
     container_name: react-app
@@ -22,4 +22,4 @@ services:
       args:
         - MIDI_ADDRESS=localhost:8082
         - USER_ADDRESS=localhost:8081
-    image: ex-react-app:1.0
+    image: e-react-app:1.0

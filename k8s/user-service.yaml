@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: ex-user-service:1.0
-        imagePullPolicy: Never
+        docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest
         ports:
         - containerPort: 8081
         
