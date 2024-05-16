@@ -1,26 +1,25 @@
 version: '3'
 services:
 
-  mysql:
-    container_name: mysql
+  user-service:
+    container_name: user-service
     build:
-      context: ./mysql
       dockerfile: Dockerfile
-    image: tf-mysql:v1.2
+      context: ./user-service
+    image: e-user-service:1.0
+
+  midi-manager:
+    container_name: midi-manager
+    build:
+      dockerfile: Dockerfile
+      context: ./midi-manager
+    image: e-midi-manager:1.0
 
   react-app:
     container_name: react-app
     build:
       dockerfile: Dockerfile
       args:
-        - ADDRESS=127.0.0.1:51704
-    image: tf-react-app:color
-
-  spring-boot-app:
-    container_name: spring-boot-app
-    depends_on:
-      - mysql
-    build:
-      dockerfile: Dockerfile
-      context: ./spring-boot-app
-    image: tf-spring-boot-app:v2.8
+        - MIDI_ADDRESS=localhost:8082
+        - USER_ADDRESS=localhost:8081
+    image: e-react-app:1.0
