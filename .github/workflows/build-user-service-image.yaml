@@ -8,7 +8,7 @@ on:
       - user-service/**
 
 jobs:
-  build-and-push:
+  build-and-push-user-service:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
