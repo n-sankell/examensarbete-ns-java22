@@ -10,19 +10,23 @@ on:
 jobs:
   build-and-push-react-app:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.pkg.github.com
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-      - name: Build and push react-app Docker image
-        run: |
-          cd react-app
-          docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest .
-          docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push User Service Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./react-app
+        push: true
+        tags: n-sankell/examensarbete-ns-java22/react-app:latest
