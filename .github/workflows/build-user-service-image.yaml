@@ -6,6 +6,8 @@ on:
       - dev-workflow-image-build
     paths:
       - user-service/**
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   build-and-push-user-service:
