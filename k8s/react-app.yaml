@@ -16,12 +16,14 @@ spec:
     spec:
       containers:
       - name: react-app
-        image: tf-react-app:v1.5
+        image: ex-react-app:1.0
         imagePullPolicy: Never
         ports:
         - containerPort: 3000
+          name: react-app-port
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -34,4 +36,4 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-      nodePort: 32000
+      nodePort: 30000

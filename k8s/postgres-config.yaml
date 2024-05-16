@@ -3,6 +3,10 @@ kind: ConfigMap
 metadata:
   name: postgres-config
 data:
+  user-db-url: "user-db-service"
   meta-db-url: "meta-db-service"
   blob-db-url: "blob-db-service"
-  user-db-url: "user-db-service"
+
+  user-db-port: "5431"
+  meta-db-port: "5432"
+  blob-db-port: "5433"

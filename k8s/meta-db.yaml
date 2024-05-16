@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: user-db-pv
+  name: meta-db-pv
   labels:
     type: local
 spec:
@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/data/user-db"
+    path: "/mnt/data/meta-db"
   persistentVolumeReclaimPolicy: Retain
 
 ---
@@ -19,9 +19,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: user-db-pv-claim
+  name: meta-db-pv-claim
   labels:
-    app: user-db
+    app: meta-db
 spec:
   storageClassName: standard
   accessModes:
@@ -35,15 +35,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: user-db-service
+  name: meta-db-service
   labels:
-    app: user-db
+    app: meta-db
 spec:
   ports:
-    - port: 5431
+    - port: 5432
   selector:
-    app: user-db
-    tier: user-db
+    app: meta-db
+    tier: meta-db
   clusterIP: None
 
 ---
@@ -51,55 +51,55 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: user-db-statefulset
+  name: meta-db-stateful-set
   labels:
-    app: user-db
+    app: meta-db
 spec:
-  serviceName: "user-db-service"
+  serviceName: "meta-db-service"
   replicas: 1
   selector:
     matchLabels:
-      app: user-db
-      tier: user-db
+      app: meta-db
+      tier: meta-db
   template:
     metadata:
       labels:
-        app: user-db
-        tier: user-db
+        app: meta-db
+        tier: meta-db
     spec:
       containers:
         - name: postgres
           image: postgres:16.2
           ports:
-            - containerPort: 5431
-              name: user-db-port
+            - containerPort: 5432
+              name: meta-db-port
           env:
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: user-db-pguser
+                  key: meta-db-pguser
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: user-db-postgres-db
+                  key: meta-db-postgres-db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: user-db-postgres-user
+                  key: meta-db-postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: user-db-postgres-password
+                  key: meta-db-postgres-password
           volumeMounts:
-            - name: user-db-persistent-storage
-              mountPath: /var/lib/postgresql/user-data
+            - name: meta-db-persistent-storage
+              mountPath: /var/lib/postgresql/meta-data
   volumeClaimTemplates:
     - metadata:
-        name: user-db-persistent-storage
+        name: meta-db-persistent-storage
       spec:
         storageClassName: standard
         accessModes:
