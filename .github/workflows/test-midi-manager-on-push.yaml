@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   
 jobs:
-  build-test-check-coverage:
+  build-and-test-midi-manager:
     runs-on: ubuntu-latest
     permissions:
       contents: read
