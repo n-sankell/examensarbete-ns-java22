@@ -25,20 +25,20 @@ spec:
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
+              name: secrets
               key: mysql-user
               
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
+              name: secrets
               key: mysql-password
               
         - name: MYSQL_URL
           valueFrom:
             configMapKeyRef:
-              name: mysql-config
-              key: mysql-url
+              name: postgres-config
+              key: user-db-url
         - name: ALLOWED_ORIGIN
           value: http://127.0.0.1:51678
 
