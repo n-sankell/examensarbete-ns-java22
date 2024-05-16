@@ -8,7 +8,7 @@ on:
       - react-app/**
 
 jobs:
-  build-and-push:
+  build-and-push-react-app:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
