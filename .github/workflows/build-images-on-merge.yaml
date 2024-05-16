@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Push Midi Manager Image
 
 on:
   push:
@@ -6,11 +6,9 @@ on:
       - dev-workflow-image-build
     paths:
       - midi-manager/**
-      - user-service/**
-      - react-app/**
 
 jobs:
-  build-and-push:
+  build-and-push-midi-manager:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,22 +22,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push midi-manager Docker image
-        if: contains(toJson(github.event.commits.*.modified), 'midi-manager/')
         run: |
           cd midi-manager
           docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/midi-manager:latest .
           docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/midi-manager:latest
-
-      - name: Build and push user-service Docker image
-        if: contains(toJson(github.event.commits.*.modified), 'user-service/')
-        run: |
-          cd user-service
-          docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest .
-          docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest
-
-      - name: Build and push react-app Docker image
-        if: contains(toJson(github.event.commits.*.modified), 'react-app/')
-        run: |
-          cd react-app
-          docker build -t docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest .
-          docker push docker.pkg.github.com/n-sankell/examensarbete-ns-java22/react-app:latest
