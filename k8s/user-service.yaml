@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest
+        image: docker.pkg.github.com/n-sankell/examensarbete-ns-java22/user-service:latest
         ports:
         - containerPort: 8081
         
