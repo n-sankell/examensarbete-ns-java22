@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: n-sankell/examensarbete-ns-java22/midi-manager
 
 jobs:
-  build-and-push-user-service:
+  build-and-push-midi-manager:
     runs-on: ubuntu-latest
 
     steps:
@@ -47,7 +47,7 @@ jobs:
       tags: ${{steps.build-and-push-docker-image.outputs.tags}}
 
   deploy_simulation:
-    needs: build-and-push-user-service
+    needs: build-and-push-midi-manager
     runs-on: ubuntu-latest
     steps:
 
