@@ -8,6 +8,7 @@ on:
       - user-service/**
 env:
   REGISTRY: ghcr.io
+  IMAGE_NAME: user-service
 
 jobs:
   build-and-push-user-service:
@@ -36,7 +37,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-          context: .
+          context: ./user-service
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
