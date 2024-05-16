@@ -1,0 +1,55 @@
+name: Build and Push User Service Docker Image
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - user-service/**
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: n-sankell/examensarbete-ns-java22/user-service
+
+jobs:
+  build-and-push-user-service:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
+  
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+          context: ./user-service
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+    outputs:
+      image: ${{steps.meta.outputs.tags}}
+      tags: ${{steps.build-and-push-docker-image.outputs.tags}}
+
+  deploy_simulation:
+    needs: build-and-push-user-service
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Echo Image Name
+      run: |
+        echo "Deploying image: ${{needs.build-and-push-image.outputs.image}}"
