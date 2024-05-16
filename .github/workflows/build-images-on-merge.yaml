@@ -5,7 +5,7 @@ on:
     branches:
       - dev-workflow-image-build
     paths:
-      - 'midi-manager/**'
+      - midi-manager/**
       - 'user-service/**'
       - 'react-app/**'
 
