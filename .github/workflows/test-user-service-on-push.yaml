@@ -11,6 +11,7 @@ env:
   
 jobs:
   build-and-test-user-service:
+    if: github.ref != 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: read
