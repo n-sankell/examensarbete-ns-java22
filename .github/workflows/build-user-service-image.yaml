@@ -51,11 +51,11 @@ jobs:
     steps:
       
     - name: Pull Docker image
-      run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/user-service:${{needs.build-and-push-react-app.outputs.image}}
+      run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/user-service:master
       
     - name: Update Docker Compose file
       run: |
-        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: ghcr.io/n-sankell/examensarbete-ns-java22/user-service:${{needs.build-and-push-user-service.outputs.image}}|g" docker-compose.deploy.yaml
+        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: ghcr.io/n-sankell/examensarbete-ns-java22/user-service:master|g" docker-compose.deploy.yaml
       
     - name: Restart Docker services
       run: docker-compose up -d
