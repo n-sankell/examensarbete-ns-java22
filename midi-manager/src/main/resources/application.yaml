@@ -10,14 +10,14 @@ spring:
   datasource:
     meta:
       driverClassName: org.postgresql.Driver
-      url: jdbc:postgresql://${META_DB_URL:localhost}:${META_DB_PORT:5432}/${META_DB_NAME:meta_db}?gssEncMode=disable&useSSL=false
+      url: jdbc:postgresql://${META_DB_URL:localhost}:${META_DB_PORT:5432}/${META_DB_NAME:midi_meta_db}?gssEncMode=disable&useSSL=false
       username: ${META_USER:midiuser}
       password: ${META_PASSWORD:midipass}
       liquibase:
         change-log: classpath:db/changelog-meta.yaml
     blob:
       driverClassName: org.postgresql.Driver
-      url: jdbc:postgresql://${BLOB_DB_URL:localhost}:${BLOB_DB_PORT:5433}/${BLOB_DB_NAME:blob_db}?gssEncMode=disable&useSSL=false
+      url: jdbc:postgresql://${BLOB_DB_URL:localhost}:${BLOB_DB_PORT:5433}/${BLOB_DB_NAME:midi_blob_db}?gssEncMode=disable&useSSL=false
       username: ${BLOB_USER:blobuser}
       password: ${BLOB_PASSWORD:blobpass}
       liquibase:
