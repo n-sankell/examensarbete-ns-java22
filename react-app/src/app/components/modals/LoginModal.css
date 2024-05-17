@@ -46,18 +46,19 @@
     text-transform: uppercase;
 }
 
-.submit-login-button:hover{
+.submit-login-button:hover {
     background-color: darkgrey;
+    cursor: pointer;
 }
 
-.submit-login-button:disabled{
+.submit-login-button:disabled {
     border: 1px solid darkgray;
     background-color: lightgray;
     color: darkgray;
 }
 
-.submit-login-button:hover:disabled{
-    background-color: lightgray;
+.submit-login-button:hover:disabled {
+    cursor: default;
 }
 
 .input-login-text {
@@ -71,6 +72,5 @@
 }
 
 .input-login-text:hover {
-    cursor: pointer;
     background-color: lightgray;
 }
