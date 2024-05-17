@@ -66,5 +66,4 @@ jobs:
 
       - name: Restart Docker services
         run: |
-          cd $GITHUB_WORKSPACE
           docker-compose up -d
