@@ -35,15 +35,19 @@
     user-select: none;
 }
 
-.add-button:hover{
+.add-button:hover {
     background-color: darkgrey;
     cursor: pointer;
 }
 
-.add-button:disabled{
-    border: 1px solid darkgray;
+.add-button:disabled {
     background-color: lightgray;
     color: darkgray;
+}
+
+.add-button:hover:disabled {
+    background-color: lightgray;
+    cursor: default;
 }
 
 .checkbox-wrapper {

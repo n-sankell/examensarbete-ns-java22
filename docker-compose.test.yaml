@@ -17,7 +17,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    network_mode: bridge
+    networks:
+      - miditestnetwork
 
   midi_blob_db:
     container_name: midi_blob_db
@@ -35,7 +36,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    network_mode: bridge
+    networks:
+      - miditestnetwork
 
   midi_user_db:
     container_name: midi_user_db
@@ -53,7 +55,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    network_mode: bridge
+    networks:
+      - miditestnetwork
 
   user-service:
     container_name: user-service
@@ -65,11 +68,12 @@ services:
       - "8081:8081"
     environment:
       USER_DB_NAME: "midi_user_db"
-      USER_DB_URL: "172.17.0.1"
+      USER_DB_URL: "172.22.0.1"
     depends_on:
       midi_user_db:
         condition: service_healthy
-    network_mode: bridge
+    networks:
+      - miditestnetwork
 
   midi-manager:
     container_name: midi-manager
@@ -81,15 +85,16 @@ services:
       - "8082:8082"
     environment:
       META_DB_NAME: "midi_meta_db"
-      META_DB_URL: "172.27.0.1"
+      META_DB_URL: "172.22.0.1"
       BLOB_DB_NAME: "midi_blob_db"
-      BLOB_DB_URL: "172.27.0.1"
+      BLOB_DB_URL: "172.22.0.1"
     depends_on:
       midi_blob_db:
         condition: service_healthy
       midi_meta_db:
         condition: service_healthy
-    network_mode: bridge
+    networks:
+      - miditestnetwork
 
   react-app:
     container_name: react-app
@@ -101,3 +106,9 @@ services:
     image: ex-react-app:test
     ports:
       - "3000:3000"
+    networks:
+      - miditestnetwork
+      
+networks:
+  miditestnetwork:
+    driver: bridge

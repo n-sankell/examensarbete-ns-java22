@@ -71,5 +71,6 @@
 }
 
 .input-login-text:hover {
+    cursor: pointer;
     background-color: lightgray;
 }

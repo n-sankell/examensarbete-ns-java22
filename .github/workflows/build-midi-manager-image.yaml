@@ -50,13 +50,18 @@ jobs:
     needs: build-and-push-midi-manager
     runs-on: ubuntu-latest
     steps:
-      
-    - name: Pull Docker image
-      run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:master
-      
-    - name: Update Docker Compose file
-      run: |
-        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:master|g" $GITHUB_WORKSPACE/docker-compose.deploy.yaml
-      
-    - name: Restart Docker services
-      run: docker-compose up -d
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Pull Docker image
+        run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:master
+
+      - name: Update Docker Compose file
+        run: |
+          cd $GITHUB_WORKSPACE
+          sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:master|g" docker-compose.deploy.yaml
+
+      - name: Restart Docker services
+        run: |
+          cd $GITHUB_WORKSPACE
+          docker-compose -f docker-compose.deploy.yaml up -d

@@ -40,17 +40,19 @@
     user-select: none;
 }
 
-.submit-new-user-button:hover{
+.submit-new-user-button:hover {
+    cursor: pointer;
     background-color: darkgrey;
 }
 
-.submit-new-user-button:disabled{
+.submit-new-user-button:disabled {
     border: 1px solid darkgray;
     background-color: lightgray;
     color: darkgray;
 }
 
-.submit-new-user-button:hover:disabled{
+.submit-new-user-button:hover:disabled {
+    cursor: default;
     background-color: lightgray;
 }
 
