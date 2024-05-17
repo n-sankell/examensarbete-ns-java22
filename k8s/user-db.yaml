@@ -40,7 +40,10 @@ metadata:
     app: user-db
 spec:
   ports:
-    - port: 5431
+    - name: user-db-port
+      port: 5431
+      protocol: TCP
+      targetPort: 5432
   selector:
     app: user-db
     tier: user-db
@@ -51,7 +54,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: user-db-statefulset
+  name: user-db-stateful-set
   labels:
     app: user-db
 spec:
@@ -71,7 +74,7 @@ spec:
         - name: postgres
           image: postgres:16.2
           ports:
-            - containerPort: 5431
+            - containerPort: 5432
               name: user-db-port
           env:
             - name: PGUSER
