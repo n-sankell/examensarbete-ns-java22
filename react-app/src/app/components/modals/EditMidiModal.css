@@ -115,17 +115,19 @@
     user-select: none;
 }
 
-.edit-button:hover{
+.edit-button:hover {
+    cursor: pointer;
     background-color: darkgrey;
 }
 
-.edit-button:disabled{
+.edit-button:disabled {
     border: 1px solid darkgray;
     background-color: lightgray;
     color: darkgray;
 }
 
-.edit-button:hover:disabled{
+.edit-button:hover:disabled {
+    cursor: default;
     background-color: lightgray;
 }
 

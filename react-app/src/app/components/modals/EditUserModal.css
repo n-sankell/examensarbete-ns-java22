@@ -58,17 +58,19 @@
     user-select: none;
 }
 
-.edit-user-submit:disabled{
+.edit-user-submit:disabled {
     border: 1px solid darkgray;
     background-color: lightgray;
     color: darkgray;
 }
 
-.edit-user-submit:hover{
+.edit-user-submit:hover {
+    cursor: pointer;
     background-color: darkgrey;
 }
 
-.edit-user-submit:hover:disabled{
+.edit-user-submit:hover:disabled {
+    cursor: default;
     background-color: lightgray;
 }
 
