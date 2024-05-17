@@ -49,7 +49,7 @@ jobs:
       image: ${{steps.meta.outputs.tags}}
       tags: ${{steps.build-and-push-docker-image.outputs.tags}}
       
-  deploy:
+  deploy-react-app:
     needs: build-and-push-react-app
     runs-on: ubuntu-latest
     steps:
