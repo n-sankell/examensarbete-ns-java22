@@ -59,7 +59,7 @@ jobs:
       
     - name: Update Docker Compose file
       run: |
-        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/react-app:master|g" docker-compose.deploy.yaml
+        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/react-app:master|g" $GITHUB_WORKSPACE/docker-compose.deploy.yaml
       
     - name: Restart Docker services
       run: docker-compose up -d
