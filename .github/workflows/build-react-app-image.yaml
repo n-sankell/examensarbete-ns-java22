@@ -2,8 +2,8 @@ name: Build and Push React App Docker Image
 
 on:
   push:
-    #branches:
-    #  - master
+    branches:
+      - master
     paths:
       - react-app/**
 
