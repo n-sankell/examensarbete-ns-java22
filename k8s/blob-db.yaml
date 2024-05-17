@@ -40,7 +40,10 @@ metadata:
     app: blob-db
 spec:
   ports:
-    - port: 5433
+    - name: user-db-port
+      port: 5433
+      protocol: TCP
+      targetPort: 5432
   selector:
     app: blob-db
     tier: blob-db
@@ -71,7 +74,7 @@ spec:
         - name: postgres
           image: postgres:16.2
           ports:
-            - containerPort: 5433
+            - containerPort: 5432
               name: blob-db-port
           env:
             - name: PGUSER
