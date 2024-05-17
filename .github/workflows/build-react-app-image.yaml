@@ -42,15 +42,24 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      env:
+        MIDI_ADDRESS: localhost:8082
+        USER_ADDRESS: localhost:8081
     outputs:
       image: ${{steps.meta.outputs.tags}}
       tags: ${{steps.build-and-push-docker-image.outputs.tags}}
-
-  deploy_simulation:
+      
+  deploy-react-app:
     needs: build-and-push-react-app
     runs-on: ubuntu-latest
     steps:
-
-    - name: Echo Image Name
+      
+    - name: Pull Docker image
+      run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/react-app:${{needs.build-and-push-react-app.outputs.image}}
+      
+    - name: Update Docker Compose file
       run: |
-        echo "Deploying image: ${{needs.build-and-push-image.outputs.image}}"
+        sed -i "s|IMAGE_NAME:.*|IMAGE_NAME: ghcr.io/n-sankell/examensarbete-ns-java22/react-app:${{needs.build-and-push-react-app.outputs.image}}|g" docker-compose.deploy.yaml
+      
+    - name: Restart Docker services
+      run: docker-compose up -d
