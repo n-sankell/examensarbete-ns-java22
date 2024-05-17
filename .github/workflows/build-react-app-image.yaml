@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Pull Docker image
-        run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/react-app:${{needs.build-and-push-react-app.outputs.image}}
+        run: docker pull ghcr.io/n-sankell/examensarbete-ns-java22/react-app:master
 
       - name: Update Docker Compose file
         run: |
