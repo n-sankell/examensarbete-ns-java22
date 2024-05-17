@@ -2,8 +2,8 @@ name: Build and Push Midi Manager Image
 
 on:
   push:
-    branches:
-      - master
+    #branches:
+    #  - master
     paths:
       - midi-manager/**
 
