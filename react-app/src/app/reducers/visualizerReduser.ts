@@ -1,8 +1,9 @@
-import { PAUSE_MIDI, PLAY_MIDI, SET_CURRENT_TRACK, VisualizerAction, VisualizerState } from "../actions/visualizerActionTypes";
+import { PAUSE_MIDI, PLAY_MIDI, SET_CURRENT_TRACK, SET_VOLUME, VisualizerAction, VisualizerState } from "../actions/visualizerActionTypes";
 
 const initialState: VisualizerState = {
     currentTrack: 0,
     midiIsPlaying: false,
+    volume: -12,
 };
 
 const visualizerReducer = (state = initialState, action: VisualizerAction) => {
@@ -21,6 +22,11 @@ const visualizerReducer = (state = initialState, action: VisualizerAction) => {
             return {
                 ...state,
                 midiIsPlaying: false,
+            }
+        case SET_VOLUME:
+            return {
+                ...state,
+                volume: action.payload,
             }
         default:
             return state;

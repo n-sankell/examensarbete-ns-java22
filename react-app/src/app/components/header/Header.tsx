@@ -1,8 +1,6 @@
 import { closeCreateMidiModal, closeCreateUserModal, closeEditUserModal, closeLoginModal, closeOpenMidiModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayEditUserModal, displayLoginModal, displayOpenMidiModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
-import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
-import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg';
 import LogoPng from '../../../assets/midio-logo.png';
 import { Midis } from "../../../generated/midi-api";
 import { User } from "../../../generated/user-api";
@@ -11,6 +9,7 @@ import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { MidiWrapper } from "../../types/MidiWrapper";
+import ControlPanel from "../visualizer/ControlPanel";
 import "./Header.css";
 
 interface StateProps {
@@ -18,7 +17,6 @@ interface StateProps {
     user: User | null;
     userMidis: Midis | null;
     parsedMidi: MidiWrapper;
-    midiIsPlaying: boolean;
 }
 interface DispatchProps {
     displayLoginModal: () => void;
@@ -39,7 +37,7 @@ interface DispatchProps {
 }
 interface HeaderProps extends StateProps, DispatchProps {}
 
-const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, midiIsPlaying, displayOpenMidiModal, closeOpenMidiModal,
+const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, displayOpenMidiModal, closeOpenMidiModal,
     displayLoginModal, displayCreateUserModal, displayEditUserModal, displayCreateMidiModal, displayUserMidis, displayPublicMidis, 
     closeLoginModal, closeCreateUserModal, closeCreateMidiModal, closeUserMidis, closePublicMidis, closeEditUserModal }) => {
 
@@ -96,7 +94,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
     }
 
     useEffect((): void => {
-    }, [loggedIn, user, userMidis, parsedMidi, midiIsPlaying]);
+    }, [loggedIn, user, userMidis, parsedMidi]);
 
     return (
     <div className="header">
@@ -152,13 +150,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
             </div>
         </div>
 
-        <div className="control-panel"> { parsedMidi.midi !== null ? 
-            <img 
-                src={ midiIsPlaying === false ? PlaySvg : PauseSvg } 
-                id='startButton' 
-                className={ midiIsPlaying === false ? 'play-icon' : 'pause-icon' } >
-            </img> : "" } 
-        </div>
+        { parsedMidi.midi !== null ? <ControlPanel/> : "" }
         
         <div className='user-info-wrapper'>{ loggedIn && user !== null ? 
         <> 
@@ -175,7 +167,6 @@ const mapStateToProps = (state: RootState): StateProps => ({
     user: state.user.user,
     userMidis: state.midi.userMidis,
     parsedMidi: state.midi.parsedMidi,
-    midiIsPlaying: state.visualizer.midiIsPlaying,
   });
   
   const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({

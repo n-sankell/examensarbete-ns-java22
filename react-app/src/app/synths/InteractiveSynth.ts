@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-const activeNotes: Record<string, any> = {};
+const activeNotes: Record<string, Tone.Synth> = {};
 
 export const playNote = (note: string) => {
   if (!activeNotes[note]) {
@@ -14,6 +14,7 @@ export const playNote = (note: string) => {
           sustain: 0.3,
           release: 1,
       },
+      
   }).toDestination();
     activeNotes[note].triggerAttack(note);
   }
@@ -22,6 +23,7 @@ export const playNote = (note: string) => {
 export const releaseNote = (note: string) => {
   if (activeNotes[note]) {
     activeNotes[note].triggerRelease();
+    activeNotes[note].disconnect();
     delete activeNotes[note];
   }
 };

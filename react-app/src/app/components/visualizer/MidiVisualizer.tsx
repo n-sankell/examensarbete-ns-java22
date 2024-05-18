@@ -1,12 +1,11 @@
 import * as Tone from 'tone';
 import * as d3 from 'd3';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { select } from 'd3';
 import { MidiJSON, TrackJSON } from '@tonejs/midi';
 import { connect as reduxConnect } from 'react-redux';
 import { Dispatch, bindActionCreators } from '@reduxjs/toolkit';
 import { RootState } from '../../store';
-import { MidiWrapper } from '../../types/MidiWrapper';
 import { NoteJSON } from '@tonejs/midi/dist/Note';
 import { TempoEvent } from '@tonejs/midi/dist/Header';
 import { pauseMidi, playMidi, setCurrentTrack } from '../../actions/visualizerActions';
@@ -17,13 +16,16 @@ import { playNote, releaseNote } from '../../synths/InteractiveSynth';
 import { debounce } from '../../util/Debouncer';
 import { NoteData } from '../../types/NoteData';
 import { KeyData } from '../../types/KeyData';
-import './MidiVisualizer.css';
 import { noteOffsetPosition, noteWidth } from '../../helpers/NotesPositionHelper';
+import { keyboardHeight, naturalKeyHeight, naturalKeyWidth, sharpKeyHeight, sharpKeyWidth, durationHeight, xPosSpacing } from '../../helpers/VisualizationHelper';
+import { MidiWrapper } from '../../types/MidiWrapper';
+import './MidiVisualizer.css';
 
 interface VisualizerStateProps {
     parsedMidi: MidiWrapper;
     midiIsPlaying: boolean;
     currentTrack: number;
+    volumeValue: number;
 }
 interface VisualizerDispatchProps {
     playMidi: () => void;
@@ -32,30 +34,30 @@ interface VisualizerDispatchProps {
 }
 interface VisualizerProps extends VisualizerDispatchProps, VisualizerStateProps {}
 
-const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying, playMidi, pauseMidi, currentTrack, setCurrentTrack } ) => {
+const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying, volumeValue, playMidi, pauseMidi, currentTrack, setCurrentTrack } ) => {
 
     const windowSize: WindowSize = useWindowSize();
-    const svgWidth = windowSize.width - 4;
-    const svgHeight = windowSize.height - 64;
-    const scrollHeight = svgHeight - 200;
-    const minXScroll = svgWidth / 2 - svgWidth / 8;
-    const maxXScroll = -svgWidth + -svgWidth / 2;
-    let noteAmount = 2;
-    let maxYScroll = -svgWidth * noteAmount;
+    const svgWidth: number = windowSize.width - 4;
+    const svgHeight: number = windowSize.height - 64;
+    const scrollHeight: number = svgHeight - keyboardHeight;
+    const minXScroll: number = svgWidth / 2 - svgWidth / 8;
+    const maxXScroll: number = -svgWidth + -svgWidth / 2;
+    let noteAmount: number= 2;
+    let maxYScroll: number = -svgWidth * noteAmount;
     let transportPosition = 0;
     let part: Tone.Part | null = null;
     let loopIntervalId: any | null = null;
-    let isPlaying = false;
-    let mouseDown = false;
+    let isPlaying: boolean = false;
+    let mouseDown: boolean = false;
     let noteData: NoteData[] = [];
     let keyData: KeyData[];
-    let initialXScroll = -svgWidth + svgWidth / 3;
-    let initialYScroll = scrollHeight / 2;
-    const synthsRef = useRef<any[]>([]);
+    let initialXScroll: number = -svgWidth + svgWidth / 3;
+    let initialYScroll: number = scrollHeight / 2;
+    const synthsRef = useRef<Tone.PolySynth[]>([]);
 
     const updateNotePositions = () => {
         const activeNotes: string[] = [];
-        const currentTime = Tone.Transport.seconds * 500;
+        const currentTime = Tone.Transport.seconds * durationHeight;
 
         setTimeout(() => {
             if (isPlaying === true) {
@@ -68,7 +70,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             if (tempoEvent.ticks <= note.ticks && parsedMidi.midi !== null) {
                                 beatsPerMinute = tempoEvent.bpm;
                                 noteStartTime =
-                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * 500; 
+                                (note.ticks / parsedMidi.midi.header.ppq) * (60 / beatsPerMinute) * durationHeight; 
                             }
                         });
           
@@ -79,7 +81,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
           
                         rect.attr('y', yPosition).attr('x', initialX);
                     
-                        if (yPosition < -200 && yPosition > -200 - note.duration * 500) {
+                        if (yPosition < -keyboardHeight && yPosition > -keyboardHeight - note.duration * durationHeight) {
                             activeNotes.push(note.name);
                         }
                     }
@@ -113,8 +115,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             await Tone.start().then(() => {
                 if (parsedMidi.midi !== null) {
                     parsedMidi.midi.tracks.forEach((track: TrackJSON, index: number) => {
-                        synthsRef.current.push(new Tone.PolySynth().toDestination());
-                        const synth = synthsRef.current[index];
+                        const synth = new Tone.PolySynth().toDestination();
+                        const volume = new Tone.Volume(volumeValue).toDestination();
+
+                        synth.connect(volume);
+
+                        synthsRef.current.push(synth);
                         part = new Tone.Part((time, event) => {
                             time = transportPosition === 0 ? time + 0.5 : time + 0.5;
                             const { note, velocity, duration } = event;
@@ -140,8 +146,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
         while (synthsRef.current.length) {
             const synth = synthsRef.current.shift();
-            synth.releaseAll();
-            synth.disconnect();
+            if (synth !== undefined) {
+                synth.releaseAll();
+                synth.disconnect();
+            }   
         }
 
         isPlaying = false;
@@ -174,17 +182,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         const keyboardContainer = svg.append('g')
             .attr('transform', 'translate(0, 0)')
             .attr('width', svgWidth)
-            .attr('height', 200);
+            .attr('height', keyboardHeight);
 
         const createKeyboard = (initialX: number): void => {
             keyData = keys.filter((filter: Key ) => filter.name !== 'ghostnote' ).map((key: Key) => {
                 let isPlaying: boolean = false;
                 const pianoKey = keyboardContainer.append('rect')
-                    .attr('height', key.isNatural ? 200 : 130)
-                    .attr('width', key.isNatural ? 50 : 25)
+                    .attr('height', key.isNatural ? naturalKeyHeight : sharpKeyHeight)
+                    .attr('width', key.isNatural ? naturalKeyWidth : sharpKeyWidth)
                     .attr('fill', isPlaying ? key.isNatural ? 'red' : 'orange' : key.isNatural ? 'ghostwhite' : 'darkslategray')
-                    .attr('y', key.isNatural ? 0 : 0 + 70)
-                    .attr('x', key.isNatural ? key.index * 25 - 350 : key.index * 25 - 350 + 12)
+                    .attr('y', key.isNatural ? 0 : naturalKeyHeight - sharpKeyHeight)
+                    .attr('x', key.isNatural ? key.index * xPosSpacing - 350 : key.index * xPosSpacing - 350 + 12)
                     .attr('ry', "4")
                     .attr('stroke', "darkslategray")
                     .on('mouseenter', function () {
@@ -245,16 +253,16 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             let minX = -1;
             let maxX = -1;
             if (notes.length > 0) {
-                minX = indexes.indexOf(notes[0].midi) * 25;
-                maxX = indexes.indexOf(notes[0].midi) * 25;
+                minX = indexes.indexOf(notes[0].midi) * xPosSpacing;
+                maxX = indexes.indexOf(notes[0].midi) * xPosSpacing;
             }
             noteData = notes.map((note: NoteJSON) => {
                 const dur = note.duration === 0 ? 0.1 : note.duration;
                 const xOffset = noteOffsetPosition(note.name);
                 const width = noteWidth(note.name);
-                const xPos = indexes.indexOf(note.midi) * 25 + xOffset;
+                const xPos = indexes.indexOf(note.midi) * xPosSpacing + xOffset;
                 const rect = scrollContainer.append('rect')
-                    .attr('height', dur * 500)
+                    .attr('height', dur * durationHeight)
                     .attr('width', width)
                     .attr('fill', note.name.length === 3 ? 'orange' : 'red')
                     .attr('y', note.ticks / 1.5)
@@ -405,8 +413,10 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         Tone.Transport.ticks = 0;
         while (synthsRef.current.length) {
             const synth = synthsRef.current.shift();
-            synth.releaseAll();
-            synth.disconnect();
+            if (synth !== undefined) {
+                synth.releaseAll();
+                synth.disconnect();
+            }   
         }
         transportPosition = 0;
         isPlaying = false;
@@ -420,6 +430,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         }
     }, [parsedMidi]);
 
+    useEffect(() => {
+        if (synthsRef.current.length > 0) {
+            synthsRef.current.forEach(( volume ) => {
+                volume.volume.value = volumeValue;
+            });
+        }
+    }, [volumeValue]);
+
 return (<>
         <div className='viz-wrapper'>
             <div id="midi-visualization">
@@ -432,6 +450,7 @@ const mapStateToProps = (state: RootState): VisualizerStateProps => ({
     parsedMidi: state.midi.parsedMidi,
     midiIsPlaying: state.visualizer.midiIsPlaying,
     currentTrack: state.visualizer.currentTrack,
+    volumeValue: state.visualizer.volume,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch): VisualizerDispatchProps => ({
