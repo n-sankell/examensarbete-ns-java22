@@ -8,10 +8,12 @@ export const SHOW_USER_MIDIS = 'SHOW_USER_MIDIS';
 export const CLOSE_USER_MIDIS = 'CLOSE_USER_MIDIS';
 export const SHOW_PUBLIC_MIDIS = 'SHOW_PUBLIC_MIDIS';
 export const CLOSE_PUBLIC_MIDIS = 'CLOSE_PUBLIC_MIDIS';
-export const SHOW_EDIT_USER_MODAL = 'SHOW_EDIT_USER_MODAL'
-export const CLOSE_EDIT_USER_MODAL = 'CLOSE_EDIT_USER_MODAL'
-export const SHOW_EDIT_MIDI_MODAL = 'SHOW_EDIT_MIDI_MODAL'
-export const CLOSE_EDIT_MIDI_MODAL = 'CLOSE_EDIT_MIDI_MODAL'
+export const SHOW_EDIT_USER_MODAL = 'SHOW_EDIT_USER_MODAL';
+export const CLOSE_EDIT_USER_MODAL = 'CLOSE_EDIT_USER_MODAL';
+export const SHOW_EDIT_MIDI_MODAL = 'SHOW_EDIT_MIDI_MODAL';
+export const CLOSE_EDIT_MIDI_MODAL = 'CLOSE_EDIT_MIDI_MODAL';
+export const SHOW_OPEN_MIDI = 'SHOW_OPEN_MIDI';
+export const CLOSE_OPEN_MIDI = 'CLOSE_OPEN_MIDI';
 
 interface ShowLoginModal {
     type: typeof SHOW_LOGIN_MODAL;
@@ -62,6 +64,13 @@ interface CloseUserMidis {
     type: typeof CLOSE_USER_MIDIS;
 }
 
+interface ShowOpenMidi {
+    type: typeof SHOW_OPEN_MIDI;
+}
+interface CloseOpenMidi {
+    type: typeof CLOSE_OPEN_MIDI;
+}
+
 export type DisplayAction =
     | ShowLoginModal
     | CloseLoginModal
@@ -76,7 +85,9 @@ export type DisplayAction =
     | ShowEditUserModal
     | CloseEditUserModal
     | ShowEditMidiModal
-    | CloseEditMidiModal;
+    | CloseEditMidiModal
+    | ShowOpenMidi
+    | CloseOpenMidi;
 
 export interface DisplayState {
     showLoginModal: boolean;
@@ -86,4 +97,5 @@ export interface DisplayState {
     showPublicMidis: boolean;
     showEditUserModal: boolean;
     showEditMidiModal: boolean;
+    showOpenMidiModal: boolean;
 }

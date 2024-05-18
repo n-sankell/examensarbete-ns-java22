@@ -8,6 +8,7 @@ const initialState: display.DisplayState = {
     showUserMidis: false,
     showEditUserModal: false,
     showEditMidiModal: false,
+    showOpenMidiModal: false,
 };
 
 const displayReducer = (state = initialState, action: display.DisplayAction): display.DisplayState => {
@@ -81,6 +82,16 @@ const displayReducer = (state = initialState, action: display.DisplayAction): di
             return {
                 ...state,
                 showUserMidis: false,
+            }
+        case display.SHOW_OPEN_MIDI:
+            return {
+                ...state,
+                showOpenMidiModal: true,
+            }
+        case display.CLOSE_OPEN_MIDI:
+            return {
+                ...state,
+                showOpenMidiModal: false,
             }
         default:
             return state;

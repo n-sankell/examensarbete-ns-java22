@@ -1,0 +1,126 @@
+.open-midi {
+    border: 1px solid darkslategray;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    height: 100%;
+    background: rgb(134, 160, 169);
+}
+
+.open-midi-form {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.open-button {
+    border: 1px solid darkslategray;
+    border-radius: 5px;
+    margin-top: 15%;
+    background-color: whitesmoke;
+    width: 120px;
+    height: 50px;
+    align-self: center;
+    color: darkslategray;
+    text-transform: uppercase;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.open-button:hover {
+    background-color: darkgrey;
+    cursor: pointer;
+}
+
+.open-button:disabled {
+    background-color: lightgray;
+    color: darkgray;
+}
+
+.open-button:hover:disabled {
+    background-color: lightgray;
+    cursor: default;
+}
+
+.checkbox-wrapper {
+    margin-top: 25px;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+.extra-space {
+    width: 100%;
+    padding-top: 50px;
+}
+
+.box-label {
+    height: 100%;
+    margin-left: 10px;
+    color: darkslategray;
+    font-style: italic;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.input-open {
+    border-radius: 3px;
+    background-color: whitesmoke;
+    border: 1px solid darkslategray;
+    height: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 8px;
+    color: darkslategray;
+}
+
+.input-open:hover {
+    background-color: lightgray;
+}
+
+#input-add-file {
+    display: none;
+}
+
+.open-file-input-label:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+.open-file-input-label {
+    overflow: hidden;
+    align-self: center;
+    border-radius: 3px;
+    background-color: whitesmoke;
+    border: 1px solid darkslategray;
+    height: 24px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+    color: darkslategrey;
+    width: 125px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.parse-midi-failure {
+    width: 160px;
+    bottom: 50px;
+    height: 50px;
+    margin-bottom: -51px;
+}

@@ -1,4 +1,4 @@
-import { closeCreateMidiModal, closeCreateUserModal, closeEditUserModal, closeLoginModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayEditUserModal, displayLoginModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
+import { closeCreateMidiModal, closeCreateUserModal, closeEditUserModal, closeLoginModal, closeOpenMidiModal, closePublicMidis, closeUserMidis, displayCreateMidiModal, displayCreateUserModal, displayEditUserModal, displayLoginModal, displayOpenMidiModal, displayPublicMidis, displayUserMidis } from "../../actions/displayActions";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import UserSvg from '../../../assets/user-alt-1-svgrepo-com.svg';
 import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
@@ -27,6 +27,8 @@ interface DispatchProps {
     displayCreateMidiModal: () => void;
     displayUserMidis: () => void;
     displayPublicMidis: () => void;
+    displayOpenMidiModal: () => void;
+    closeOpenMidiModal: () => void;
     closeCreateMidiModal: () => void;
     closeCreateUserModal: () => void;
     closeEditUserModal: () => void;
@@ -37,7 +39,7 @@ interface DispatchProps {
 }
 interface HeaderProps extends StateProps, DispatchProps {}
 
-const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, midiIsPlaying, 
+const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, parsedMidi, midiIsPlaying, displayOpenMidiModal, closeOpenMidiModal,
     displayLoginModal, displayCreateUserModal, displayEditUserModal, displayCreateMidiModal, displayUserMidis, displayPublicMidis, 
     closeLoginModal, closeCreateUserModal, closeCreateMidiModal, closeUserMidis, closePublicMidis, closeEditUserModal }) => {
 
@@ -73,6 +75,11 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
         setMenuOpen(false);
         displayPublicMidis();
     };
+    const localFileClick = () => {
+        closeAllModals();
+        setMenuOpen(false);
+        displayOpenMidiModal();
+    };
     const userAccountClick = () => {
         closeAllModals();
         setMenuOpen(false);
@@ -85,6 +92,7 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
         closePublicMidis();
         closeUserMidis();
         closeEditUserModal();
+        closeOpenMidiModal();
     }
 
     useEffect((): void => {
@@ -111,6 +119,8 @@ const Header: React.FC<HeaderProps> = ( { loggedIn, user, userMidis, logout, par
                 <ul className="sidebarMenuInner">
                     <li><div className="menu-button" onClick={ publicMidisClick } >
                         <span className="buttonText">Public midis</span></div></li>
+                    <li><div className="menu-button" onClick={ localFileClick } >
+                        <span className="buttonText">Local file</span></div></li>
                     { loggedIn === true ? 
                     <li><div className="menu-button" onClick={ addButtonClick } >
                         <span className="buttonText">Create new midi</span></div></li>
@@ -181,6 +191,8 @@ const mapStateToProps = (state: RootState): StateProps => ({
     closeCreateMidiModal: bindActionCreators(closeCreateMidiModal, dispatch),
     closeUserMidis: bindActionCreators(closeUserMidis, dispatch),
     closePublicMidis: bindActionCreators(closePublicMidis, dispatch),
+    displayOpenMidiModal: bindActionCreators(displayOpenMidiModal, dispatch),
+    closeOpenMidiModal: bindActionCreators(closeOpenMidiModal, dispatch),
     logout: bindActionCreators(logout, dispatch),
   });
   
