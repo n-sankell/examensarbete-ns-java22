@@ -4,6 +4,7 @@ import { setVolume } from "../../actions/visualizerActions";
 import { connect } from "react-redux";
 import PlaySvg from '../../../assets/play-player-music-svgrepo-com.svg';
 import PauseSvg from '../../../assets/pause-circle-svgrepo-com.svg';
+import { useEffect } from "react";
 
 interface DispatchProps {
     setVolume: (volume: number) => void;
@@ -20,7 +21,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ( { volume, setVolume, midiIsP
         const volumeValue = event.target.value;
         setVolume(volumeValue);
     };
-    
+
+    useEffect(() => {
+    }, [volume])
+
     return ( 
         <div className="control-panel"> 
             <img 

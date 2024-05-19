@@ -54,6 +54,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     let initialXScroll: number = -svgWidth + svgWidth / 3;
     let initialYScroll: number = scrollHeight / 2;
     const synthsRef = useRef<Tone.PolySynth[]>([]);
+    const volumeRef = useRef<number>(volumeValue);
 
     const updateNotePositions = () => {
         const activeNotes: string[] = [];
@@ -115,12 +116,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             await Tone.start().then(() => {
                 if (parsedMidi.midi !== null) {
                     parsedMidi.midi.tracks.forEach((track: TrackJSON, index: number) => {
-                        const synth = new Tone.PolySynth().toDestination();
-                        const volume = new Tone.Volume(volumeValue).toDestination();
-
+                        const synth: Tone.PolySynth = new Tone.PolySynth().toDestination();
+                        const volume: Tone.Volume = new Tone.Volume(volumeRef.current).toDestination();
                         synth.connect(volume);
-
-                        synthsRef.current.push(synth);
+                        synth.volume.value = volumeRef.current;
+                        
+                        synthsRef.current.push( synth );
                         part = new Tone.Part((time, event) => {
                             time = transportPosition === 0 ? time + 0.5 : time + 0.5;
                             const { note, velocity, duration } = event;
@@ -156,7 +157,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         pauseMidi();
     }
 
-    const playButtonClick = async () => {
+    const playButtonClick = () => {
         if (!isPlaying) {
             startPlayback();
         } else {
@@ -416,7 +417,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
             if (synth !== undefined) {
                 synth.releaseAll();
                 synth.disconnect();
-            }   
+            }
         }
         transportPosition = 0;
         isPlaying = false;
@@ -425,15 +426,16 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     useEffect(() => {
         cleanup();
         visualizeData();
-        return () => { 
-            startPlayback(); 
+        return () => {
+            startPlayback();
         }
     }, [parsedMidi]);
 
     useEffect(() => {
+        volumeRef.current = volumeValue;
         if (synthsRef.current.length > 0) {
-            synthsRef.current.forEach(( volume ) => {
-                volume.volume.value = volumeValue;
+            synthsRef.current.forEach(( synth ) => {
+                synth.volume.value = volumeValue;
             });
         }
     }, [volumeValue]);

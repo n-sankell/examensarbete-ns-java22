@@ -14,6 +14,6 @@ export const pauseMidi = (): ThunkAction<void, RootState, null, VisualizerAction
   dispatch({ type: PAUSE_MIDI });
 };
 
-export const setVolume = (volume: number): ThunkAction<void, RootState, null, VisualizerAction> => (dispatch) => {
+export const setVolume = (volume: number): ThunkAction<void, RootState, null, VisualizerAction> => async (dispatch) => {
   dispatch({ type: SET_VOLUME, payload: volume });
   };
