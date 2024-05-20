@@ -77,14 +77,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             }
                         });
           
-                        const yPosition = Math.max(noteStartTime - currentTime, maxYScroll * 10);
+                        const yPosition = Math.max(noteStartTime - currentTime + 100, maxYScroll * 10);
                         if (isNaN(yPosition)) {
                             console.error('NaN yPosition:', { note, currentTime, noteStartTime, initialYScroll });
                         }
           
                         rect.attr('y', yPosition).attr('x', initialX);
                     
-                        if (yPosition < -keyboardHeight && yPosition > -keyboardHeight - note.duration * durationHeight) {
+                        if (yPosition < -scrollHeight/2 - -keyboardHeight && yPosition > (-scrollHeight/2 - -keyboardHeight) - note.duration * durationHeight) {
                             activeNotes.push(note.name);
                         }
                     }
