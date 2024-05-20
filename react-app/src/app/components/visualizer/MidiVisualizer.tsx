@@ -55,6 +55,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     let initialYScroll: number = scrollHeight / 2;
     const synthsRef = useRef<Tone.PolySynth[]>([]);
     const volumeRef = useRef<number>(volumeValue);
+    const midiRef = useRef<MidiWrapper>( { midi: null } );
 
     const updateNotePositions = () => {
         const activeNotes: string[] = [];
@@ -62,6 +63,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
         setTimeout(() => {
             if (isPlaying === true) {
+                
                 noteData.forEach(({ note, initialX, rect }) => {
                     if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
                         let noteStartTime = 0;
@@ -424,6 +426,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     }
 
     useEffect(() => {
+        midiRef.current = parsedMidi;
         cleanup();
         visualizeData();
         return () => {

@@ -40,7 +40,7 @@
     width: 60px;
     height: 60px;
 }
-.play-icon:hover {
+.pause-icon:hover {
     opacity: 70%;
     cursor: pointer;
 }
