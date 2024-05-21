@@ -149,9 +149,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
     const yPositionToTransportTime = (yPosition: number, beatsPerMinute: number, ppq: number) => {
         const noteStartTime = yPosition / durationHeight;
-        console.log(scrollOffset.current);
         const transportTime = noteStartTime - ((scrollOffset.current / (-scrollOffset.current*0.0012))) / durationHeight;
-        console.log(transportTime);
         return transportTime < 0 ? 0 : transportTime;
     };
 
