@@ -19,6 +19,9 @@ export const EDIT_PASSWORD_FAILURE = 'EDIT_PASSWORD_FAILURE';
 export const DELETE_USER_REQUEST = 'DELETE_USER_REQUEST';
 export const DELETE_USER_SUCCESS = 'DELETE_USER_SUCCESS';
 export const DELETE_USER_FAILURE = 'DELETE_USER_FAILURE';
+export const FETCH_USER_REQUEST = 'FETCH_USER_REQUEST';
+export const FETCH_USER_SUCCESS = 'FETCH_USER_SUCCESS';
+export const FETCH_USER_FAILURE = 'FETCH_USER_FAILURE';
 
 interface LoginUserRequestAction {
   type: typeof LOGIN_USER_REQUEST;
@@ -111,6 +114,17 @@ interface HideUserErrors {
 interface HideUserMessage {
   type: typeof HIDE_USER_MESSAGE;
 }
+interface FetchUserRequest {
+  type: typeof FETCH_USER_REQUEST;
+}
+interface FetchUserSuccess {
+  type: typeof FETCH_USER_SUCCESS;
+  payload: User;
+}
+interface FetchUserFailure {
+  type: typeof FETCH_USER_FAILURE;
+  payload: string;
+}
 
 export type UserAction = 
   | LogoutUserAction
@@ -130,7 +144,10 @@ export type UserAction =
   | DeleteUserSuccessAction
   | DeleteUserFailureAction
   | HideUserErrors
-  | HideUserMessage;
+  | HideUserMessage
+  | FetchUserRequest
+  | FetchUserSuccess
+  | FetchUserFailure;
 
 export interface UserState {
   loggedIn: boolean;
@@ -139,6 +156,7 @@ export interface UserState {
   token: string;
   error: string | null;
   userMidis: Midis | null;
+  updateUser: boolean;
   displayLoginError: boolean;
   displayCreateUserError: boolean;
   displayCreateUserSuccess: boolean;
@@ -148,4 +166,6 @@ export interface UserState {
   displayDeleteUserSuccess: boolean;
   displayUpdatePasswordSuccess: boolean;
   displayUpdatePasswordError: boolean;
+  displayFetchUserSuccess: boolean;
+  displayFetchUserError: boolean;
 }

@@ -1,7 +1,7 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store';
 import { Configuration, DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, ErrorResponse, ErrorResponseFromJSON, UserApi, UserCreateRequest, UserLoginRequest, ValidationError, ValidationException, ValidationExceptionFromJSON, instanceOfErrorResponse, instanceOfValidationException } from '../../generated/user-api';
-import { UserAction, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE, LOGOUT_USER, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, EDIT_USER_FAILURE, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE, HIDE_USER_ERRORS, HIDE_USER_MESSAGE } from './userActionTypes';
+import { UserAction, LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE, LOGOUT_USER, CREATE_USER_REQUEST, CREATE_USER_SUCCESS, CREATE_USER_FAILURE, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, EDIT_USER_FAILURE, EDIT_PASSWORD_REQUEST, EDIT_PASSWORD_SUCCESS, EDIT_PASSWORD_FAILURE, DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE, HIDE_USER_ERRORS, HIDE_USER_MESSAGE, FETCH_USER_REQUEST, FETCH_USER_SUCCESS, FETCH_USER_FAILURE } from './userActionTypes';
 import { ResponseError } from '../../generated/user-api';
 
 export const login = (request: UserLoginRequest): ThunkAction<void, RootState, null, UserAction> => async (dispatch) => {
@@ -82,6 +82,18 @@ export const hideUserErrors = (): ThunkAction<void, RootState, null, UserAction>
 }
 export const hideUserMessage = (): ThunkAction<void, RootState, null, UserAction> => (dispatch) => {
     dispatch({ type: HIDE_USER_MESSAGE });
+}
+export const fetchUserDetails = (): ThunkAction<void, RootState, null, UserAction> => async (dispatch, getState) => {
+    dispatch({ type: FETCH_USER_REQUEST });
+    try {
+        const token: string = getState().user.token;
+        const userApi = new UserApi(new Configuration({accessToken: token})); 
+        const response = await userApi.getUserDetails();
+        dispatch({ type: FETCH_USER_SUCCESS, payload: response });
+    } catch (error) {
+        const message: string = await packageUserError(error, FETCH_USER_FAILURE);
+        dispatch({ type: FETCH_USER_FAILURE, payload: message });
+    }
 }
 
 const packageUserError = async (error: unknown, type: string): Promise<string> => {
