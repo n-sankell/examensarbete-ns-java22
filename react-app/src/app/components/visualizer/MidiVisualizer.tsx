@@ -53,17 +53,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
     let keyData: KeyData[];
     let initialXScroll: number = -svgWidth + svgWidth / 3;
     let initialYScroll: number = scrollHeight / 2;
+    let scrollOffset: number = 0;
     const synthsRef = useRef<Tone.PolySynth[]>([]);
     const volumeRef = useRef<number>(volumeValue);
     const midiRef = useRef<MidiWrapper>( { midi: null } );
 
     const updateNotePositions = () => {
-        const activeNotes: string[] = [];
-        const currentTime = Tone.Transport.seconds * durationHeight;
+        if (isPlaying === true) {
+            const activeNotes: string[] = [];
+            const currentTime = Tone.Transport.seconds * durationHeight;
 
-        setTimeout(() => {
-            if (isPlaying === true) {
-                
+            setTimeout(() => {
                 noteData.forEach(({ note, initialX, rect }) => {
                     if (note && typeof note.ticks !== 'undefined' && parsedMidi.midi !== null) {
                         let noteStartTime = 0;
@@ -77,14 +77,14 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                             }
                         });
           
-                        const yPosition = Math.max(noteStartTime - currentTime + 100, maxYScroll * 10);
+                        const yPosition = Math.max(noteStartTime - currentTime + 100  + scrollOffset, maxYScroll * 10);
                         if (isNaN(yPosition)) {
                             console.error('NaN yPosition:', { note, currentTime, noteStartTime, initialYScroll });
                         }
           
-                        rect.attr('y', yPosition).attr('x', initialX);
+                        rect.attr('y', yPosition);
                     
-                        if (yPosition < -scrollHeight/2 - -keyboardHeight && yPosition > (-scrollHeight/2 - -keyboardHeight) - note.duration * durationHeight) {
+                        if (yPosition < -scrollHeight/2 - -keyboardHeight - scrollOffset && yPosition > (-scrollHeight/2 - -keyboardHeight - scrollOffset) - note.duration * durationHeight) {
                             activeNotes.push(note.name);
                         }
                     }
@@ -97,23 +97,27 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                         key.pianoKey.attr('fill', key.key.isNatural ? 'ghostwhite' : 'darkslategray');
                     }
                 });
-            }
-            requestAnimationFrame(debouncedUpdate);
-        }, 1); 
+            
+                requestAnimationFrame(debouncedUpdate);
+            }, 1); 
+        }
     }
 
     const debouncedUpdate = debounce(updateNotePositions, 1);
 
     const startPlayback = async () => {
         if (!isPlaying) {
+
             Tone.Transport.start();
 
+            loopIntervalId = setInterval(() => {
+                if (isPlaying) {
+                    updateNotePositions();
+                }
+            }, 1000 / 16);
+            
             isPlaying = true;
             playMidi();
-
-            loopIntervalId = setInterval(() => {
-                updateNotePositions();
-            }, 1000 / 16);
 
             await Tone.start().then(() => {
                 if (parsedMidi.midi !== null) {
@@ -141,6 +145,12 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         }
     };
 
+    const yPositionToTransportTime = (yPosition: number, durationHeight: number, beatsPerMinute: number, ppq: number) => {
+        const noteStartTime = yPosition / durationHeight;
+        const transportTime = (yPosition / ppq) * (60 / beatsPerMinute); 
+        return transportTime;
+    };
+
     const pausePlayback = () => {
         Tone.Transport.pause();
 
@@ -157,6 +167,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
 
         isPlaying = false;
         pauseMidi();
+
     }
 
     const playButtonClick = () => {
@@ -264,6 +275,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const xOffset = noteOffsetPosition(note.name);
                 const width = noteWidth(note.name);
                 const xPos = indexes.indexOf(note.midi) * xPosSpacing + xOffset;
+                
                 const rect = scrollContainer.append('rect')
                     .attr('height', dur * durationHeight)
                     .attr('width', width)
@@ -343,6 +355,17 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
                 const currentYScroll = +((matchTransform && matchTransform[2]) || initialYScroll);
                 const newScrollY = Math.max(currentYScroll + delta, maxYScroll);
                 scrollContainer.attr('transform', `translate(${currentXScroll}, ${newScrollY})`);
+
+                scrollOffset += delta;
+
+                if (parsedMidi.midi !== null && delta !== 0) {
+                    console.log("Current time: " + Tone.Transport.seconds);
+                    const transportTime = yPositionToTransportTime(-newScrollY, durationHeight, parsedMidi.midi.header.tempos[0].bpm, parsedMidi.midi.header.ppq);
+                    Tone.Transport.seconds = transportTime;
+                    transportPosition = transportTime;
+                    console.log("new time: " + transportTime);
+                    
+                }
             }
         });
 
