@@ -4,7 +4,7 @@
 
 ### About
 
-This project is a we based app that lets the user load midi files.
+This project is a web based app that lets the user load midi files.
 The user can playback the file and visualize the notes for piano practicing. 
 
 

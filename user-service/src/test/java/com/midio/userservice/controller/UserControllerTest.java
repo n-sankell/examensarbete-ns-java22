@@ -217,7 +217,7 @@ public class UserControllerTest {
 
     @ParameterizedTest
     @MethodSource("tokenTypeAndStatusCodeForAuthorizedUserOperations")
-    void editMidiMeta(TokenType tokenType, HttpStatus status) throws Exception {
+    void editUserDetails(TokenType tokenType, HttpStatus status) throws Exception {
         var oldUsername = "Arnold";
         var oldEmail = "old.mail@google.com";
         var newUsername = "Leopold";
@@ -347,6 +347,7 @@ public class UserControllerTest {
             );
             assertEquals(status, editResponse.getStatusCode());
             // Login with old password should be successful
+
             var newLoginResponse = mockApi.login(new UserLoginRequestDto().userIdentifier(email).password(password));
             assertEquals(OK, newLoginResponse.getStatusCode());
         }

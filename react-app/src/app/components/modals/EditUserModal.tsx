@@ -1,7 +1,7 @@
 import { DeleteUserRequest, EditUserDetailsRequest, EditUserPasswordRequest, User } from "../../../generated/user-api";
 import { ThunkDispatch, bindActionCreators } from "@reduxjs/toolkit";
 import { closeEditUserModal } from "../../actions/displayActions";
-import { deleteUser, editPassword, editUser, hideUserErrors, hideUserMessage } from "../../actions/userActions";
+import { deleteUser, editPassword, editUser, fetchUserDetails, hideUserErrors, hideUserMessage } from "../../actions/userActions";
 import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
@@ -17,6 +17,7 @@ interface DispatchProps {
     hideUserMessage: () => void;
     hideUserErrors: () => void;
     closeEditUserModal: () => void;
+    getUserDetails: () => void;
 }
 interface StateProps {
     error: string | null;
@@ -27,10 +28,11 @@ interface StateProps {
     displayUpdatePasswordSuccess: boolean;
     displayUpdatePasswordError: boolean;
     displayDeleteUserError: boolean;
+    updateUser: boolean,
 }
 interface EditUserModalProps extends StateProps, DispatchProps {}
 
-const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, displayUpdatePasswordSuccess, editUser, editPassword, closeEditUserModal, user, deleteUser, userMidis, hideUserMessage, displayUpdateUserSuccess, displayUpdateUserError, hideUserErrors, error, displayUpdatePasswordError } ) => {
+const EditUserModal: React.FC<EditUserModalProps> = ( { updateUser, getUserDetails, displayDeleteUserError, displayUpdatePasswordSuccess, editUser, editPassword, closeEditUserModal, user, deleteUser, userMidis, hideUserMessage, displayUpdateUserSuccess, displayUpdateUserError, hideUserErrors, error, displayUpdatePasswordError } ) => {
     if (user !== null) {
     const [username, setUsername] = useState<string>(user.username);
     const [email, setEmail] = useState<string>(user.email);
@@ -152,6 +154,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ( { displayDeleteUserError, 
     
     useEffect((): void => {
     }, []);
+
+    useEffect((): void => {
+        if (updateUser === true) {
+            getUserDetails();
+        }
+    }, [updateUser, user]);
 
     useEffect((): void => {
         if (displayUpdatePasswordSuccess === true) {
@@ -332,6 +340,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
     displayUpdatePasswordError: state.user.displayUpdatePasswordError,
     displayUpdatePasswordSuccess: state.user.displayUpdatePasswordSuccess,
     displayDeleteUserError: state.user.displayDeleteUserError,
+    updateUser: state.user.updateUser,
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): DispatchProps => ({
@@ -341,6 +350,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, any>): Disp
     deleteUser: bindActionCreators(deleteUser, dispatch),
     hideUserMessage: bindActionCreators(hideUserMessage, dispatch),
     hideUserErrors: bindActionCreators(hideUserErrors, dispatch),
+    getUserDetails: bindActionCreators(fetchUserDetails, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditUserModal);

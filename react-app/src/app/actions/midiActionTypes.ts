@@ -192,5 +192,7 @@ export interface MidiState {
     displayDeleteMidiError: boolean;
     displayEditMidiError: boolean;
     displayEditMidiSuccess: boolean;
+    displayParseMidiError: boolean;
+    displayParseMidiSuccess: boolean;
     parsedMidi: MidiWrapper;
 }

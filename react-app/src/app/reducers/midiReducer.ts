@@ -20,6 +20,8 @@ const initialState: MidiState = {
   	displayDeleteMidiError: false,
 	displayEditMidiError: false,
   	displayEditMidiSuccess: false,
+	displayParseMidiError: false,
+  	displayParseMidiSuccess: false,
   	parsedMidi: defaultMidi,
 };
 
@@ -125,11 +127,13 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
 				...state,
 				error: action.payload,
 				loading: false,
+				displayParseMidiError: true,
 			};
 		case PARSE_MIDI_SUCCESS:
 			return {
 				...state,
 				parsedMidi: action.payload,
+				displayParseMidiSuccess: true,
 				loading: false,
 			};
 		case HIDE_MIDI_ERRORS:
@@ -142,6 +146,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
 				displayCreateMidiError: false,
 				displayDeleteMidiError: false,
 			  	displayEditMidiError: false,
+				displayParseMidiError: false,
 			}
 		case HIDE_MIDI_MESSAGE:
 			return {
@@ -149,6 +154,7 @@ const midiReducer = (state = initialState, action: MidiAction): MidiState => {
 				error: null,
 				displayCreateMidiSuccess: false,
 				displayEditMidiSuccess: false,
+				displayParseMidiSuccess: false,
 			}
     	default:
     		return state;

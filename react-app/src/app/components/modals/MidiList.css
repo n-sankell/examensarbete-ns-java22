@@ -207,6 +207,9 @@
   .prompt-button {
     margin: 10px;
   }
+  .prompt-button:hover {
+    cursor: pointer;
+  }
 
   .midi-text-field {
     display: flex;
