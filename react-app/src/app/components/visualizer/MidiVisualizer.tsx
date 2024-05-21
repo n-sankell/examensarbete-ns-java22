@@ -447,6 +447,7 @@ const MidiVisualizer: React.FC<VisualizerProps> = ( { parsedMidi, midiIsPlaying,
         }
         transportPosition = 0;
         isPlaying = false;
+        scrollOffset.current = 0;
     }
 
     useEffect(() => {

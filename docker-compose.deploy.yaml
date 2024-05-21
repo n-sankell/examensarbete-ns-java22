@@ -60,7 +60,7 @@ services:
 
   user-service:
     container_name: user-service
-    image: ghcr.io/n-sankell/examensarbete-ns-java22/user-service:master
+    image: ghcr.io/n-sankell/examensarbete-ns-java22/user-service:sha-265306f
     ports:
       - "8081:8081"
     environment:
@@ -74,7 +74,7 @@ services:
 
   midi-manager:
     container_name: midi-manager
-    image: ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:master
+    image: ghcr.io/n-sankell/examensarbete-ns-java22/midi-manager:sha-7dddff9
     ports:
       - "8082:8082"
     environment:
@@ -92,7 +92,7 @@ services:
 
   react-app:
     container_name: react-app
-    image: ghcr.io/n-sankell/examensarbete-ns-java22/react-app:master
+    image: ghcr.io/n-sankell/examensarbete-ns-java22/react-app:sha-265306f
     ports:
       - "3000:3000"
     networks:
