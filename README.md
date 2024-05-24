@@ -15,9 +15,6 @@ Backend is built with Java SpringBoot and Gradle and is split up between a user 
 **To run a local test environment in Docker, run:** `docker-compose -f docker-compose.test.yaml up -d --build`
 
 
-**To build images for kubernetes, run:** `docker-compose -f docker-compose.k8s.yaml build`
-
-
 **To build a local environment with git hub packages, run:** `docker-compose -f docker-compose.deploy.yaml up -d --build`
 
 
